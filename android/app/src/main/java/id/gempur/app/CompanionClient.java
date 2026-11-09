@@ -26,16 +26,22 @@ public final class CompanionClient {
         }catch(Exception e){throw new IllegalArgumentException("Gunakan alamat HTTPS server tanpa path atau token.");}
     }
     public synchronized JSONObject request(String method,String path,JSONObject payload) throws Exception{
-        String pending=store.get("pendingRevocation");
+        return requestPinned(method,path,payload,null);
+    }
+    public synchronized JSONObject requestPinned(String method,String path,JSONObject payload,JSONObject expectedRemoteContext) throws Exception{
+        JSONObject account=store.remoteContext();
+        if(expectedRemoteContext!=null)for(String key:new String[]{"endpoint","token","pendingRevocation","pairingId","deviceId","role","consentVersion","pendingAutomationOffPairing"})
+            if(!account.optString(key).equals(expectedRemoteContext.optString(key)))throw new Exception("Konteks akun berubah; permintaan lama tidak dikirim.");
+        String pending=account.optString("pendingRevocation");
         if(!pending.isEmpty() && !("DELETE".equals(method)&&path.equals("/api/pairings/"+pending)))
             throw new Exception("Berbagi dihentikan di HP ini. Sinkronkan pencabutan akses terlebih dahulu.");
-        String base=store.get("endpoint");
+        String base=account.optString("endpoint");
         if(base.isEmpty())throw new Exception("Atur server pendamping terlebih dahulu.");
         HttpURLConnection connection=(HttpURLConnection)new URL(base+path).openConnection();
         try{
             connection.setRequestMethod(method);connection.setConnectTimeout(12000);connection.setReadTimeout(12000);connection.setInstanceFollowRedirects(false);
             connection.setRequestProperty("Accept","application/json");
-            if(!store.get("token").isEmpty())connection.setRequestProperty("Authorization","Bearer "+store.get("token"));
+            if(!account.optString("token").isEmpty())connection.setRequestProperty("Authorization","Bearer "+account.optString("token"));
             if(payload!=null){connection.setDoOutput(true);connection.setRequestProperty("Content-Type","application/json");
                 byte[]bytes=payload.toString().getBytes(StandardCharsets.UTF_8);connection.setFixedLengthStreamingMode(bytes.length);
                 try(java.io.OutputStream out=connection.getOutputStream()){out.write(bytes);}}

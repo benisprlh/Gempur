@@ -2,7 +2,15 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { resolve, relative, sep, isAbsolute } from 'node:path';
 
-export const REQUIRED_STAGES = ['node-version', 'node-tests', 'java-version', 'gradle-version', 'android-build', 'apk-signature'];
+export const REQUIRED_STAGES = ['node-version', 'node-tests', 'java-version', 'gradle-version', 'android-build', 'apk-signature', 'private-apk-signature'];
+export const DISTRIBUTION_REPORTS = {
+  releaseManifest:'android/app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml',
+  debugManifest:'android/app/build/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml',
+  privateManifest:'android/app/build/intermediates/merged_manifests/privateDebug/processPrivateDebugManifest/AndroidManifest.xml',
+  releaseBuildConfig:'android/app/build/generated/source/buildConfig/release/id/gempur/app/BuildConfig.java',
+  debugBuildConfig:'android/app/build/generated/source/buildConfig/debug/id/gempur/app/BuildConfig.java',
+  privateBuildConfig:'android/app/build/generated/source/buildConfig/privateDebug/id/gempur/app/BuildConfig.java'
+};
 export const MAX_EVIDENCE_AGE_MS = 24 * 60 * 60 * 1000;
 const EXCLUDED_DIRS = new Set(['android/.gradle','android/build','android/app/build','android/engine/build','server/data','server/coverage']);
 const EXCLUDED_FILES = /(?:^\.env(?:\.|$)|^local\.properties$|\.(?:sqlite(?:-wal|-shm)?|db|log|jks|keystore|key|apk|aab|pyc)$)/i;
@@ -58,6 +66,39 @@ export function parseLint(xml) {
   const errorCount=issues.filter(m=>/severity=["'](?:Error|Fatal)["']/.test(m[1])).length;
   return {issues:issues.length,errors:errorCount,warnings:issues.length-errorCount};
 }
+/** Checks generated variant boundaries, not an assurance of Google Play eligibility. */
+export function parseDistribution(reports) {
+  const field=(source,name)=>{
+    const found=[...String(source).matchAll(new RegExp(`public\\s+static\\s+final\\s+boolean\\s+${name}\\s*=\\s*(true|false)\\s*;`,'g'))];
+    if(found.length!==1)throw new Error('Generated distribution flag missing or ambiguous');
+    return found[0][1]==='true';
+  };
+  const applicationId=source=>{
+    const found=String(source).match(/public\s+static\s+final\s+String\s+APPLICATION_ID\s*=\s*"([^"]+)"\s*;/);
+    if(!found)throw new Error('Generated application ID missing');return found[1];
+  };
+  for(const key of ['releaseManifest','debugManifest','privateManifest']){
+    if(!/<manifest\b/.test(reports[key]||'')||/<!DOCTYPE|<!ENTITY/i.test(reports[key]))throw new Error('Merged manifest missing or invalid');
+    if(/android\.permission\.QUERY_ALL_PACKAGES/.test(reports[key]))throw new Error('Broad package inventory permission is not permitted in any distribution');
+  }
+  const privateNames=['PrivateAutomationService','PrivateAppGuardService'];
+  for(const variant of ['release','debug']){
+    if(field(reports[variant+'BuildConfig'],'PRIVATE_BUILD'))throw new Error('Ordinary build enables private monitoring');
+    if(privateNames.some(name=>reports[variant+'Manifest'].includes(name)))throw new Error('Ordinary manifest exposes private monitoring');
+  }
+  if(!field(reports.privateBuildConfig,'PRIVATE_BUILD'))throw new Error('Private build does not enable its private flag');
+  const expected={release:'id.gempur.app',debug:'id.gempur.app.debug',private:'id.gempur.app.private.debug'};
+  for(const [variant,id] of Object.entries(expected))if(applicationId(reports[variant+'BuildConfig'])!==id)throw new Error('Distribution application IDs are not isolated');
+  const manifest=reports.privateManifest;
+  const queries=manifest.match(/<queries\b[^>]*>([\s\S]*?)<\/queries>/)?.[1];
+  if(!queries||!/<intent\b[^>]*>[\s\S]*?<action\b[^>]*android:name="android\.intent\.action\.MAIN"[^>]*\/>[\s\S]*?<category\b[^>]*android:name="android\.intent\.category\.LAUNCHER"[^>]*\/>[\s\S]*?<\/intent>/.test(queries))throw new Error('Private launchable-app query declaration missing');
+  for(const name of privateNames)if(!manifest.includes(name))throw new Error('Private service declaration missing');
+  const service=manifest.match(/<service\b[^>]*android:name="[^"]*PrivateAppGuardService"[^>]*>/)?.[0];
+  const monitor=manifest.match(/<service\b[^>]*android:name="[^"]*PrivateAutomationService"[^>]*>/)?.[0];
+  if(!service||!service.includes('android.permission.BIND_ACCESSIBILITY_SERVICE')||!/android:exported="true"/.test(service))throw new Error('Private accessibility service is not permission protected');
+  if(!monitor||!/android:exported="false"/.test(monitor)||!/android:foregroundServiceType="specialUse"/.test(monitor))throw new Error('Private automation service is not isolated and visible');
+  return {ordinaryMonitoringDisabled:true,privateMonitoringEnabled:true,ordinaryManifestIsolated:true,privateManifestDeclared:true,targetedAppVisibility:true,applicationIds:expected};
+}
 export function requireFresh(path, startedAtMs, finishedAtMs=Date.now()) {
   const s=lstatSync(path);
   if(s.isSymbolicLink() || !s.isFile() || s.size===0)throw new Error('Missing, empty or symbolic-link build output');
@@ -109,39 +150,49 @@ export function assess(evidence) {
   if(REQUIRED_STAGES.some(id=>!evidence.commands.some(c=>c.id===id&&c.exitCode===0)))return 'FAIL';
   const n=evidence.tests?.node;
   if(!n||!Number.isSafeInteger(n.tests)||n.tests<1||n.pass!==n.tests||['fail','skipped','cancelled','todo'].some(key=>n[key]!==0))return 'FAIL';
-  for(const group of ['engine','androidClient']){
+  for(const group of ['engine','androidClient','privateAndroidClient']){
     const counts=evidence.tests?.[group];
     if(!counts||!Number.isSafeInteger(counts.tests)||counts.tests<1||counts.failures!==0||counts.errors!==0||counts.skipped!==0)return 'FAIL';
   }
   if(!evidence.lint || evidence.lint.errors!==0||!Number.isSafeInteger(evidence.lint.issues)||evidence.lint.issues<0||evidence.lint.warnings!==evidence.lint.issues)return 'FAIL';
-  if(!Array.isArray(evidence.artifacts)||evidence.artifacts.length!==3)return 'FAIL';
+  if(!evidence.privateLint || evidence.privateLint.errors!==0||!Number.isSafeInteger(evidence.privateLint.issues)||evidence.privateLint.issues<0||evidence.privateLint.warnings!==evidence.privateLint.issues)return 'FAIL';
+  if(!evidence.distribution||['ordinaryMonitoringDisabled','privateMonitoringEnabled','ordinaryManifestIsolated','privateManifestDeclared','targetedAppVisibility'].some(key=>evidence.distribution[key]!==true))return 'FAIL';
+  if(!Array.isArray(evidence.artifacts)||evidence.artifacts.length!==4)return 'FAIL';
   return 'PASS';
 }
 export function checkEvidence(root,evidence,now=Date.now()) {
   const failures=[];
-  if(evidence.schemaVersion!==1 || evidence.mode!=='full' || evidence.status!=='PASS' || evidence.mergeEligible!==true)failures.push('Evidence is not a full PASS');
+  if(evidence.schemaVersion!==2 || evidence.mode!=='full' || evidence.status!=='PASS' || evidence.mergeEligible!==true)failures.push('Evidence is not a full PASS');
   if(!Number.isFinite(Date.parse(evidence.finishedAt)) || Date.parse(evidence.finishedAt)>now+60_000 || now-Date.parse(evidence.finishedAt)>MAX_EVIDENCE_AGE_MS)failures.push('Evidence is stale or has invalid finish time');
   if(!Number.isFinite(Date.parse(evidence.startedAt)) || Date.parse(evidence.startedAt)>Date.parse(evidence.finishedAt))failures.push('Evidence start time invalid');
   try{if(assess(evidence)!=='PASS')failures.push('Required stages, results or unchanged-source proof missing');}catch{failures.push('Evidence structure invalid');}
   try{const source=sourceFingerprint(root);if(source.sha256!==evidence.source?.before?.sha256 || source.sha256!==evidence.source?.after?.sha256)failures.push('Current source does not match tested source');}catch{failures.push('Current source cannot be fingerprinted');}
-  const counts={engine:{tests:0,failures:0,errors:0,skipped:0},androidClient:{tests:0,failures:0,errors:0,skipped:0}};
-  const reportsSeen=new Set();let lintSeen=false;
+  const counts={engine:{tests:0,failures:0,errors:0,skipped:0},androidClient:{tests:0,failures:0,errors:0,skipped:0},privateAndroidClient:{tests:0,failures:0,errors:0,skipped:0}};
+  const reportsSeen=new Set(),distributionReports={};let lintSeen=false,privateLintSeen=false;
   for(const item of evidence.reports||[]){
     try{
       const absolute=resolve(root,item.path);noSymlinkSegments(root,absolute);requireFresh(absolute,Date.parse(evidence.startedAt),Date.parse(evidence.finishedAt));
       const raw=readFileSync(absolute);
       if(reportsSeen.has(item.path)||raw.length!==item.bytes||sha256(raw)!==item.sha256)throw new Error('Report hash mismatch');
       reportsSeen.add(item.path);
-      const group=item.path.startsWith('android/engine/build/test-results/test/TEST-')?'engine':item.path.startsWith('android/app/build/test-results/testDebugUnitTest/TEST-')?'androidClient':null;
+      const group=item.path.startsWith('android/engine/build/test-results/test/TEST-')?'engine':item.path.startsWith('android/app/build/test-results/testDebugUnitTest/TEST-')?'androidClient':item.path.startsWith('android/app/build/test-results/testPrivateDebugUnitTest/TEST-')?'privateAndroidClient':null;
       if(group&&item.path.endsWith('.xml')){const parsed=parseJUnit(raw.toString('utf8'));for(const key of Object.keys(counts[group]))counts[group][key]+=parsed[key];}
       else if(item.path==='android/app/build/reports/lint-results-debug.xml'){
         lintSeen=true;const parsed=parseLint(raw.toString('utf8'));
         if(JSON.stringify(parsed)!==JSON.stringify(evidence.lint))throw new Error('Lint result mismatch');
-      }else throw new Error('Unexpected report');
+      }else if(item.path==='android/app/build/reports/lint-results-privateDebug.xml'){
+        privateLintSeen=true;const parsed=parseLint(raw.toString('utf8'));
+        if(JSON.stringify(parsed)!==JSON.stringify(evidence.privateLint))throw new Error('Private lint result mismatch');
+      }else {
+        const key=Object.entries(DISTRIBUTION_REPORTS).find(([,path])=>path===item.path)?.[0];
+        if(!key)throw new Error('Unexpected report');distributionReports[key]=raw.toString('utf8');
+      }
     }catch{failures.push('Report missing, stale, changed or invalid');}
   }
   for(const group of Object.keys(counts))if(counts[group].tests<1||Object.keys(counts[group]).some(key=>counts[group][key]!==evidence.tests?.[group]?.[key]))failures.push(`JUnit report counts do not match: ${group}`);
   if(!lintSeen)failures.push('Lint report missing');
+  if(!privateLintSeen)failures.push('Private lint report missing');
+  try{const distribution=parseDistribution(distributionReports);if(JSON.stringify(distribution)!==JSON.stringify(evidence.distribution))throw new Error('Distribution proof mismatch');}catch{failures.push('Distribution boundaries missing, changed or invalid');}
   try{
     const command=evidence.commands.find(item=>item.id==='node-tests');
     if(!command||!/^out\/verify\/[^/]+\/logs\/node-tests\.log$/.test(command.logPath))throw new Error('Node log missing');
@@ -151,6 +202,7 @@ export function checkEvidence(root,evidence,now=Date.now()) {
   }catch{failures.push('Node test log missing, stale, changed or invalid');}
   const expected=new Map([
     ['debug-apk','android/app/build/outputs/apk/debug/app-debug.apk'],
+    ['private-debug-apk','android/app/build/outputs/apk/privateDebug/app-privateDebug.apk'],
     ['release-aab','android/app/build/outputs/bundle/release/app-release.aab'],
     ['instrumentation-apk','android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk']
   ]);
@@ -163,7 +215,7 @@ export function checkEvidence(root,evidence,now=Date.now()) {
       if(current.sha256!==item.sha256 || current.bytes!==item.bytes || current.signing!==item.signing)failures.push(`Artifact mismatch: ${item.kind}`);
     }catch{failures.push(`Artifact missing, stale or invalid: ${item.kind}`);}
   }
-  if(seen.size!==3)failures.push('Required artifacts missing');
+  if(seen.size!==4)failures.push('Required artifacts missing');
   return {valid:failures.length===0,status:evidence.status||'INVALID',mergeEligible:failures.length===0,failures};
 }
 export function sanitizeLog(text,env=process.env) {

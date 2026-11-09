@@ -1,0 +1,3 @@
+<resources>
+    <string name="private_app_guard_description">Uji privat: mengenali nama paket aplikasi saat jendela berubah dan kembali ke Beranda hanya untuk target yang terindikasi kuat. Tidak membaca teks atau isi layar. Aktif hanya setelah pilihan proteksi lokal di Gempur; dapat dimatikan kapan saja.</string>
+</resources>

@@ -1,26 +1,27 @@
 # Rencana Rilis Gempur
 
-Tanggal dasar: **9 November 2026, WIB**. Status: **pengembangan alpha**, bukan rilis publik Play Store. Semua tanggal berikut merupakan target bersyarat; status aktual ada di [Release readiness](RELEASE_READINESS.md) dan [Development log](DEVELOPMENT_LOG.md).
+Tanggal dasar: **9 November 2026, WIB**. Status: **kandidat alpha untuk uji APK privat**, bukan rilis publik Play Store. Pemilik memilih pilot privat sebelum mengevaluasi distribusi publik berikutnya. Status aktual ada di [Release readiness](RELEASE_READINESS.md) dan [Development log](DEVELOPMENT_LOG.md).
 
 ## Tujuan rilis pertama
 
-Gempur membantu pemilik Android membatasi akses ke domain judi yang dikenali melalui filtering DNS lokal, mencatat check-in secara sukarela, dan meminta dukungan orang tepercaya. Rilis pertama tidak mengklaim dapat mencegah semua judol, mendeteksi transaksi, memantau orang dewasa secara otomatis, atau menyembuhkan kecanduan.
+Gempur membantu pemilik Android membatasi akses ke domain judi yang dikenali melalui filtering DNS lokal, mencatat check-in secara sukarela, dan meminta dukungan orang tepercaya. Baseline debug/release tetap tanpa monitoring dewasa otomatis. Kandidat `privateDebug` terpisah menguji dugaan nama lokal, interupsi paket opsional, serta metadata temuan yang dibagikan otomatis setelah consent terpisah. Tidak ada klaim seluruh judol terdeteksi, transaksi diketahui, isi aplikasi dibaca, atau kecanduan disembuhkan.
 
 Mesin awal merupakan **DNS-only VPN**, bukan full-tunnel firewall. Jalur DoH/Secure DNS, DoT, direct IP, TCP DNS tertentu, aplikasi dengan resolver sendiri, VPN lain, dan perangkat lain dapat berada di luar cakupan. Always-on/lockdown tidak didukung pada mesin awal; jangan mengaktifkannya sebagai cara meningkatkan proteksi tanpa pengembangan dan pengujian baru.
 
-## Kalender target
+## Tahap aktif: pilot privat dahulu
 
-| Tahap | Target awal | Hasil yang dituju | Syarat sebelum lanjut |
+| Tahap | Waktu bersyarat | Hasil yang dituju | Syarat sebelum lanjut |
 | --- | --- | --- | --- |
-| Alpha kode dan build | 9–12 November 2026 | APK debug dan AAB dari verifier mandiri, tes otomatis, dokumentasi menjalankan layanan | Build nyata lulus; hasil tidak diklaim sebagai uji HP |
-| Validasi HP dan internal testing | 12–19 November 2026 | Uji HP peserta, OEM pembanding, jaringan, restart, izin, fungsi penting, serta alur pendamping | APK dapat dipasang; masalah privasi/akses bantuan kritis diselesaikan |
-| Closed test | Target mulai 20 November 2026 | Kelompok tester terpilih, catatan penggunaan dan perbaikan harian | Akun Play siap, signed AAB, setup app/disclosure/URL lengkap; durasi dimulai dari opt-in aktual |
-| Evaluasi closed test | Target 4 Desember 2026 atau sesudahnya | Bukti pengujian minimal dan kandidat release | Bila aturan akun personal baru berlaku: ≥12 tester terus opted-in ≥14 hari; engagement dan kelayakan tetap diperiksa Google |
-| Permohonan production access dan review | Target paling awal 4 Desember 2026 | Pengajuan yang lengkap dengan bukti pengujian | Gate teknis dan kebijakan lulus; akun memenuhi syarat; hasil review belum dijamin |
-| Soft launch | Target perencanaan 11–18 Desember 2026 | Rollout terbatas setelah persetujuan Google | Production access dan app review disetujui; tidak ada blocker rilis |
-| Perluasan bertahap | Sesudah soft launch stabil | Tambah cakupan perangkat dan daftar blok dengan bukti | Pantau Android vitals/feedback nyata; hentikan rollout jika regresi kritis |
+| Kandidat privat 0.2 | Setelah source final diverifikasi | APK biasa dan privat terpisah, unit/integration tests, lint, checksum, review | Full PASS pada kandidat; release manifest tidak memuat fitur/izin privat |
+| Lab dua HP | Setelah APK dan dua HP uji tersedia | Pairing, dua consent, scope, notifikasi polling, salah blok, off/revoke/delete | Peserta/pendamping memahami uji; gunakan USB/ADB lokal atau backend HTTPS sendiri; lihat panduan |
+| Pilot penggunaan terbatas | Usulan 14 hari sejak lab lulus | Catatan false positive/negative, fungsi penting, jaringan, baterai dan lifecycle OEM | Tidak ada bug kritis consent/akses bantuan; server/operator dan retensi siap |
+| Evaluasi distribusi publik | Setelah bukti pilot cukup | Tetapkan fitur mana yang layak dipertahankan pada produk publik | Review produk/kebijakan; tidak menganggap privat sama dengan memenuhi Play |
+| Internal/closed test Play | Belum dijadwalkan ulang | Signed AAB yang sesuai jalur Play, tester dan disclosure akurat | Akun, signing, URL dan fitur yang diizinkan siap; bila berlaku ≥12 tester ≥14 hari terus opt-in |
+| Production access/soft launch | Sesudah seluruh gate dan approval | Pengajuan dan rollout bertahap | Keputusan Google yang nyata; tidak ada blocker teknis/operasional |
 
-Tanggal dapat maju untuk internal testing atau mundur untuk produksi sesuai kondisi nyata. Jangan mempersingkat kewajiban tester atau menyebut Google pasti menyetujui pada tanggal tertentu. Untuk akun organisasi atau akun yang tidak terkena kewajiban personal baru, tetap lakukan pengujian kualitas yang relevan; jangan menganggap seluruh langkah otomatis hilang.
+Riwayat perencanaan awal menetapkan alpha 9–12 November, QA 12–19 November, closed test mulai 20 November, evaluasi/review paling awal 4 Desember dan soft launch 11–18 Desember 2026. **Tanggal publik tersebut tidak menjadi komitmen aktif setelah pilihan pilot privat**; jadwalkan ulang berdasarkan bukti dan keputusan distribusi. Jangan mempersingkat kewajiban tester atau menjanjikan approval Google. Untuk akun yang tidak tercakup syarat personal baru, pengujian kualitas tetap diperlukan.
+
+Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md). Polling sekitar 30 detik bukan notifikasi push terjamin; app guard hanya HOME berbasis paket, bukan suspend atau firewall. Daftar domain aktif belum diperluas oleh pilot ini.
 
 ## Kebijakan rilis
 
@@ -31,6 +32,7 @@ Tanggal dapat maju untuk internal testing atau mundur untuk produksi sesuai kond
 - PR rutin digabung setelah pemeriksaan lulus. Tidak mempublikasikan ke Play otomatis dari daily automation.
 - Simpan changelog, commit SHA, checksum, hasil tes, known issues, dan keputusan go/no-go setiap kandidat.
 - Data peserta tidak direset saat pembaruan. Perubahan format data memerlukan tes migrasi serta pemulihan.
+- Jangan membawa privateDebug atau mengaktifkan adult telemetry melalui remote flag pada jalur biasa. APK privat tetap memerlukan evaluasi keamanan/Play Protect; tidak ada deklarasi atau approval publik yang diasumsikan.
 
 ## Pekerjaan harian
 

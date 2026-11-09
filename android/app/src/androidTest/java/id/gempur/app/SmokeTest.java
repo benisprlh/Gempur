@@ -59,6 +59,21 @@ public class SmokeTest {
         RuleRepository.remove(context,"synthetic-block.example");
         assertFalse(RuleRepository.load(context).isBlocked("child.synthetic-block.example"));
     }
+    @Test public void separateVaultInstancesPreserveConcurrentNotesAndCredentials() throws Exception {
+        LocalStore first=new LocalStore(context),second=new LocalStore(context);
+        first.put("token","synthetic-new-token");
+        java.util.concurrent.ExecutorService writers=java.util.concurrent.Executors.newFixedThreadPool(2);
+        try{
+            java.util.concurrent.Future<?> a=writers.submit(()->{try{for(int i=0;i<10;i++)first.checkIn(2,"skip");}catch(Exception e){throw new RuntimeException(e);}});
+            java.util.concurrent.Future<?> b=writers.submit(()->{try{for(int i=0;i<10;i++)second.checkIn(4,"no");}catch(Exception e){throw new RuntimeException(e);}});
+            a.get(10,java.util.concurrent.TimeUnit.SECONDS);b.get(10,java.util.concurrent.TimeUnit.SECONDS);
+        }finally{writers.shutdownNow();}
+        assertEquals(20,new LocalStore(context).notes().length());
+        assertEquals("synthetic-new-token",second.remoteContext().getString("token"));
+        second.put("role","participant");
+        assertEquals(20,first.notes().length());
+        assertEquals("synthetic-new-token",first.get("token"));
+    }
     @Test public void vpnFixtureProbeWithoutLiveGambling() throws Exception {
         LocalStore vault=new LocalStore(context);vault.put("consent","test-v1");
         activity.launchActivity(null);

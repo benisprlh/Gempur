@@ -45,13 +45,24 @@ Jalur penuh menjalankan tes server, tooling aturan dan verifier, lalu tugas Andr
 ```text
 :engine:test
 :app:testDebugUnitTest
+:app:testPrivateDebugUnitTest
 :app:lintDebug
+:app:lintPrivateDebug
 :app:assembleDebug
+:app:assemblePrivateDebug
 :app:bundleRelease
 :app:assembleDebugAndroidTest
 ```
 
 Verifier tidak menjalankan emulator atau HP secara otomatis. Instrumentation APK yang berhasil dikompilasi bukan hasil tes perangkat. Build development juga menghapus variable upload-signing dari proses anak agar tidak memakai kunci produksi secara tidak sengaja. Signing merupakan langkah manual terpisah pada [SIGNING.md](SIGNING.md).
+
+## Dua distribusi terpisah
+
+Sejak `0.2.0-alpha.1`, build biasa (`debug`/`release`) mengompilasi `BuildConfig.PRIVATE_BUILD=false`. Manifest biasa tidak mendeklarasikan layanan pemantauan privat, Accessibility guard, atau `QUERY_ALL_PACKAGES`.
+
+`privateDebug` mengompilasi flag privat `true` dengan application ID **`id.gempur.app.private.debug`**, label **Gempur Privat**, query terbatas aplikasi yang memiliki intent `MAIN/LAUNCHER` serta dua layanan privat. Tidak ada varian yang meminta `QUERY_ALL_PACKAGES`. Pemindaian hanya menjangkau subset aplikasi launchable yang terlihat; aplikasi headless, profil lain atau seluruh inventory tidak diklaim tercakup. File APK berada di `android/app/build/outputs/apk/privateDebug/app-privateDebug.apk`. Pengguna harus memilih consent lokal dan berbagi secara terpisah; tidak ada migrasi akun/data otomatis dari build biasa. Distribusi privat bukan bukti kelayakan Google Play/Play Protect. Baca [kontrak uji privat](PRIVATE_AUTOMATION_CONTRACT.md).
+
+Gate penuh memeriksa hasil tes/lint dan tanda tangan APK **kedua** varian. Evidence schema2 juga mengikat checksum manifest hasil merge serta BuildConfig yang dihasilkan Gradle; pemeriksaan menolak private flag/layanan di build biasa, `QUERY_ALL_PACKAGES` di semua varian, query launchable privat yang hilang, atau application ID yang tidak terpisah. Hasil schema1 sebelumnya tetap riwayat dan tidak memenuhi gate schema2. AAB release tetap varian biasa tanpa otomatisasi pemantauan dewasa.
 
 ## Hasil dan arti status
 
@@ -87,7 +98,7 @@ Lalu dari direktori Android:
 
 ```sh
 cd android
-./gradlew :engine:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:bundleRelease :app:assembleDebugAndroidTest
+./gradlew :engine:test :app:testDebugUnitTest :app:testPrivateDebugUnitTest :app:lintDebug :app:lintPrivateDebug :app:assembleDebug :app:assemblePrivateDebug :app:bundleRelease :app:assembleDebugAndroidTest
 ```
 
 Perintah manual membantu diagnosis, tetapi tidak membuat `evidence.json` gabungan. Jalankan ulang verifier penuh setelah masalah diperbaiki untuk memenuhi gate aktif. Pastikan variable `GEMPUR_UPLOAD_*` tidak tersedia saat melakukan build development manual, karena konfigurasi Gradle langsung dapat memakainya untuk signing.
@@ -95,6 +106,7 @@ Perintah manual membantu diagnosis, tetapi tidak membuat `evidence.json` gabunga
 ## Pemakaian artifact
 
 - APK debug digunakan untuk pengujian development, dengan application ID terpisah `id.gempur.app.debug`.
+- APK privateDebug digunakan hanya untuk uji privat, dengan application ID lain `id.gempur.app.private.debug`; jangan tertukar saat memasang pada dua HP uji.
 - AAB dari jalur development unsigned; belum dapat menjadi upload produksi Play.
 - Sebelum membagikan paket, cocokkan checksum dengan `evidence.json` dari run yang berhasil dan pastikan source-nya sama dengan kandidat.
 - Log dan evidence berada di `out/verify/`; paket tetap pada path build output yang tercatat dalam evidence. Kedua lokasi diabaikan git. Bukti ringkas yang masuk `docs/evidence/` harus disanitasi dan bebas data pribadi, secret, token, database runtime, serta informasi environment yang tidak perlu.
@@ -114,7 +126,7 @@ Untuk membuat satu ZIP uji yang dapat dibagikan, gunakan Python 3 dari root repo
 python3 tools/package-build.py out/verify/<run>/evidence.json --output out/packages/Gempur_Standalone_Test_Build.zip
 ```
 
-Pengemas menjalankan `--check-evidence` sebelum membuat ZIP dan menolak evidence/source/artifact yang tidak cocok. ZIP tetap merupakan paket development; AAB unsigned bukan upload produksi.
+Pengemas menjalankan `--check-evidence` sebelum membuat ZIP dan menolak evidence/source/artifact yang tidak cocok. ZIP berisi APK biasa, APK privat terpisah, AAB biasa unsigned, evidence serta checksum. ZIP tetap merupakan paket development; AAB unsigned bukan upload produksi.
 
 ## Pengujian perangkat
 

@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.time.Instant;
 import javax.crypto.Cipher;
@@ -16,55 +17,73 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
-/** Private local data. Never backed up. A corrupt vault is not silently replaced. */
+/** Process-locked, fresh transactions. Never overwrite a newer Activity's encrypted data. */
 public final class LocalStore {
+    private static final Object LOCK = new Object();
+    private static final String ALIAS = "gempur.local.v1";
     private final AtomicFile file;
-    private final String alias = "gempur.local.v1";
-    private JSONObject value;
     public LocalStore(Context context) throws Exception {
         file = new AtomicFile(new File(context.getNoBackupFilesDir(), "vault.v1"));
-        if (file.getBaseFile().exists()) {
-            JSONObject envelope = new JSONObject(new String(file.readFully(), java.nio.charset.StandardCharsets.UTF_8));
-            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(128, Base64.decode(envelope.getString("iv"), Base64.NO_WRAP)));
-            value = new JSONObject(new String(cipher.doFinal(Base64.decode(envelope.getString("data"), Base64.NO_WRAP)), java.nio.charset.StandardCharsets.UTF_8));
-        } else { value = new JSONObject(); }
+        synchronized (LOCK) { load(); } // Corruption is never replaced with an empty vault.
     }
     private SecretKey key() throws Exception {
-        KeyStore ks = KeyStore.getInstance("AndroidKeyStore"); ks.load(null);
-        if (ks.containsAlias(alias)) return (SecretKey)ks.getKey(alias, null);
-        KeyGenerator gen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-        gen.init(new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+        KeyStore ks=KeyStore.getInstance("AndroidKeyStore");ks.load(null);
+        if(ks.containsAlias(ALIAS))return (SecretKey)ks.getKey(ALIAS,null);
+        KeyGenerator gen=KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore");
+        gen.init(new KeyGenParameterSpec.Builder(ALIAS,KeyProperties.PURPOSE_ENCRYPT|KeyProperties.PURPOSE_DECRYPT)
             .setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).build());
         return gen.generateKey();
     }
-    public synchronized String get(String key) { return value.optString(key, ""); }
-    public synchronized void put(String key, String text) throws Exception { value.put(key, text); save(); }
-    public synchronized JSONObject checkIn(int urge, String outcome) throws Exception {
-        JSONObject note = new JSONObject().put("createdAt", Instant.now().toString()).put("urge",urge).put("outcome",outcome);
-        JSONArray kept = new JSONArray(); JSONArray old = notes();
-        long cutoff = System.currentTimeMillis()-30L*24*3600*1000;
-        for(int i=0;i<old.length();i++) { JSONObject n=old.getJSONObject(i); if(Instant.parse(n.getString("createdAt")).toEpochMilli()>=cutoff)kept.put(n); }
-        kept.put(note); value.put("notes",kept); save(); return note;
+    private JSONObject load() throws Exception {
+        if(!file.getBaseFile().exists()&&!new File(file.getBaseFile().getPath()+".bak").exists())return new JSONObject();
+        JSONObject envelope=new JSONObject(new String(file.readFully(),StandardCharsets.UTF_8));
+        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(envelope.getString("iv"),Base64.NO_WRAP)));
+        return new JSONObject(new String(cipher.doFinal(Base64.decode(envelope.getString("data"),Base64.NO_WRAP)),StandardCharsets.UTF_8));
     }
-    public synchronized JSONArray notes() throws Exception {
-        JSONArray old=value.optJSONArray("notes");JSONArray kept=new JSONArray();
-        if(old==null)return kept;
+    public String get(String name) {
+        synchronized(LOCK){try{return load().optString(name,"");}catch(Exception e){throw new IllegalStateException("Vault lokal belum dapat dibaca; data tidak direset.",e);}}
+    }
+    public void put(String name,String text) throws Exception {
+        synchronized(LOCK){JSONObject value=load();value.put(name,text);save(value);}
+    }
+    /** One origin/capability snapshot: never combine a new token with an old endpoint. */
+    public JSONObject remoteContext() throws Exception {
+        synchronized(LOCK){JSONObject value=load(),context=new JSONObject();
+            for(String name:new String[]{"endpoint","token","pendingRevocation","pairingId","deviceId","role","consentVersion","pendingAutomationOffPairing"})context.put(name,value.optString(name,""));
+            return context;
+        }
+    }
+    public JSONObject checkIn(int urge,String outcome) throws Exception {
+        synchronized(LOCK){JSONObject value=load();JSONObject note=new JSONObject().put("createdAt",Instant.now().toString()).put("urge",urge).put("outcome",outcome);
+            JSONArray kept=retainedNotes(value);kept.put(note);value.put("notes",kept);save(value);return note;
+        }
+    }
+    private JSONArray retainedNotes(JSONObject value) throws Exception {
+        JSONArray old=value.optJSONArray("notes"),kept=new JSONArray();if(old==null)return kept;
         long cutoff=System.currentTimeMillis()-30L*24*3600*1000;
-        for(int i=0;i<old.length();i++)if(Instant.parse(old.getJSONObject(i).getString("createdAt")).toEpochMilli()>=cutoff)kept.put(old.getJSONObject(i));
-        if(kept.length()!=old.length()){value.put("notes",kept);save();}
-        return new JSONArray(kept.toString());
+        for(int i=0;i<old.length();i++){JSONObject note=old.getJSONObject(i);if(Instant.parse(note.getString("createdAt")).toEpochMilli()>=cutoff)kept.put(note);}
+        return kept;
     }
-    public synchronized String notesExport() throws Exception { return new JSONObject().put("format","gempur-checkins-v1").put("checkins",notes()).toString(2); }
-    public synchronized void clearNotes() throws Exception { value.remove("notes"); save(); }
-    public synchronized void clearRemote() throws Exception { value.remove("token");value.remove("pairingId");value.remove("deviceId");save(); }
-    public synchronized void wipe() throws Exception { value=new JSONObject();save(); }
-    private void save() throws Exception {
-        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding"); cipher.init(Cipher.ENCRYPT_MODE,key());
+    public JSONArray notes() throws Exception {
+        synchronized(LOCK){JSONObject value=load();JSONArray kept=retainedNotes(value),old=value.optJSONArray("notes");
+            if(old!=null&&kept.length()!=old.length()){value.put("notes",kept);save(value);}return new JSONArray(kept.toString());
+        }
+    }
+    public String notesExport() throws Exception {
+        synchronized(LOCK){return new JSONObject().put("format","gempur-checkins-v1").put("checkins",notes()).toString(2);}
+    }
+    public void clearNotes() throws Exception {synchronized(LOCK){JSONObject value=load();value.remove("notes");save(value);}}
+    public void clearRemote() throws Exception {
+        synchronized(LOCK){JSONObject value=load();for(String name:new String[]{"token","pairingId","deviceId","role","consentVersion"})value.remove(name);save(value);}
+    }
+    public void wipe() throws Exception {synchronized(LOCK){save(new JSONObject());}}
+    private void save(JSONObject value) throws Exception {
+        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,key());
         JSONObject envelope=new JSONObject().put("version",1).put("iv",Base64.encodeToString(cipher.getIV(),Base64.NO_WRAP))
-            .put("data",Base64.encodeToString(cipher.doFinal(value.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)),Base64.NO_WRAP));
+            .put("data",Base64.encodeToString(cipher.doFinal(value.toString().getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP));
         FileOutputStream out=null;
-        try {out=file.startWrite();out.write(envelope.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));file.finishWrite(out);}
+        try{out=file.startWrite();out.write(envelope.toString().getBytes(StandardCharsets.UTF_8));file.finishWrite(out);}
         catch(Exception e){if(out!=null)file.failWrite(out);throw e;}
     }
 }

@@ -2,6 +2,10 @@
 
 APK debug memiliki identitas development terpisah (`id.gempur.app.debug`). Identitas ini bukan upload key produksi. Kunci debug lokal tidak disertakan dalam deliverable dan tidak dipakai untuk produksi.
 
+APK uji privat `privateDebug` memakai identitas **`id.gempur.app.private.debug`** serta debug signing development. Varian ini mengompilasi fitur privat yang berbeda dan tidak dipakai untuk AAB release biasa. Jangan menyamakan keberadaan APK privat dengan persetujuan Google Play atau mengubah application ID biasa untuk menghindari review. Verifier memeriksa flag/manifest hasil build kedua distribusi dan signature kedua APK.
+
+Query aplikasi pada varian privat dibatasi pada intent `MAIN/LAUNCHER`; tidak ada permintaan `QUERY_ALL_PACKAGES` pada varian mana pun. Signing tidak memperluas cakupan deteksi: aplikasi headless, profil lain dan inventory lengkap tetap di luar klaim.
+
 Build development tanpa konfigurasi signing menghasilkan AAB unsigned. Agar kandidat dapat diunggah ke Play, pemilik harus menetapkan upload key yang disimpan aman dan mengatur Play App Signing. Jangan membuat kunci produksi sementara yang hilang pada akhir sesi.
 
 ## Signing lokal terpisah

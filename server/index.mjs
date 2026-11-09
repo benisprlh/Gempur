@@ -12,9 +12,10 @@ if (!['127.0.0.1', 'localhost', '::1'].includes(host) && !publicOrigin.startsWit
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
 const directory = resolve(process.env.DATA_DIR || './data');
 mkdirSync(directory, { recursive: true, mode: 0o700 });
-const app = createApp({ dbPath: resolve(directory, 'gempur.sqlite'), publicOrigin });
+const privateMonitoringEnabled=process.env.GEMPUR_PRIVATE_MONITORING==='true';
+const app = createApp({ dbPath: resolve(directory, 'gempur.sqlite'), publicOrigin,privateMonitoringEnabled });
 const server = createServer(app.handler);
-server.listen(port, host, () => console.log(`Gempur companion listening on ${host}:${port}. No activity monitoring is collected.`));
+server.listen(port, host, () => console.log(`Gempur companion listening on ${host}:${port}. ${privateMonitoringEnabled?'Private opt-in detection sharing is enabled; participants must grant scopes separately.':'Automatic detection sharing is disabled.'}`));
 server.requestTimeout = 15_000;
 server.headersTimeout = 10_000;
 server.keepAliveTimeout = 5_000;

@@ -2,6 +2,12 @@
 
 Tanggal pemeriksaan sumber: 9 November 2026. Ini lembar kerja pengisian, **bukan deklarasi yang sudah disubmit atau pasti disetujui**.
 
+## Jalur privat dan jalur Play
+
+Pemilik memilih pilot `privateDebug` terpisah, berlabel Gempur Privat (`id.gempur.app.private.debug`). Kandidat tersebut bukan artifact upload Play. Baseline debug/release tetap tanpa monitoring dewasa otomatis; jangan menyatakan isolasi hanya dari UI—periksa manifest, BuildConfig dan perilaku binary.
+
+PrivateDebug memakai query terbatas MAIN/LAUNCHER, Accessibility package-event/HOME, serta foreground service untuk sharing/polling. Pemindaian hanya mencakup subset aplikasi launcher yang terlihat, bukan headless/seluruh inventaris. Tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Jangan menyalin service privat ke release biasa. Pilot privat tidak membuktikan kelayakan Play atau pengecualian Play Protect; [panduan privat](../docs/PRIVATE_TEST_GUIDE.md) menjelaskan batas aktual. Prioritaskan QA pilot sebelum menjadwalkan ulang rilis publik.
+
 ## Identitas dan artifact
 
 - Tetapkan pemilik akun, tipe akun, identitas developer, negara, kontak publik, dan aplikasi ID final.
@@ -32,11 +38,13 @@ Data sharing yang dipicu peserta mungkin diperlakukan berbeda pada form Data saf
 - Rekam demo singkat alur membuka app, membaca disclosure, mengizinkan VPN, melihat status/notifikasi, menguji domain aman, dan menghentikan proteksi.
 - Cocokkan foreground-service type dan permission manifest; untuk specialUse, isi alasan penggunaan yang spesifik dan benar.
 - Jangan mengklaim remote VPN terenkripsi atau seluruh trafik terlindungi bila yang dibangun DNS-only lokal.
-- Tidak meminta Accessibility, device admin, atau daftar seluruh aplikasi pada alpha hanya untuk membuatnya terlihat sulit dihapus.
+- Seluruh varian tidak meminta QUERY_ALL_PACKAGES. Release dasar juga tidak meminta Accessibility; privateDebug memakai service package-event/HOME yang terlihat dan dapat dimatikan. Device admin/anti-uninstall tetap tidak digunakan.
 
 ## Monitoring orang dewasa
 
-Google Play membatasi aplikasi monitoring orang lain pada penggunaan parental/enterprise yang memenuhi ketentuan. Persetujuan dewasa saja tidak membolehkan pelacakan pasangan/kerabat. Gempur tidak boleh mengiklankan monitoring aktivitas dewasa otomatis; fitur berbagi sukarela tetap ditinjau sesuai implementasi aktual dan tujuan datanya.
+Google Play membatasi monitoring orang lain pada parental/enterprise yang memenuhi ketentuan; consent dewasa bukan pengecualian umum. Nilai isMonitoringTool `other` memerlukan penilaian pengecualian, bukan persetujuan otomatis. Jangan memakai kategori anak untuk kerabat dewasa, atau listing Play untuk mengakses APK dengan fungsi yang melanggar. Jalur privat dan fitur berbagi sukarela tetap dinilai berdasarkan implementasi serta distribusi sebenarnya.
+
+Jika kelak mengajukan fungsi Accessibility, jelaskan aturan deterministik serta data minimum; jangan mengklaim disability tool tanpa dasar. Untuk inventory aplikasi, nilai alternatif query yang lebih sempit dan deklarasi izin yang diperlukan. Dalam pilot, temuan paket/domain merupakan data aktivitas sensitif meski tidak memuat URL lengkap. Polling lokal dan consent tidak menjadikannya anonim atau riwayat yang terverifikasi.
 
 ## Health apps declaration
 
@@ -63,6 +71,9 @@ Untuk akun personal yang tercakup kebijakan akun baru, minimum tester/masa opt-i
 - [Health declaration](https://support.google.com/googleplay/android-developer/answer/14738291?hl=en)
 - [Account deletion](https://support.google.com/googleplay/android-developer/answer/13327111?hl=en)
 - [Monitoring/Stalkerware](https://support.google.com/googleplay/android-developer/answer/9888380?hl=en)
+- [isMonitoringTool](https://support.google.com/googleplay/android-developer/answer/12955211?hl=en)
+- [Accessibility API](https://support.google.com/googleplay/android-developer/answer/10964491?hl=en)
+- [Broad package visibility](https://support.google.com/googleplay/android-developer/answer/10158779?hl=en)
 - [Signing](https://developer.android.com/studio/publish/app-signing)
 - [AGP compatibility](https://developer.android.com/build/releases/agp-8-10-0-release-notes)
 

@@ -1,5 +1,15 @@
 # Development Log
 
+## 9 November 2026 — kandidat privat 0.2
+
+Pemilik memilih APK uji privat untuk deteksi tambahan, pemblokiran dan laporan otomatis kepada pendamping. Build biasa tetap manual; privateDebug terpisah menggunakan consent lokal dan sharing terpisah, cakupan domain/aplikasi, grant/version/epoch terikat pasangan, serta antrean terenkripsi berbatas waktu. Domain dikenal/pribadi dan dugaan nama dipisahkan. App guard hanya memproses paket aplikasi launcher yang terlihat, dengan Accessibility opsional dan HOME; bukan pembacaan layar atau firewall aplikasi.
+
+Native companion dapat mengambil temuan dan permintaan koreksi sekitar 30 detik lewat layanan yang terlihat; dashboard web memperbarui saat terbuka. Status diterima server, diminta ke OS dan dibaca dibedakan. Izin satu target domain/paket ditinjau pendamping, menunggu 10 menit, berlaku maksimal 30 menit setelah cooldown, dan diterapkan peserta. Stop lokal menyimpan pending pencabutan server secara durable; tidak mengklaim server sudah mencabut ketika offline.
+
+Review menemukan dan memperbaiki race origin/token, callback Activity lama, vault lintas instance, pengaktifan terlambat setelah revoke, notifikasi setelah izin berubah, pending server-off dan salah ack pada profil berbeda. Tidak ada QUERY_ALL_PACKAGES, penonaktifan lint, anti-uninstall atau upload seluruh histori/inventaris. Source scanner/resource privat dipisahkan dari stub build biasa.
+
+Run final `20261109T044031466Z-7b1096`: full PASS, 70 Node + 16 engine + 7 client biasa + 7 client privat = 100 tes; lint keduanya 0 issue. APK biasa/privat, AAB biasa unsigned dan instrumentation APK berhasil dibuat; kedua APK diverifikasi. Evidence diperiksa ulang dan pengemas ZIP berhasil. [Bukti kandidat](evidence/2026-11-09-private-build.json), [panduan dua HP](PRIVATE_TEST_GUIDE.md). Uji emulator/HP, notifikasi dua HP, aksesibilitas nyata, baterai dan latency DNS tetap belum terbukti. Tidak ada hosting publik, signing produksi atau pengajuan Play.
+
 ## 2026-11-09 — Bootstrap alpha
 
 ### Tujuan
