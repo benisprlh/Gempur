@@ -192,7 +192,7 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
         res.writeHead(200, { 'Content-Type':types[file.split('.').pop()], 'Content-Length':content.length, 'Cache-Control':'no-store', 'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'", 'Referrer-Policy':'no-referrer', 'X-Content-Type-Options':'nosniff', 'Permissions-Policy':'camera=(), microphone=(), geolocation=()' });
         res.end(req.method === 'HEAD' ? undefined : content); return;
       }
-      if (path === '/api/health' && req.method === 'GET') return send(res,200,{ status:'ok', version:'0.1.0', mode:privateMonitoringEnabled?'private-opt-in-detection':'voluntary-sharing',privateMonitoringEnabled });
+      if (path === '/api/health' && req.method === 'GET') return send(res,200,{ status:'ok', version:'0.3.0-alpha.1', mode:privateMonitoringEnabled?'private-opt-in-detection':'voluntary-sharing',privateMonitoringEnabled,localDomainAiSignals:true });
       if (path === '/api/devices' && req.method === 'POST') {
         throttle(`register:${ip}`,20,60*MINUTE);
         const payload = await body(req,false); shape(payload,['role','name']);
@@ -291,8 +291,9 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
           if(typeof event.eventId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(event.eventId))reject(400,'invalid_event_id','ID deteksi harus UUID.');
           const eventId=event.eventId.toLowerCase();if(eventIds.has(eventId))reject(400,'duplicate_event','ID deteksi ganda dalam batch.');eventIds.add(eventId);
           if(!['domain','app'].includes(event.kind)||!grant.scopes.includes(event.kind))reject(400,'scope_rejected','Jenis deteksi di luar izin berbagi.');
-          const target=privateTarget(event.kind,event.target),expectedVerdict={known_rule:'known',personal_rule:'personal',name_heuristic:'suspected'}[event.reason];
-          if(!expectedVerdict||event.verdict!==expectedVerdict||!['blocked','flagged'].includes(event.action)||!Number.isSafeInteger(event.count)||event.count<1||event.count>1000)reject(400,'invalid_detection','Ringkasan deteksi tidak valid.');
+          const target=privateTarget(event.kind,event.target),expectedVerdict={known_rule:'known',personal_rule:'personal',name_heuristic:'suspected',ml_model:'suspected'}[event.reason];
+          const invalidMl=event.reason==='ml_model'&&(event.kind!=='domain'||event.verdict!=='suspected'||event.action!=='flagged');
+          if(!expectedVerdict||event.verdict!==expectedVerdict||!['blocked','flagged'].includes(event.action)||invalidMl||!Number.isSafeInteger(event.count)||event.count<1||event.count>1000)reject(400,'invalid_detection','Ringkasan deteksi tidak valid.');
           const occurredAt=typeof event.occurredAt==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/.test(event.occurredAt)?Date.parse(event.occurredAt):NaN;
           if(!Number.isFinite(occurredAt)||occurredAt<now()-DAY||occurredAt>now()+MINUTE)reject(400,'invalid_time','Deteksi harus dibuat dalam 24 jam terakhir.');
           return {eventId,kind:event.kind,target,reason:event.reason,verdict:event.verdict,action:event.action,occurredAt,count:event.count};

@@ -55,6 +55,7 @@ test('private server capability is default-off and cannot be enabled by request 
   assert.throws(()=>createApp({privateMonitoringEnabled:'true'}));
   const f=await fixture(t,{privateMonitoringEnabled:false}),pair=await f.pair();
   assert.equal((await f.call('/api/health')).body.privateMonitoringEnabled,false);
+  assert.equal((await f.call('/api/health')).body.localDomainAiSignals,true);
   assert.equal((await f.call('/api/me',{token:pair.p.token})).body.pairings[0].automation,undefined);
   for(const [path,method,body]of [[`/api/pairings/${pair.id}/automation`,'GET'],[`/api/pairings/${pair.id}/automation`,'PUT',{enabled:true,scopes:['domain']}],['/api/detections','POST',{enabled:true}]])assert.equal((await f.call(path,{method,token:pair.p.token,body})).status,404);
   assert.equal((await f.call('/api/exceptions',{method:'POST',token:pair.p.token,body:{pairingId:pair.id,targetKind:'app',target:'org.acme.SlotCasino',reason:'false_positive'}})).status,404);
@@ -106,6 +107,44 @@ test('event payload rejects URLs, diagnostics, inventories, unknown fields and i
   const duplicate=f.event();assert.equal((await f.upload(pair,grant,[duplicate,duplicate])).status,400);
   assert.equal((await f.upload(pair,grant,[f.event()],{screenshots:[]})).status,400);
   assert.equal((await f.list(pair)).body.detections.length,0);
+});
+
+test('local domain AI reports are scoped advisory signals and remain idempotent',async t=>{
+  const f=await fixture(t),pair=await f.pair(),grant=await f.grant(pair,['domain']);
+  const health=(await f.call('/api/health')).body;
+  assert.equal(health.version,'0.3.0-alpha.1');assert.equal(health.localDomainAiSignals,true);
+  const event=f.event({reason:'ml_model',verdict:'suspected',action:'flagged'});
+  const uploaded=await f.upload(pair,grant,[event]);
+  assert.equal(uploaded.status,200);assert.deepEqual(uploaded.body.acceptedEventIds,[event.eventId]);
+  assert.equal((await f.upload(pair,grant,[event])).status,200);
+  const inbox=(await f.list(pair)).body.detections;
+  assert.equal(inbox.length,1);assert.equal(inbox[0].reason,'ml_model');
+  assert.equal(inbox[0].kind,'domain');assert.equal(inbox[0].verdict,'suspected');
+  assert.equal(inbox[0].action,'flagged');assert.equal(inbox[0].readAt,null);
+  assert.equal(inbox[0].riskScore,undefined);assert.equal(inbox[0].modelVersion,undefined);
+  const correction=await f.call('/api/exceptions',{method:'POST',token:pair.p.token,body:{pairingId:pair.id,target:inbox[0].target,targetKind:'domain',detectionId:inbox[0].id,reason:'false_positive'}});
+  assert.equal(correction.status,201);assert.equal(correction.body.exception.detectionId,inbox[0].id);
+  assert.equal((await f.list(pair,(await f.device('companion')).token)).status,404);
+  await f.grant(pair,['app']);
+  assert.equal((await f.upload(pair,grant,[event])).status,409);
+  assert.deepEqual((await f.list(pair)).body.detections,[]);
+});
+
+test('AI cannot claim known gambling, block automatically, classify apps or upload extra model data',async t=>{
+  const f=await fixture(t),pair=await f.pair(),grant=await f.grant(pair);
+  const invalid=[
+    {kind:'app',target:'org.acme.SlotCasino'},
+    {verdict:'known'},{verdict:'personal'},{verdict:'unknown'},
+    {action:'blocked'},{action:'allow'},
+    {riskScore:0.999},{modelVersion:'model-claimed-verified'},{pageText:'private page contents'}
+  ];
+  for(const override of invalid){
+    const event=f.event({reason:'ml_model',verdict:'suspected',action:'flagged',...override});
+    assert.equal((await f.upload(pair,grant,[event])).status,400,JSON.stringify(override));
+  }
+  assert.deepEqual((await f.list(pair)).body.detections,[]);
+  const appOnly=await f.grant(pair,['app']);
+  assert.equal((await f.upload(pair,appOnly,[f.event({reason:'ml_model',verdict:'suspected',action:'flagged'})])).status,400);
 });
 
 test('scope/grant changes reject stale queues and erase events plus event-bound corrections',async t=>{

@@ -1,0 +1,6 @@
+Gempur hostname-only experimental model. Risk scores are uncalibrated; advisory only.
+Trained from UT1 Toulouse category snapshots (Fabrice Prigent / Universite Toulouse Capitole; mirror olbat), CC BY-SA4.0.
+Training excludes held-out source families from Sinfonietta (MIT) and arfshl (BSD3); evaluation labels remain source claims.
+Grouping uses the Public Suffix List contributors' pinned data, MPL2.0. Source license texts accompany this asset.
+Model/data distribution conservatively preserves CC BY-SA4.0 attribution/share-alike separately from application code.
+See repository ml/ATTRIBUTION.md, ml/sources.lock.json, ml/evaluation.json and ml/experiment.json for exact pins/hashes/protocol.

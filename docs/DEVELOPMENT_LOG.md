@@ -1,5 +1,15 @@
 # Development Log
 
+## 9 November 2026 — AI lokal domain 0.3 dan evaluasi yang dibekukan
+
+AI lokal ditambahkan sebagai classifier karakter n-gram/logistic regression dengan 24.000 fitur dan bobot 627.278 byte, hanya di privateDebug dan default mati. Inferensi tidak memakai API/cloud. Sinyal hanya domain/ml_model/suspected/flagged; tidak memblokir otomatis atau mengklaim menilai isi website/aplikasi. UI menjelaskan skor belum dikalibrasi, pilihan AI terpisah, preview lokal tidak membuka situs, dan backend 0.3 perlu mendukung sinyal AI sebelum sharing domain AI.
+
+Sumber kategori publik, lisensi, commit dan SHA dipin. Data dikelompokkan berdasarkan PSL/domain/family, source holdout disisihkan, vocabulary hanya train, pemilihan C/threshold hanya validation. Bobot/hash dan pilihan dibekukan sebelum final test; tidak ada retuning menggunakan hasil test. Reviewer independen menghitung ulang hasil dengan scorer terpisah.
+
+Final proxy test 16.006: TP 2.552, FP 11, TN 11.992, FN 1.451; precision 99,57%, recall 63,75%, accuracy 90,87%, FPR 0,09164%. Batas atas FPR satu sisi 95% 0,15165% melewati target 0,1%. Holdout Indonesia positif saja: 8/443 ditandai model, atau 7/443 (1,58%) pada simulasi kebijakan acuan. Label independen 0. **Target akurasi tinggi Indonesia belum terpenuhi; auto-quarantine AI NO-GO.** Integritas kode/model lulus; fitur tetap advisory dan opt-in, proteksi aturan sebelumnya terpisah.
+
+Run penuh `20261109T071213341Z-2f647f` PASS: 80 Node + 24 engine + 8 client biasa + 8 client privat = 120 tes software; kedua lint 0 issue, kedua APK terverifikasi, model hanya ada di APK privat dan checksum sesuai. Tambahan: 13 tes protokol Python dan 69 parity vectors Python/Java; bukan angka akurasi. [Bukti build](evidence/2026-11-09-local-ai-build.json), [model card](LOCAL_AI_MODEL_CARD.md), [roadmap data regional](LOCAL_AI_DATA_ROADMAP.md). Tidak ada QA HP/emulator/baterai atau pengajuan Play/hosting publik/API key yang dilakukan.
+
 ## 9 November 2026 — kandidat privat 0.2
 
 Pemilik memilih APK uji privat untuk deteksi tambahan, pemblokiran dan laporan otomatis kepada pendamping. Build biasa tetap manual; privateDebug terpisah menggunakan consent lokal dan sharing terpisah, cakupan domain/aplikasi, grant/version/epoch terikat pasangan, serta antrean terenkripsi berbatas waktu. Domain dikenal/pribadi dan dugaan nama dipisahkan. App guard hanya memproses paket aplikasi launcher yang terlihat, dengan Accessibility opsional dan HOME; bukan pembacaan layar atau firewall aplikasi.

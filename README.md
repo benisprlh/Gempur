@@ -6,7 +6,7 @@ Gempur adalah aplikasi Android untuk membantu orang dewasa membatasi akses judol
 
 ## Status saat ini
 
-Kandidat **0.2.0-alpha.1** tersedia untuk uji privat. **Belum merupakan rilis stabil atau aplikasi yang disetujui Play Store.** Verifikasi penuh menjalankan 100 tes yang lulus serta lint biasa/privat 0 issue; uji HP nyata belum dilakukan. Lihat [bukti kandidat privat](docs/evidence/2026-11-09-private-build.json).
+Kandidat **0.3.0-alpha.1** menambahkan AI domain lokal eksperimental untuk peninjauan. **Belum merupakan rilis stabil atau aplikasi yang disetujui Play Store.** Gate software final lulus 120 eksekusi tes dan lint kedua varian 0 issue; 69 vektor Python–Java parity serta 13 tes protokol Python diperiksa terpisah. [Evidence build AI](docs/evidence/2026-11-09-local-ai-build.json) berbeda dari benchmark akurasi model dan [riwayat privat 0.2](docs/evidence/2026-11-09-private-build.json). Uji HP nyata belum dilakukan.
 
 - Native Android: filter DNS lokal melalui VPN, aturan tambahan, tes domain sintetis, check-in terenkripsi, rencana dukungan, ekspor/hapus catatan.
 - Pendamping: pairing dengan konfirmasi, snapshot yang dikirim peserta sendiri, permintaan dukungan, koreksi salah blok terbatas, pencabutan akses, ekspor/hapus akun.
@@ -17,7 +17,7 @@ Kandidat **0.2.0-alpha.1** tersedia untuk uji privat. **Belum merupakan rilis st
 
 Build `privateDebug` berlabel **Gempur Privat**, dengan application ID `id.gempur.app.private.debug`, terpisah dari debug/release biasa. Build biasa tidak dapat mengaktifkan monitoring dewasa otomatis hanya karena server mengizinkannya.
 
-- Deteksi lokal opsional membedakan aturan dikenal, aturan pribadi, dugaan pola nama, dan target yang belum diketahui. Ini bukan AI atau pemeriksaan isi website/aplikasi.
+- Deteksi lokal opsional membedakan aturan dikenal, aturan pribadi, dugaan pola nama, dan target yang belum diketahui. AI domain lokal memiliki pilihan terpisah, default mati; regresi logistik char-ngram mempelajari pola hostname dari kategori publik dan memberi sinyal `suspected/flagged` untuk ditinjau, tanpa blokir otomatis. Skor belum dikalibrasi sebagai peluang; model tidak memeriksa isi website/aplikasi. Lihat [model card dan hasil evaluasi](docs/LOCAL_AI_MODEL_CARD.md).
 - Karantina nama hanya menyasar kombinasi indikasi kuat yang masih dapat salah. Pemindaian memakai query MAIN/LAUNCHER untuk subset aplikasi launcher yang terlihat, bukan seluruh/headless apps; tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Penjaga aplikasi opsional memakai event nama paket Accessibility untuk kembali ke Beranda Android; bukan suspend aplikasi atau firewall seluruh koneksi.
 - Berbagi otomatis harus diaktifkan terpisah oleh peserta untuk pasangan terkonfirmasi dan cakupan domain/aplikasi yang dipilih. Hanya metadata temuan dikirim, bukan seluruh histori atau inventaris aplikasi.
 - HP pendamping Android dapat memeriksa server sekitar setiap 30 detik lewat layanan dengan notifikasi terlihat. Ini polling, bukan FCM/Web Push, pengiriman instan, atau jaminan 24/7.
@@ -28,6 +28,14 @@ Ikuti [panduan dua HP privat](docs/PRIVATE_TEST_GUIDE.md), termasuk opsi lab USB
 **Cakupan filter awal terbatas:** DNS biasa pada jalur yang didukung dan domain dalam daftar. DoH/DoT, IP langsung, TCP DNS, VPN lain, serta perangkat lain belum teratasi. Always-on dan lockdown tidak didukung versi DNS-only ini. Daftar awal bukan seluruh judol Indonesia; 480 kandidat dari sumber terbuka disimpan untuk review, bukan otomatis diaktifkan.
 
 Tidak ada pembacaan layar, chat, SMS, OTP, lokasi atau transaksi. Tidak ada klaim menyembuhkan kecanduan atau memastikan seseorang tidak berjudi.
+
+### AI lokal untuk peninjauan domain
+
+AI berjalan offline di HP privat, tanpa biaya API atau pengiriman target/konten ke penyedia AI. Data training berupa proxy kategori, sehingga hasil benchmark tidak boleh dipasarkan sebagai akurasi judol dunia nyata. `autoQuarantineEligible=false`; aturan blokir dikenal/pribadi tetap berlaku dan pemeriksaan aplikasi tidak memakai model domain. Input/model tidak valid atau dukungan fitur rendah membuat model abstain; hasil yang tidak ditandai tidak berarti aman.
+
+Evaluasi final 16.006 keluarga proxy: pada ambang peninjauan terpilih, precision 99,57%, **recall 63,75%**, accuracy 90,87% dan FPR 0,0916%. Pada holdout Indonesia, simulasi kebijakan acuan hanya menandai **7/443 (1,58%)**; ini bukan pengukuran HP. Generalisasi ini belum cukup untuk klaim detektor judol sangat akurat; batas atas FPR satu sisi 95% juga masih 0,1516%, melampaui target 0,1%. [Model card](docs/LOCAL_AI_MODEL_CARD.md) melaporkan tradeoff, abstention, interval dan baseline; flag AI tetap untuk peninjauan.
+
+Pada tab **Deteksi**, aktifkan deteksi lokal yang terlihat lalu **Pilih AI lokal untuk peninjauan**. **Periksa domain tanpa membuka situs** menampilkan skor lokal tanpa membuka halaman atau mengirim laporan. Untuk berbagi sinyal AI, perbarui backend ke 0.3 dengan health `localDomainAiSignals:true`; tanpa backend, gunakan AI lokal dengan berbagi otomatis mati. Mematikan analisis AI baru tidak menghapus antrean yang telah disetujui sebelumnya—hentikan berbagi dan sinkronkan pencabutan bila ingin menghentikan pengiriman.
 
 ## Mencoba aplikasi Android
 
@@ -84,6 +92,7 @@ Pada APK debug, `http://10.0.2.2:8080` hanya untuk mengakses localhost host dari
 - [PRD](docs/PRD.md)
 - [Build dan verifikasi mandiri](docs/LOCAL_BUILD.md)
 - [Panduan uji dua HP privat](docs/PRIVATE_TEST_GUIDE.md)
+- [Model card AI lokal dan evaluasi](docs/LOCAL_AI_MODEL_CARD.md)
 - [Rencana rilis dan jadwal bersyarat](docs/RELEASE_PLAN.md)
 - [Release readiness dan bukti pengujian](docs/RELEASE_READINESS.md)
 - [Catatan pengembangan](docs/DEVELOPMENT_LOG.md)

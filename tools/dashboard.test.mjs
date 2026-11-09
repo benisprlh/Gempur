@@ -43,6 +43,13 @@ test('classification wording preserves uncertainty and app interruption is not a
   assert.equal(detectionPresentation(event('x',{verdict:'unrecognized'})).verdict,'Belum terverifikasi');
   assert.equal(escapeHtml('<script>"a" & \'b\'</script>'),'&lt;script&gt;&quot;a&quot; &amp; &#39;b&#39;&lt;/script&gt;');
 });
+test('local domain AI presentation remains an advisory signal without a confidence claim', () => {
+  const presentation=detectionPresentation(event('ai',{reason:'ml_model',action:'flagged'}));
+  assert.match(presentation.reason,/Sinyal AI lokal, perlu ditinjau/);
+  assert.match(presentation.verdict,/Diduga/);
+  assert.equal(presentation.action,'Ditandai untuk ditinjau');
+  assert.equal(/%|pasti|terbukti|diblokir/i.test(Object.values(presentation).join(' ')),false);
+});
 
 // Controller unit harness: it exercises the real module logic with minimal DOM
 // and HTTP fakes, not layout, browser permissions, a service worker or phone QA.

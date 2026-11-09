@@ -1,12 +1,12 @@
 # Uji Gempur Privat pada dua HP
 
-Panduan kandidat 0.2, 9 November 2026. Pemilik memilih uji APK privat; panduan ini **bukan laporan bahwa uji dua HP sudah dilakukan**. Gunakan perangkat uji milik peserta dewasa yang memahami dan menyetujui setiap pilihan. Build privat belum layak dianggap perlindungan menyeluruh atau rilis Play.
+Panduan kandidat 0.3, 9 November 2026. Pemilik memilih uji APK privat; panduan ini **bukan laporan bahwa uji dua HP sudah dilakukan**. Gunakan perangkat uji milik peserta dewasa yang memahami dan menyetujui setiap pilihan. AI domain lokal ditambahkan sebagai bantuan peninjauan; build privat belum layak dianggap perlindungan menyeluruh atau rilis Play.
 
 ## Pilih APK yang benar
 
 Pasang artifact **privateDebug** yang tercatat dalam evidence build valid pada kedua HP Android 10+. Labelnya **Gempur Privat**, application ID `id.gempur.app.private.debug`. Ia dapat berdampingan dengan build biasa; akun dan pengaturan build lain tidak disalin otomatis.
 
-Debug/release biasa tetap tanpa berbagi temuan otomatis. Server yang mengizinkan private monitoring tidak dapat mengaktifkan fitur ini di build biasa. Kandidat ini memiliki [bukti verifikasi penuh](evidence/2026-11-09-private-build.json): 100 tes lulus dan kedua lint 0 issue. Ini membuktikan gate build/tes otomatis, bukan keberhasilan notifikasi pada dua HP.
+Debug/release biasa tetap tanpa berbagi temuan otomatis dan tanpa aset model. Server yang mengizinkan private monitoring tidak dapat mengaktifkan fitur ini di build biasa. [Bukti kandidat AI 0.3](evidence/2026-11-09-local-ai-build.json) mencatat 120 eksekusi tes, kedua lint 0 issue, 69 vektor parity dan 13 tes protokol Python terpisah. Unit test tidak membuktikan akurasi model atau notifikasi dua HP; baca [model card](LOCAL_AI_MODEL_CARD.md) untuk benchmark serta kegagalan generalisasinya.
 
 ## Sambungkan server uji
 
@@ -48,9 +48,22 @@ HP peserta:
 
 HP pendamping: buka **Deteksi → Mulai notifikasi pendamping**, berikan izin notifikasi, dan biarkan layanan yang terlihat berjalan. Ia memeriksa server sekitar setiap 30 detik dengan backoff saat offline. Android/OEM, jaringan atau izin dapat menghentikan/menundanya. Ini bukan FCM/Web Push atau pemantauan terjamin 24/7. Notifikasi lock screen bersifat umum; buka app untuk detail. Menjalankan polling bukan tanda sudah dibaca; gunakan **Tandai saya telah membaca** bila sesuai.
 
+## Pilihan AI domain lokal
+
+AI default mati, termasuk setelah upgrade. Ia mempelajari pola nama domain dari data kategori publik; tidak membaca isi website, layar, aplikasi, atau mengirim target ke penyedia AI. Model domain tidak dipakai untuk menilai akurasi aplikasi.
+
+1. HP peserta: aktifkan deteksi lokal tambahan dengan notifikasi terlihat, lalu buka kartu **AI lokal · peninjauan domain** pada tab Deteksi.
+2. Pilih **Pilih AI lokal untuk peninjauan** dan baca consent. Skor 0–1 adalah skor pola yang belum dikalibrasi, bukan persentase kepastian judol.
+3. Jika berbagi otomatis sudah aktif, backend harus 0.3 dan `GET /api/health` menyatakan `localDomainAiSignals:true`. Perbarui backend terlebih dahulu; UI menolak aktivasi/sharing yang tidak kompatibel. Untuk uji lokal tanpa backend, hentikan berbagi otomatis dan sinkronkan pencabutan, lalu pilih AI lokal.
+4. Pilih **Periksa domain tanpa membuka situs**. Masukkan nama domain saja. Pemeriksaan ini tidak membuka situs, tidak membuat temuan baru dan tidak mengirim laporan. Hasil abstain/di bawah ambang bukan pernyataan aman.
+5. Baca [model card](LOCAL_AI_MODEL_CARD.md) untuk sumber, split, metrik dan keterbatasannya. Hasil AI `ml_model/suspected/flagged` hanya meminta tinjauan; DNS diteruskan. Aturan dikenal/pribadi/heuristik lama dapat tetap membatasi target secara terpisah.
+6. **Matikan analisis AI baru** menghentikan penilaian baru. Temuan yang telah masuk antrean tetap mengikuti izin sebelumnya. Gunakan **Hentikan berbagi otomatis** dan sinkronkan penghentian untuk menghentikan pengiriman; informasi yang sudah dibaca penerima tidak dapat ditarik kembali.
+
+Tidak ada jaminan input yang sengaja dipilih akan menghasilkan flag. Jangan menggunakan contoh sintetis atau domain bank yang lolos sebagai bukti akurasi dunia nyata. Model/data rusak membuat analisis tidak tersedia, bukan menghapus catatan atau menganggap target aman.
+
 ## Uji aman dan koreksi salah blok
 
-Known berarti cocok aturan dikenal; personal berarti aturan peserta; suspected hanya dugaan pola nama; unknown belum diketahui. Tidak ada AI yang membaca isi website/aplikasi. Daftar aktif tetap 10 seed domain dan fixture, sedangkan 480 kandidat Indonesia belum aktif.
+Known berarti cocok aturan dikenal; personal berarti aturan peserta; suspected dapat berasal dari heuristik nama atau sinyal AI lokal dan tetap perlu ditinjau; unknown belum diketahui. AI hanya mempelajari nama domain, bukan isi website/aplikasi. Daftar aktif tetap 10 seed domain dan fixture, sedangkan 480 kandidat Indonesia belum aktif; contoh training tidak otomatis menjadi daftar blokir.
 
 `gempur-block.test`, domain contoh `example.com/net/org`, serta fixture diagnostik lain sengaja tidak menjadi laporan aktivitas atau notifikasi pendamping. Jangan menguji notifikasi judol dengan membuka situs judi. Untuk uji metadata, gunakan domain benign nyata yang dikendalikan penguji, pastikan dapat dibuka sebelum pengujian, lalu tambahkan sebagai aturan pribadi. Pengujian aplikasi memakai fixture jinak milik pengembang, bukan pemasangan aplikasi judi. Catat browser, Secure DNS, jaringan dan cache; DNS-only dapat dilewati DoH/DoT/direct IP/TCP DNS/VPN lain.
 

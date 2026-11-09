@@ -75,7 +75,7 @@ public final class MainActivity extends Activity {
         });
         LinearLayout header=new LinearLayout(this);header.setOrientation(LinearLayout.HORIZONTAL);header.setPadding(dp(24),dp(18),dp(24),dp(16));header.setBackgroundColor(INK);
         TextView brand=text("GEMPUR",23,Color.WHITE,true);header.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-        header.addView(text(BuildConfig.PRIVATE_BUILD?"PRIVAT · ALPHA":"ALPHA  0.2",11,0xffa8c6b8,true));outer.addView(header);
+        header.addView(text(BuildConfig.PRIVATE_BUILD?"PRIVAT · ALPHA":"ALPHA  0.3",11,0xffa8c6b8,true));outer.addView(header);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(22),dp(20),dp(20));
         scroll.addView(page);outer.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         if(tab==0)home();else if(tab==1)notes();else if(tab==2)companion();else if(tab==4&&BuildConfig.PRIVATE_BUILD){
@@ -389,6 +389,7 @@ public final class MainActivity extends Activity {
                 info("Hasil lokal",message.toString());
             });
         },false);
+        privateDomainAiSection();
         LinearLayout sharing=card();JSONObject grant=PrivateMonitoring.sharing(this);
         label(sharing,grant.optBoolean("enabled")?"Berbagi temuan otomatis aktif":"Berbagi temuan otomatis mati",21,INK,true);
         label(sharing,"Hanya target yang terdeteksi sesuai cakupan yang disetujui, alasan/dugaan, tindakan, waktu, dan hitungan gabungan. Tidak mengirim seluruh histori, isi layar, URL lengkap, atau daftar semua aplikasi. Perlu server HTTPS mode privat milikmu.",14,MUTED,false);
@@ -409,8 +410,44 @@ public final class MainActivity extends Activity {
         renderPrivateDetections(false);
         LinearLayout inbox=card();label(inbox,"Temuan lokal terbaru",20,INK,true);
         try{JSONArray events=PrivateMonitoring.events(this);if(events.length()==0)label(inbox,"Belum ada temuan lokal. Domain diagnostik tidak dikirim sebagai temuan judi.",13,MUTED,false);
-            for(int i=0;i<Math.min(events.length(),15);i++){JSONObject event=events.getJSONObject(i);String target=event.optString("target"),kind=event.optString("kind","domain");label(inbox,kind+" · "+target+"\n"+privateVerdict(event.optString("verdict"))+" · "+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" koneksi/kejadian",13,INK,false);button(inbox,"Ajukan salah blok: "+target,()->requestPrivateCorrection(kind,target,""),false);}
+            for(int i=0;i<Math.min(events.length(),15);i++){JSONObject event=events.getJSONObject(i);String target=event.optString("target"),kind=event.optString("kind","domain");label(inbox,kind+" · "+target+"\n"+privateVerdict(event.optString("verdict"))+" · "+privateReason(event.optString("reason"))+" · "+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" koneksi/kejadian",13,INK,false);button(inbox,"Ajukan koreksi: "+target,()->requestPrivateCorrection(kind,target,"","blocked".equals(event.optString("action"))),false);}
         }catch(Exception e){label(inbox,"Temuan lokal belum dapat dibaca; data tidak dihapus otomatis.",13,ORANGE,false);}
+    }
+    private void privateDomainAiSection(){
+        LinearLayout ai=card();JSONObject status=DomainAiRepository.status(this);
+        label(ai,"AI lokal · peninjauan domain",21,INK,true);
+        label(ai,"Model mempelajari pola nama domain dari data kategori publik. Analisis berjalan di HP ini tanpa API AI. Model belum menilai isi website atau aplikasi; pemeriksaan aplikasi tetap memakai aturan terpisah.",14,MUTED,false);
+        label(ai,status.optBoolean("modelAvailable")?"Model: "+status.optString("modelVersion")+" · "+status.optInt("featureCount")+" fitur":"Model lokal belum tersedia atau tidak lolos pemeriksaan integritas.",12,MUTED,false);
+        label(ai,status.optBoolean("enabled")?"AI lokal aktif untuk temuan peninjauan.":status.optBoolean("selected")?"Pilihan AI tersimpan; layanan deteksi lokal perlu diaktifkan.":"AI lokal belum dipilih.",14,INK,true);
+        label(ai,"Sinyal AI berstatus diduga dan tidak otomatis memblokir. Model dapat salah dan belum memenuhi bukti independen untuk blokir otomatis. Aturan blokir yang sudah dipilih tetap berlaku.",13,MUTED,false);
+        if(status.optBoolean("selected"))button(ai,"Matikan analisis AI baru",()->{try{DomainAiRepository.setEnabled(this,false);render();info("Analisis AI dihentikan","Temuan yang sudah tersimpan mengikuti izin berbagi sebelumnya. Untuk menghentikan pengiriman, pilih Hentikan berbagi otomatis dan sinkronkan pencabutannya.");}catch(Exception e){info("Pilihan belum tersimpan",e.getMessage());}},false);
+        else button(ai,"Pilih AI lokal untuk peninjauan",()->{
+            if(!status.optBoolean("modelAvailable")){info("Model belum siap","Pasang build yang menyertakan model terverifikasi. Model yang tidak terbaca tidak dipakai untuk memutuskan target aman.");return;}
+            if(!PrivateMonitoring.localEnabled(this)){info("Deteksi lokal belum aktif","Aktifkan deteksi lokal tambahan dan notifikasi yang terlihat terlebih dahulu.");return;}
+            confirm("Aktifkan AI lokal untuk domain?","Nama domain dianalisis secara lokal. Skor adalah sinyal pola, bukan peluang pasti atau persentase akurasi. Jika berbagi otomatis untuk domain aktif, metadata temuan AI juga akan dikirim ke pasangan sesuai izin itu. AI dapat memberi dugaan keliru pada domain normal. Tidak ada nama domain atau isi halaman yang dikirim ke penyedia AI.",this::enableLocalDomainAi);
+        },true);
+        button(ai,"Periksa domain tanpa membuka situs",()->{
+            if(!DomainAiRepository.enabled(this)){info("AI belum aktif","Pilih AI lokal dan aktifkan layanan deteksi terlebih dahulu.");return;}
+            prompt("Analisis nama domain lokal","Nama domain saja","",input->{
+                String target=id.gempur.engine.DomainRules.normalize(input);
+                remote(()->{
+                    id.gempur.engine.LexicalDomainModel.Prediction prediction=DomainAiRepository.predict(this,target);
+                    id.gempur.engine.DetectionPolicy.Decision policy=RuleRepository.evaluate(this,target);
+                    String score=Double.isFinite(prediction.score)?String.format(java.util.Locale.ROOT,"%.4f",prediction.score):"tidak tersedia";
+                    return new JSONObject().put("domain",target).put("score",score).put("abstained",prediction.abstained).put("flagged",prediction.flagged).put("matched",prediction.matchedFeatures).put("total",prediction.totalFeatures).put("verdict",policy.verdict).put("blocked",policy.blocked);
+                },r->info("Hasil peninjauan lokal",r.optString("domain")+"\nSkor model: "+r.optString("score")+" pada skala 0–1; belum dikalibrasi sebagai peluang.\n"+(r.optBoolean("abstained")?"Dukungan fitur tidak cukup; model tidak mengambil kesimpulan.":r.optBoolean("flagged")?"Ada sinyal pola yang perlu ditinjau.":"Tidak melewati ambang peninjauan; ini tidak berarti aman.")+"\nStatus aturan saat ini: "+privateVerdict(r.optString("verdict"))+"\n"+(r.optBoolean("blocked")?"Aturan saat ini membatasi target ini.":"Target ini tidak diblokir oleh keputusan tersebut.")+"\n\nPemeriksaan ini tidak membuka situs atau mengirim laporan deteksi."));
+            });
+        },false);
+        button(ai,"Tentang data dan hasil evaluasi",()->openUrl("https://github.com/benisprlh/Gempur/blob/main/docs/LOCAL_AI_MODEL_CARD.md"),false);
+    }
+    private void enableLocalDomainAi(){
+        if(busy){info("Permintaan masih berjalan","Tunggu proses koneksi selesai, lalu pilih AI kembali agar izin dan kemampuan backend diperiksa pada konteks yang sama.");return;}
+        try{
+            if(PrivateMonitoring.sharing(this).optBoolean("enabled")){
+                JSONObject account=store.remoteContext();
+                remote(()->api.requestPinned("GET","/api/health",null,account),r->{try{if(!sameRemoteAccount(account))throw new Exception("Profil berubah; pilih kembali jika sesuai.");if(!r.optBoolean("localDomainAiSignals"))throw new Exception("Backend belum mendukung sinyal AI. Perbarui backend ke kandidat 0.3 dahulu, atau hentikan berbagi otomatis untuk menggunakan AI lokal saja.");DomainAiRepository.setEnabled(this,true);render();}catch(Exception e){info("AI belum diaktifkan",e.getMessage());}});
+            }else{DomainAiRepository.setEnabled(this,true);render();}
+        }catch(Exception e){info("AI belum diaktifkan",e.getMessage());}
     }
     private void automaticSharingConsent(){
         if(!privateNotificationsReady())return;
@@ -424,13 +461,19 @@ public final class MainActivity extends Activity {
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Persetujuan berbagi otomatis privat").setView(form).setNegativeButton("Batal",null).setPositiveButton("Aktifkan",null).create();
         dialog.setOnShowListener(v->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(b->{
             if(!agree.isChecked()||(!domains.isChecked()&&!apps.isChecked())){info("Pilihan diperlukan","Pilih sedikitnya satu cakupan dan centang persetujuan jika sesuai.");return;}
+            try{
             final String pairing=store.get("pairingId");final long epoch=PrivateMonitoring.sharingEpoch(this);final int consent=Integer.parseInt(store.get("consentVersion"));final JSONArray scopes=new JSONArray();if(domains.isChecked())scopes.put("domain");if(apps.isChecked())scopes.put("app");
-            dialog.dismiss();remote(()->api.request("PUT","/api/pairings/"+pairing+"/automation",new JSONObject().put("enabled",true).put("scopes",scopes)),r->{
+            final JSONObject account=store.remoteContext();final boolean includesDomains=domains.isChecked();
+            dialog.dismiss();remote(()->{
+                if(includesDomains&&DomainAiRepository.enabled(this)&&!api.requestPinned("GET","/api/health",null,account).optBoolean("localDomainAiSignals"))throw new Exception("Perbarui backend ke kandidat 0.3 untuk berbagi sinyal AI, atau matikan AI sebelum memilih berbagi domain.");
+                return api.requestPinned("PUT","/api/pairings/"+pairing+"/automation",new JSONObject().put("enabled",true).put("scopes",scopes),account);
+            },r->{
                 try{JSONObject accepted=r.getJSONObject("automation");
                     if(!pairing.equals(store.get("pairingId"))||!store.get("pendingRevocation").isEmpty()||!accepted.optBoolean("enabled")||!PrivateMonitoring.enableSharingIfCurrent(this,epoch,pairing,consent,accepted.getInt("version"),scopes))throw new Exception("Pilihan lokal berubah; berbagi tidak diaktifkan kembali. Sinkronkan penghentian bila perlu.");
                     PrivateMonitoring.start(this);render();info("Berbagi otomatis aktif","Hanya temuan baru sesuai cakupan ini yang diantrikan. Diterima server belum berarti telah dibaca pendamping.");
                 }catch(Exception e){PrivateMonitoring.disableSharing(this);try{store.put("pendingAutomationOffPairing",pairing);}catch(Exception ignored){}render();info("Belum aktif",e.getMessage());}
             });
+            }catch(Exception e){info("Pilihan belum siap",e.getMessage());}
         }));dialog.show();
     }
     private void disableAutomaticSharing(boolean localToo){
@@ -477,16 +520,17 @@ public final class MainActivity extends Activity {
         });
     }
     private void renderPrivateDetections(boolean companion){
-        for(int i=0;i<Math.min(privateRemoteDetections.length(),30);i++){JSONObject event=privateRemoteDetections.optJSONObject(i);if(event==null)continue;String id=event.optString("id"),kind=event.optString("kind"),target=event.optString("target");LinearLayout c=card();label(c,target,18,INK,true);label(c,kind+" · "+privateVerdict(event.optString("verdict"))+" · "+event.optString("reason")+"\n"+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" kejadian digabung\nWaktu temuan: "+format(event.optString("occurredAt"))+"\nDiterima: "+format(event.optString("receivedAt"))+"\nDibaca: "+(event.isNull("readAt")?"belum ditandai":format(event.optString("readAt"))),13,MUTED,false);
+        for(int i=0;i<Math.min(privateRemoteDetections.length(),30);i++){JSONObject event=privateRemoteDetections.optJSONObject(i);if(event==null)continue;String id=event.optString("id"),kind=event.optString("kind"),target=event.optString("target");LinearLayout c=card();label(c,target,18,INK,true);label(c,kind+" · "+privateVerdict(event.optString("verdict"))+" · "+privateReason(event.optString("reason"))+"\n"+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" kejadian digabung\nWaktu temuan: "+format(event.optString("occurredAt"))+"\nDiterima: "+format(event.optString("receivedAt"))+"\nDibaca: "+(event.isNull("readAt")?"belum ditandai":format(event.optString("readAt"))),13,MUTED,false);
             if(companion)button(c,"Tandai saya telah membaca",()->remote(()->api.request("POST","/api/detections/"+id+"/read",new JSONObject()),r->loadPrivateInbox()),false);
-            else button(c,"Ajukan koreksi salah blok",()->requestPrivateCorrection(kind,target,id),false);
+            else button(c,"Ajukan koreksi temuan",()->requestPrivateCorrection(kind,target,id,"blocked".equals(event.optString("action"))),false);
         }
     }
-    private void requestPrivateCorrection(String kind,String target,String detectionId){
+    private void requestPrivateCorrection(String kind,String target,String detectionId,boolean wasBlocked){
         if(store.get("pairingId").isEmpty()){info("Pasangan belum aktif","Permintaan membutuhkan pasangan terkonfirmasi. Proteksi lokal tetap bisa dihentikan sendiri.");return;}
-        confirm("Ajukan salah blok untuk "+target+"?","Hanya target dan jenis "+kind+" dikirim kepada pendamping. Akses tetap dibatasi sambil menunggu keputusan. Persetujuan menunggu 10 menit dan berlaku terbatas; target lain tetap diblokir.",()->remote(()->{JSONObject payload=new JSONObject().put("pairingId",store.get("pairingId")).put("target",target).put("targetKind",kind).put("reason","false_positive");if(!detectionId.isEmpty())payload.put("detectionId",detectionId);return api.request("POST","/api/exceptions",payload);},r->{try{store.put("exceptionId",r.getJSONObject("exception").getString("id"));info("Diajukan ke pendamping","Periksa keputusan dan terapkan izin pada tab Aturan → Periksa permintaan koreksi. Sampai itu dilakukan target tetap dibatasi.");}catch(Exception e){info("Belum tersimpan",e.getMessage());}}));
+        confirm("Ajukan koreksi untuk "+target+"?","Hanya target dan jenis "+kind+" dikirim kepada pendamping. "+(wasBlocked?"Aturan yang membatasi target tetap berlaku sambil menunggu.":"Temuan ini hanya ditandai untuk ditinjau; AI tidak memblokirnya.")+" Persetujuan menunggu 10 menit dan berlaku terbatas untuk target tepat ini.",()->remote(()->{JSONObject payload=new JSONObject().put("pairingId",store.get("pairingId")).put("target",target).put("targetKind",kind).put("reason","false_positive");if(!detectionId.isEmpty())payload.put("detectionId",detectionId);return api.request("POST","/api/exceptions",payload);},r->{try{store.put("exceptionId",r.getJSONObject("exception").getString("id"));info("Diajukan ke pendamping","Periksa keputusan dan terapkan izin pada tab Aturan → Periksa permintaan koreksi. Peninjauan tidak membuka seluruh proteksi.");}catch(Exception e){info("Belum tersimpan",e.getMessage());}}));
     }
-    private String privateVerdict(String verdict){return "suspected".equals(verdict)?"Diduga · perlu ditinjau":"personal".equals(verdict)?"Aturan pilihan peserta":"known".equals(verdict)?"Cocok daftar aturan":"Status belum diketahui";}
+    private String privateVerdict(String verdict){return "suspected".equals(verdict)?"Diduga · perlu ditinjau":"personal".equals(verdict)?"Aturan pilihan peserta":"known".equals(verdict)?"Cocok daftar aturan":"allowed".equals(verdict)?"Pengecualian sementara aktif":"Status belum diketahui";}
+    private String privateReason(String reason){return "ml_model".equals(reason)?"Sinyal AI lokal":"name_heuristic".equals(reason)?"Aturan pola nama":"personal_rule".equals(reason)?"Aturan pribadi":"known_rule".equals(reason)?"Daftar domain":"Belum diketahui";}
     private String privateAction(String kind,String action){if(!"blocked".equals(action))return "Ditandai untuk tinjauan";return "app".equals(kind)?"Diarahkan ke Beranda Android; jaringan aplikasi tidak diputus":"Permintaan DNS diblokir";}
     private void decidePrivateCorrection(String id,boolean approve){
         confirm(approve?"Setujui salah blok target ini?":"Tolak permintaan?",approve?"Persetujuan hanya untuk target yang ditampilkan, dengan masa tunggu 10 menit dan durasi maksimum 30 menit. Pastikan telah ditinjau; persetujuan tidak membuktikan target aman.":"Target tetap dibatasi. Peserta masih mengendalikan perangkat dan dapat menghentikan layanan sendiri.",()->remote(()->api.request("POST","/api/exceptions/"+id+"/decision",new JSONObject().put("decision",approve?"approve":"deny")),r->loadPrivateInbox()));

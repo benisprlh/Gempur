@@ -37,6 +37,16 @@ public final class PrivateEventPolicy {
     }
 
     public static void validate(String reason, String verdict, String action) {
+        validate(null, reason, verdict, action);
+    }
+
+    public static void validate(String kind, String reason, String verdict, String action) {
+        if ("ml_model".equals(reason)) {
+            if (!"domain".equals(kind) || !"suspected".equals(verdict) || !"flagged".equals(action)) {
+                throw new IllegalArgumentException("Domain AI is advisory-only");
+            }
+            return;
+        }
         if (!("known_rule".equals(reason) && "known".equals(verdict))
                 && !("personal_rule".equals(reason) && "personal".equals(verdict))
                 && !("name_heuristic".equals(reason) && "suspected".equals(verdict))) {

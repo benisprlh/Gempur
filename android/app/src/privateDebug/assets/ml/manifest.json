@@ -1,0 +1,27 @@
+{
+  "attributionFile": "NOTICE.txt",
+  "autoQuarantineEligible": false,
+  "featureCount": 24000,
+  "license": "CC-BY-SA-4.0",
+  "licenses": {
+    "licenseFile": "LICENSE-CC-BY-SA-4.0.txt",
+    "licenseSha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5",
+    "noticeFile": "NOTICE.txt",
+    "noticeSha256": "5e9a6720c9a48a20a35b7061b27d1294e6e7553bc1a9f040d6cd9c756ebaa47c"
+  },
+  "modelBytes": 627278,
+  "modelFile": "domain-model.tsv",
+  "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+  "modelVersion": "domain-ml-2026-11-09-v1",
+  "parityFile": "parity.tsv",
+  "paritySha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+  "reviewThreshold": 0.9948492012769712,
+  "schemaVersion": 1,
+  "scoreMeaning": "Uncalibrated lexical risk score, not verified probability of judol",
+  "training": {
+    "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+    "frozenSelectionSha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff",
+    "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+    "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c"
+  }
+}
