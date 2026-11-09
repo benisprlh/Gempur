@@ -12,7 +12,7 @@ Mesin awal merupakan **DNS-only VPN**, bukan full-tunnel firewall. Jalur DoH/Sec
 
 | Tahap | Target awal | Hasil yang dituju | Syarat sebelum lanjut |
 | --- | --- | --- | --- |
-| Alpha kode dan build | 9–12 November 2026 | APK debug dan AAB pengembangan dari CI, tes otomatis, dokumentasi menjalankan layanan | Build nyata lulus; hasil tidak diklaim sebagai uji HP |
+| Alpha kode dan build | 9–12 November 2026 | APK debug dan AAB dari verifier mandiri, tes otomatis, dokumentasi menjalankan layanan | Build nyata lulus; hasil tidak diklaim sebagai uji HP |
 | Validasi HP dan internal testing | 12–19 November 2026 | Uji HP peserta, OEM pembanding, jaringan, restart, izin, fungsi penting, serta alur pendamping | APK dapat dipasang; masalah privasi/akses bantuan kritis diselesaikan |
 | Closed test | Target mulai 20 November 2026 | Kelompok tester terpilih, catatan penggunaan dan perbaikan harian | Akun Play siap, signed AAB, setup app/disclosure/URL lengkap; durasi dimulai dari opt-in aktual |
 | Evaluasi closed test | Target 4 Desember 2026 atau sesudahnya | Bukti pengujian minimal dan kandidat release | Bila aturan akun personal baru berlaku: ≥12 tester terus opted-in ≥14 hari; engagement dan kelayakan tetap diperiksa Google |
@@ -27,18 +27,24 @@ Tanggal dapat maju untuk internal testing atau mundur untuk produksi sesuai kond
 - Versi `0.x` digunakan untuk pengembangan/pilot. `1.0.0` baru ketika gate rilis terpenuhi.
 - `versionCode` selalu meningkat pada setiap upload Play.
 - Paket/aplikasi, sertifikat signing, dan jalur upgrade dipertahankan. Debug signing tidak menjadi signing produksi.
-- CI menghasilkan debug APK dan release AAB **tanpa signing produksi**. Signed upload dilakukan melalui konfigurasi terotorisasi; kunci disimpan di secret manager/Play sesuai prosedur pemilik akun.
+- Verifier mandiri menghasilkan debug APK dan release AAB **tanpa signing produksi**. Signing upload merupakan langkah lokal terpisah melalui konfigurasi terotorisasi; kunci disimpan di secret manager/Play sesuai prosedur pemilik akun. Lihat [SIGNING.md](SIGNING.md).
 - PR rutin digabung setelah pemeriksaan lulus. Tidak mempublikasikan ke Play otomatis dari daily automation.
 - Simpan changelog, commit SHA, checksum, hasil tes, known issues, dan keputusan go/no-go setiap kandidat.
 - Data peserta tidak direset saat pembaruan. Perubahan format data memerlukan tes migrasi serta pemulihan.
 
 ## Pekerjaan harian
 
-1. Periksa CI, bug, kualitas daftar domain, serta perubahan resmi Android/Google Play.
+1. Periksa hasil verifikasi mandiri, bug, kualitas daftar domain, serta perubahan resmi Android/Google Play.
 2. Pilih perbaikan yang dapat dibuktikan: keamanan consent, ketepatan aturan, konektivitas, konsumsi baterai, atau kegunaan.
 3. Implementasi dan jalankan pemeriksaan yang relevan; jangan mencatat uji yang tidak dilakukan.
 4. Perbarui log harian, status requirement, known issues, dan tanggal target bila dependency berubah.
-5. Gunakan PR dan merge ketika checks lulus. Jangan menonaktifkan proteksi branch atau mengabaikan kegagalan CI agar tampak selesai.
+5. Gunakan PR dan merge ketika verifikasi penuh PASS, `mergeEligible=true`, source sesuai bukti, dan review independen selesai. Tetap patuhi proteksi branch yang benar-benar berlaku; jangan mengabaikan kegagalan pada checks aktif.
+
+## Jalur build aktif
+
+Pemilik memilih beralih dari GitHub Actions ke build mandiri pada 9 November 2026. Jalur aktif adalah `node tools/verify.mjs`, dengan bukti mesin dan log di `out/verify/<run>/`. GitHub tetap menyimpan source code dan review PR; pemulihan billing Actions tidak menjadi dependency build.
+
+Riwayat kegagalan Actions tetap dicatat sebagai kegagalan layanan yang tidak memulai job, bukan hasil tes kode. Mengganti jalur build tidak mengubah status uji perangkat atau kelayakan Play. Tanggal rilis tetap bersyarat pada gate produk yang sama.
 
 ## Go/no-go produksi
 

@@ -20,4 +20,7 @@ data/
 coverage/
 *.log
 .DS_Store
+/out/
+__pycache__/
+*.pyc
 

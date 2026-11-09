@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261109T033847522Z-6382b1",
+  "mode": "full",
+  "startedAt": "2026-11-09T03:38:47.522Z",
+  "finishedAt": "2026-11-09T03:39:08.560Z",
+  "status": "PASS",
+  "mergeEligible": true,
+  "tests": {
+    "node": {
+      "tests": 44,
+      "pass": 44,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidClient": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "limits": {
+    "emulatorExecuted": false,
+    "physicalDeviceTested": false,
+    "playApproved": false,
+    "productionSigningAttempted": false
+  },
+  "notice": "Local operator-generated evidence; not an independent CI attestation, device validation, or Play approval.",
+  "artifacts": [
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "kind": "debug-apk",
+      "bytes": 128869,
+      "sha256": "a2f63428293ad9653373729ce0583ecbe5121e30f022e38a6c377d076644d0d6",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/bundle/release/app-release.aab",
+      "kind": "release-aab",
+      "bytes": 54035,
+      "sha256": "a26b5fc5da1d89eec819ce86f43fd36a46fbc6d27d86d9ca68b9dd3d0faf0179",
+      "signing": "unsigned"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "kind": "instrumentation-apk",
+      "bytes": 4657889,
+      "sha256": "ad6ee6a12cc5f2d6fe199487845e240270013d0b8ccde9dfc5414db0602833dd",
+      "signing": "development"
+    }
+  ],
+  "source": {
+    "before": "434bf137885e3fecf9d9f3f37bf1604064dc5d9b04317c88e2f5c4ac77484ded",
+    "after": "434bf137885e3fecf9d9f3f37bf1604064dc5d9b04317c88e2f5c4ac77484ded",
+    "unchanged": true,
+    "fileCount": 56,
+    "scope": [
+      "android",
+      "server",
+      "web",
+      "tools",
+      "rules"
+    ],
+    "excluded": "Known generated outputs, runtime data and local secrets; root policy/docs reviewed separately"
+  },
+  "commands": [
+    {
+      "id": "node-version",
+      "program": "node",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 7,
+      "validationPassed": true,
+      "logSha256": "9ce0c756238e2c1211cf4aff0648715a9e0f0e8fa36d4b45262b3b75aded0d1b"
+    },
+    {
+      "id": "node-tests",
+      "program": "node",
+      "arguments": [
+        "--test",
+        "--test-reporter=tap",
+        "server/test/api.test.mjs",
+        "tools/rules.test.mjs",
+        "tools/verification.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationMs": 555,
+      "validationPassed": true,
+      "logSha256": "ecc0c57fc2db762d37059c19003b6b0287ddff2617ce26a5d305472860f13892"
+    },
+    {
+      "id": "java-version",
+      "program": "java",
+      "arguments": [
+        "-version"
+      ],
+      "exitCode": 0,
+      "durationMs": 25,
+      "validationPassed": true,
+      "logSha256": "44fe398dfaf7af6244ed7dfc857d60dffe22c196e0436c105be61c92fbe0a018"
+    },
+    {
+      "id": "gradle-version",
+      "program": "gradle",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 429,
+      "validationPassed": true,
+      "logSha256": "b9ee0f57f9b14655a5c59040506b2d444ffac361738cee3bad151942442214cc"
+    },
+    {
+      "id": "android-build",
+      "program": "gradle",
+      "arguments": [
+        "-p",
+        "android",
+        "--no-daemon",
+        "--console=plain",
+        "--rerun-tasks",
+        "--no-build-cache",
+        ":engine:test",
+        ":app:testDebugUnitTest",
+        ":app:lintDebug",
+        ":app:assembleDebug",
+        ":app:bundleRelease",
+        ":app:assembleDebugAndroidTest"
+      ],
+      "exitCode": 0,
+      "durationMs": 19843,
+      "validationPassed": true,
+      "logSha256": "d73996607caae7dfba014dd57caf7b13e161840d377c4216e5e42dfca1f83f80"
+    },
+    {
+      "id": "apk-signature",
+      "program": "apksigner",
+      "arguments": [
+        "verify",
+        "--verbose",
+        "--print-certs",
+        "android/app/build/outputs/apk/debug/app-debug.apk"
+      ],
+      "exitCode": 0,
+      "durationMs": 151,
+      "validationPassed": true,
+      "logSha256": "6b024fb38343198b018d16595aa69cc05e2e4e0cc37b41b9bb487d6e909b3b7b"
+    }
+  ],
+  "testedBaseHead": "00aa2379c9b9a32d855053d20ebc8a6faa863453",
+  "sourceChangesIncluded": "Standalone verifier/packager and disposable-emulator guards; code fingerprint identifies the tested candidate independently of documentation commit metadata.",
+  "review": {
+    "result": "PASS",
+    "method": "Independent read-only agent review",
+    "findingsResolved": [
+      "JVM option secret redaction with regression coverage"
+    ],
+    "probes": [
+      "14 verifier regressions",
+      "Real missing-JDK failure persists FAIL and exits 1",
+      "PARTIAL and FAIL evidence rejected by checker/packager",
+      "Instrumentation reset requires recognized emulator plus explicit disposable-data opt-in"
+    ]
+  },
+  "runEvidencePath": "out/verify/20261109T033847522Z-6382b1/evidence.json",
+  "historicalActions": "Retired at owner request; previous billing-lock failures remain failed history and are not represented as passed."
+}

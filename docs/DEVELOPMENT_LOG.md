@@ -34,3 +34,11 @@ Belum ada hasil build/perangkat yang dicatat oleh dokumen bootstrap ini. Isi bag
 ## 9 November 2026 — hasil akhir fondasi
 
 Lihat [laporan harian](development/2026-11-09.md) dan [bukti build](evidence/2026-11-09-local-build.json). Android source dan build lokal lulus; APK debug serta AAB unsigned tersedia. GitHub Actions belum dapat memulai job karena billing lock. PR #1 tetap terbuka. Tidak ada klaim emulator/HP/Play approval.
+
+## 9 November 2026 — penggantian Actions atas pilihan pemilik
+
+Pemilik memilih build mandiri karena verifikasi pembayaran GitHub gagal. Kedua workflow Actions dihentikan; status gagal historis tetap dipertahankan. `tools/verify.mjs` sekarang menjalankan gate penuh, mencatat source fingerprint, log/report hash, freshness dan checksum artifact. Quick menghasilkan PARTIAL, bukan gate merge. `tools/package-build.py` hanya mengemas bukti full PASS yang masih valid.
+
+Run penuh `20261109T033847522Z-6382b1` PASS: 44 tes Node, 8 engine, 3 client Android, lint 0 issue, APK debug terverifikasi, AAB unsigned serta instrumentation APK terkompilasi. Source sebelum/sesudah sama dan `--check-evidence` PASS. Review independen selesai; redaksi secret pada JVM options diperbaiki beserta regresinya. Tes reset mensyaratkan emulator terisolasi dan opt-in disposable-data sebelum mengakses data sintetis. [Bukti kandidat](evidence/2026-11-09-standalone-build.json).
+
+Tidak ada uji emulator/HP atau signing produksi pada run ini. Semua gate perangkat dan Play tetap berlaku. Pengembangan harian memakai jalur mandiri; pemulihan billing bukan dependency build.

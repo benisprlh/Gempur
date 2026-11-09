@@ -3,6 +3,7 @@ package id.gempur.app;
 import android.content.Context;
 import android.content.Intent;
 import android.net.VpnService;
+import android.os.Build;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -16,12 +17,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.io.File;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class SmokeTest {
     @Rule public ActivityTestRule<MainActivity> activity=new ActivityTestRule<>(MainActivity.class,false,false);
     private Context context;
     @Before public void resetSyntheticDevice() throws Exception {
+        boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
+        assumeTrue("Synthetic reset tests only run on a disposable Android emulator", emulator);
+        assumeTrue("Explicit gempurDisposableTestData=true instrumentation argument is required",
+            "true".equals(InstrumentationRegistry.getArguments().getString("gempurDisposableTestData")));
         context=InstrumentationRegistry.getInstrumentation().getTargetContext();
         new LocalStore(context).wipe();
     }

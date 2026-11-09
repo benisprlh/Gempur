@@ -51,7 +51,7 @@ Form ini perlu diisi secara akurat. Fitur check-in dorongan dan dukungan terkait
 
 ## Pengujian dan review
 
-Untuk akun personal yang tercakup kebijakan akun baru, minimum tester/masa opt-in dan permohonan production access harus dipenuhi berdasarkan catatan Play aktual. Internal testing tidak menggantikan closed testing yang diwajibkan. Hasil production-access review dan app review bukan sesuatu yang dapat dibuat oleh kode CI.
+Untuk akun personal yang tercakup kebijakan akun baru, minimum tester/masa opt-in dan permohonan production access harus dipenuhi berdasarkan catatan Play aktual. Internal testing tidak menggantikan closed testing yang diwajibkan. Hasil production-access review dan app review bukan sesuatu yang dapat dibuat oleh verifier build. Build mandiri menghilangkan dependency GitHub Actions, tetapi tidak menggantikan bukti pengujian perangkat, testing Play, atau keputusan Google.
 
 ## Sumber primer
 

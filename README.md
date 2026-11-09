@@ -11,7 +11,7 @@ Versi **0.1.0-alpha.1** sedang dikembangkan dan diuji. **Belum merupakan rilis s
 - Native Android: filter DNS lokal melalui VPN, aturan tambahan, tes domain sintetis, check-in terenkripsi, rencana dukungan, ekspor/hapus catatan.
 - Pendamping: pairing dengan konfirmasi, snapshot yang dikirim peserta sendiri, permintaan dukungan, koreksi salah blok terbatas, pencabutan akses, ekspor/hapus akun.
 - Mesin aturan: pencocokan domain/IDN/subdomain, parser defensif, pengecualian berjangka, verifikasi paket bertanda tangan.
-- Pengembangan: unit/integration tests, Android lint/build, artifact APK debug dan AAB unsigned melalui GitHub Actions.
+- Pengembangan: unit/integration tests, Android lint/build, serta APK debug dan AAB unsigned melalui verifier mandiri tanpa GitHub Actions.
 
 **Cakupan filter awal terbatas:** DNS biasa pada jalur yang didukung dan domain dalam daftar. DoH/DoT, IP langsung, TCP DNS, VPN lain, serta perangkat lain belum teratasi. Always-on dan lockdown tidak didukung versi DNS-only ini. Daftar awal bukan seluruh judol Indonesia; 480 kandidat dari sumber terbuka disimpan untuk review, bukan otomatis diaktifkan.
 
@@ -19,26 +19,37 @@ Tidak ada pembacaan layar, chat, SMS, OTP, lokasi atau transaksi. Tidak ada klai
 
 ## Mencoba aplikasi Android
 
-1. Buka tab [Actions](https://github.com/benisprlh/Gempur/actions).
-2. Pilih run **Build and test Gempur** yang benar-benar sukses pada commit yang hendak diuji.
-3. Unduh artifact development dan ambil APK debug.
-4. Pasang hanya pada HP uji yang pemiliknya setuju. Baca disclosure dan keterbatasan sebelum mengaktifkan VPN.
+Gunakan paket uji development yang disertai bukti verifikasi, atau hasilkan sendiri dengan proses berikut. Paket pengujian tidak diklaim sebagai rilis stabil.
+
+1. Ikuti [persiapan build mandiri](docs/LOCAL_BUILD.md): Node.js 24, JDK 17, Android SDK 36, build-tools 35.0.0, dan platform-tools.
+2. Dari root repository jalankan:
+
+```sh
+node tools/verify.mjs
+```
+
+3. Periksa hasil `PASS` dan `mergeEligible=true` pada `out/verify/<run>/evidence.json`, beserta source fingerprint dan checksum artifact. Lokasi run ditampilkan oleh verifier.
+4. Ambil APK debug dari path artifact yang tercatat. Pasang hanya pada HP uji yang pemiliknya setuju. Baca disclosure serta keterbatasan sebelum mengaktifkan VPN.
 5. Jalankan tes proteksi aman di aplikasi, lalu ikuti [matriks QA](docs/RELEASE_READINESS.md).
 
 Artifact debug adalah build pengembangan; jangan menjadikannya satu-satunya perlindungan keluarga. Hasil HP nyata, pengujian baterai dan coverage jaringan tetap diperlukan.
 
-Pada 9 November 2026, build lokal telah berhasil menghasilkan APK debug, AAB unsigned, dan instrumentation APK; 41 tes otomatis lulus serta lint Android melaporkan 0 issue. GitHub Actions belum dapat memulai job karena billing lock pada akun. Bukti dan checksum tersedia pada [manifest build lokal](docs/evidence/2026-11-09-local-build.json). APK belum diuji pada HP nyata atau emulator.
+Pada 9 November 2026, verifier mandiri penuh menghasilkan **PASS**, `mergeEligible=true`, **55 tes lulus** (44 Node, 8 engine, 3 client Android), lint 0 issue, APK debug, AAB unsigned, dan instrumentation APK. Source sebelum/sesudah cocok, tanda tangan APK diperiksa, dan review independen selesai. Lihat [bukti build mandiri](docs/evidence/2026-11-09-standalone-build.json); [bukti build awal](docs/evidence/2026-11-09-local-build.json) tetap disimpan sebagai riwayat. APK belum diuji pada HP nyata atau emulator.
+
+GitHub tetap menjadi tempat source code dan PR. Workflow GitHub Actions dihentikan atas pilihan pemilik setelah layanan tersebut terblokir billing. Proses build aktif tidak memerlukan kartu pembayaran atau akun CI baru.
 
 ## Build Android sendiri
 
-Butuh JDK 17, Android SDK platform 36 dan build-tools 35.0.0. Buka direktori `android` di Android Studio, atau:
+Gunakan verifier penuh di atas untuk bukti gabungan server, aturan, Android, lint, dan artifact. Perintah Android langsung tetap tersedia untuk diagnosis:
 
 ```sh
 cd android
-./gradlew :engine:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:bundleRelease
+./gradlew :engine:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:bundleRelease :app:assembleDebugAndroidTest
 ```
 
-Gradle wrapper 8.11.1 disertai checksum distribusi. Release AAB belum ditandatangani dengan identitas upload produksi. Jangan commit keystore atau private key.
+Gradle wrapper 8.11.1 disertai checksum distribusi. Build development menghasilkan release AAB unsigned; [signing produksi](docs/SIGNING.md) merupakan langkah terpisah dengan kunci milik pemilik aplikasi. Jangan commit keystore atau private key.
+
+Untuk pemeriksaan Node saja, `node tools/verify.mjs --quick` menghasilkan status `PARTIAL`, bukan persetujuan merge/rilis. Tidak ada emulator atau pengujian HP yang dijalankan otomatis oleh verifier.
 
 ## Menjalankan dashboard pendamping
 
@@ -59,6 +70,7 @@ Pada APK debug, `http://10.0.2.2:8080` hanya untuk mengakses localhost host dari
 ## Dokumen kerja
 
 - [PRD](docs/PRD.md)
+- [Build dan verifikasi mandiri](docs/LOCAL_BUILD.md)
 - [Rencana rilis dan jadwal bersyarat](docs/RELEASE_PLAN.md)
 - [Release readiness dan bukti pengujian](docs/RELEASE_READINESS.md)
 - [Catatan pengembangan](docs/DEVELOPMENT_LOG.md)

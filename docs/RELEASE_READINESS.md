@@ -1,6 +1,6 @@
 # Release Readiness
 
-Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluruh fitur sudah selesai.** Implementasi dan hasil aktual harus ditambahkan bersama commit SHA/tautan CI oleh pengembang setelah pengujian.
+Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluruh fitur sudah selesai.** Implementasi dan hasil aktual harus ditambahkan bersama commit/source fingerprint serta evidence run oleh pengembang setelah pengujian.
 
 Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi seluruh bukti; `PASS` bukti penerimaan tersedia; `BLOCKED` dependency menghalangi; `DEFERRED` di luar alpha dengan batas jelas.
 
@@ -26,9 +26,10 @@ Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi s
 
 ## Build dan kualitas
 
-- [ ] CI server tests lulus pada commit kandidat. Lokal: 26 tes HTTP integration/security + 4 tes rules tooling PASS. CI terblokir billing sebelum job dimulai; bukan bukti test CI gagal di kode.
-- [ ] CI engine tests, Android unit tests, lint dan assembleDebug lulus.
-- [ ] CI bundleRelease menghasilkan AAB, dengan status signing dicatat.
+- [x] Verifier penuh `node tools/verify.mjs` menghasilkan PASS dan `mergeEligible=true` pada source kandidat 9 November 2026; quick/PARTIAL tidak cukup. Perubahan source berikutnya wajib verifikasi baru.
+- [x] Evidence mencatat tes server/tooling/verifier, engine dan client Android, lint, exit code serta source fingerprint yang cocok.
+- [x] Verifier menghasilkan APK/AAB baru yang cocok dengan checksum evidence; status signing dicatat.
+- [x] Review independen selesai; main tidak memiliki branch protection pada pemeriksaan kandidat ini. Jangan mengubah atau melewati proteksi jika konfigurasi berikutnya berbeda.
 - [ ] APK dipasang dan diuji pada HP nyata; emulator saja tidak cukup.
 - [ ] Android 10+ yang diklaim didukung memiliki bukti versi/OEM yang jelas.
 - [ ] Uji Wi-Fi, data seluler, IPv4/IPv6, browser utama, dan resolver yang relevan.
@@ -61,12 +62,16 @@ Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi s
 
 ## Rekam keputusan rilis
 
-Setiap kandidat harus menambahkan: versi, commit SHA, tanggal, daftar tes dan hasil, perangkat, URL workflow, checksum artifact, known issues, status signing, keputusan go/no-go, serta alasan penundaan. Jangan mengubah kotak menjadi selesai hanya karena kode terlihat benar.
+Setiap kandidat harus menambahkan: versi, commit/source fingerprint, tanggal, daftar tes dan hasil, perangkat, lokasi evidence run, checksum artifact, known issues, status signing, keputusan go/no-go, serta alasan penundaan. Jangan mengubah kotak menjadi selesai hanya karena kode terlihat benar.
 
 
-## Hambatan CI 9 November 2026
+## Riwayat Actions dan penggantian jalur build — 9 November 2026
 
-[Run awal](https://github.com/benisprlh/Gempur/actions/runs/42550373915) tidak memulai job karena anotasi GitHub: “The job was not started because your account is locked due to a billing issue.” Pemeriksaan tetap dikonfigurasi dan tidak dihapus agar status terlihat hijau. PR dibiarkan terbuka; build lokal dilakukan sebagai bukti tambahan, bukan pengganti persetujuan rilis.
+[Run awal](https://github.com/benisprlh/Gempur/actions/runs/42550373915) tidak memulai job karena anotasi GitHub: “The job was not started because your account is locked due to a billing issue.” Kegagalan historis ini tidak dinyatakan sebagai tes yang lulus.
+
+Pemilik kemudian memilih build tanpa GitHub Actions. Kedua workflow Actions dihentikan dan jalur aktif diganti secara eksplisit dengan verifier mandiri. Pemulihan billing bukan dependency build atau merge rutin. Merge sekarang mensyaratkan verifikasi penuh PASS, `mergeEligible=true`, source sesuai bukti, review independen, dan kepatuhan pada proteksi branch yang benar-benar berlaku. Ini tidak menghapus gate produk/Play atau mengizinkan melewati tes aktif yang gagal.
+
+Lihat [LOCAL_BUILD.md](LOCAL_BUILD.md) untuk menjalankan jalur yang baru. Run penuh `20261109T033847522Z-6382b1` telah lulus 55 tes dengan lint 0 issue dan source fingerprint sebelum/sesudah yang sama. [Bukti build mandiri](evidence/2026-11-09-standalone-build.json) mencatat hasil aktual; pemeriksaan ulang evidence juga PASS. Review independen mencakup jalur FAIL nyata, penolakan PARTIAL, checksum, serta pengamanan data instrumentasi. Hasil ini bukan attestation CI independen atau kelulusan perangkat/Play.
 
 FR-04 masih memerlukan release public key dan jalur distribusi aturan produksi. FR-10 belum memiliki push notification; permintaan terlihat ketika dashboard diperbarui. Browser visual E2E belum lulus karena lingkungan lokal menolak socket Chromium dan cloud browser tidak dapat membuka server loopback.
 
@@ -80,4 +85,4 @@ FR-04 masih memerlukan release public key dan jalur distribusi aturan produksi. 
 - Release AAB unsigned. Tidak ada identitas produksi yang diklaim.
 - Instrumentation APK dikompilasi, tetapi emulator dan HP nyata BELUM dijalankan.
 - [Manifest bukti dan checksum](evidence/2026-11-09-local-build.json).
-- [Panduan signing terpisah](SIGNING.md); workflow kandidat manual tersedia, belum dieksekusi dengan kunci produksi.
+- [Panduan signing lokal terpisah](SIGNING.md); konfigurasi belum dieksekusi dengan kunci produksi.
