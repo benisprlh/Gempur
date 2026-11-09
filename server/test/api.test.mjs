@@ -184,3 +184,33 @@ test('domain report rate limit is five per day per participant',async t=>{
   for(let i=0;i<5;i++)assert.equal((await f.call('/api/reports',{method:'POST',token:p.token,body:{target:`site${i}.example`}})).status,201);
   assert.equal((await f.call('/api/reports',{method:'POST',token:p.token,body:{target:'site6.example'}})).status,429);
 });
+test('logout invalidates a capability while another authenticated body is delayed',async t=>{
+  const f=await fixture(t);const p=await f.device('participant');let pending;
+  const result=new Promise((resolve,reject)=>{
+    pending=request(`${f.base}/api/pairings`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${p.token}`,'Transfer-Encoding':'chunked'}},response=>{let data='';response.on('data',chunk=>data+=chunk);response.on('end',()=>resolve({status:response.statusCode,body:JSON.parse(data)}));});
+    pending.on('error',reject);pending.write('{');
+  });
+  await new Promise(resolve=>setTimeout(resolve,25));
+  await f.call('/api/session',{method:'DELETE',token:p.token});pending.end('}');
+  assert.equal((await result).status,401);
+});
+test('Android Emulator Host is accepted only as an exact local development authority',async t=>{
+  const f=await fixture(t);
+  // Use node:http: fetch implementations may replace a caller-supplied Host.
+  const withHost=headers=>new Promise((resolve,reject)=>{
+    const req=request(`${f.base}/api/health`,{headers},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.on('error',reject);req.end();
+  });
+  assert.equal(await withHost({Host:'10.0.2.2:8080'}),200);
+  assert.equal(await withHost({Host:'10.0.2.2'}),200);
+  assert.equal(await withHost({Host:'10.0.2.2.evil.example:8080'}),403);
+  assert.equal(await withHost({Host:'evil.example','X-Forwarded-For':'127.0.0.1','X-Forwarded-Host':'10.0.2.2:8080'}),403);
+  assert.equal(await withHost({Host:'10.0.2.3:8080'}),403);
+});
+test('emulator development authority is denied for a non-loopback socket despite forwarded headers',async()=>{
+  const app=createApp();let status;
+  try{
+    const req={method:'GET',url:'/api/health',headers:{host:'10.0.2.2:8080','x-forwarded-for':'127.0.0.1','x-forwarded-host':'localhost:8080'},socket:{remoteAddress:'192.0.2.25'}};
+    const res={headersSent:false,writeHead:code=>{status=code;},end:()=>{}};
+    await app.handler(req,res);assert.equal(status,403);
+  }finally{app.close();}
+});

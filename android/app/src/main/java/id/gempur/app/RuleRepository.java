@@ -102,7 +102,9 @@ public final class RuleRepository {
         } catch (org.json.JSONException impossible) { throw new IllegalStateException(impossible); }
     }
 
-    public static void clearTemporaryAllowances(Context context) { prefs(context).edit().remove("temporary_allowance").commit(); }
+    public static synchronized void clearTemporaryAllowances(Context context) {
+        if (!prefs(context).edit().remove("temporary_allowance").commit()) throw new IllegalStateException("Pencabutan pengecualian belum tersimpan");
+    }
     private static int bootId(Context context) { return Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1); }
     public static int ruleCount(Context context) { return load(context).size(); }
     public static long signedVersion(Context context) {

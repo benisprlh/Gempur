@@ -27,6 +27,8 @@ Tidak ada pembacaan layar, chat, SMS, OTP, lokasi atau transaksi. Tidak ada klai
 
 Artifact debug adalah build pengembangan; jangan menjadikannya satu-satunya perlindungan keluarga. Hasil HP nyata, pengujian baterai dan coverage jaringan tetap diperlukan.
 
+Pada 9 November 2026, build lokal telah berhasil menghasilkan APK debug, AAB unsigned, dan instrumentation APK; 41 tes otomatis lulus serta lint Android melaporkan 0 issue. GitHub Actions belum dapat memulai job karena billing lock pada akun. Bukti dan checksum tersedia pada [manifest build lokal](docs/evidence/2026-11-09-local-build.json). APK belum diuji pada HP nyata atau emulator.
+
 ## Build Android sendiri
 
 Butuh JDK 17, Android SDK platform 36 dan build-tools 35.0.0. Buka direktori `android` di Android Studio, atau:

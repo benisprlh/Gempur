@@ -1,4 +1,9 @@
 plugins { id 'com.android.application' }
+def uploadEnv = ['GEMPUR_UPLOAD_STORE_FILE', 'GEMPUR_UPLOAD_STORE_PASSWORD', 'GEMPUR_UPLOAD_KEY_ALIAS', 'GEMPUR_UPLOAD_KEY_PASSWORD'].collectEntries { [(it): System.getenv(it)] }
+def signingRequested = uploadEnv.values().any { it }
+if (signingRequested && uploadEnv.values().any { !it }) {
+    throw new GradleException('Upload signing configuration is incomplete; provide all GEMPUR_UPLOAD_* variables without committing them.')
+}
 android {
     namespace 'id.gempur.app'
     compileSdk 36
@@ -10,9 +15,20 @@ android {
         versionName '0.1.0-alpha.1'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+    signingConfigs {
+        if (signingRequested) {
+            releaseUpload {
+                storeFile file(uploadEnv['GEMPUR_UPLOAD_STORE_FILE'])
+                storePassword uploadEnv['GEMPUR_UPLOAD_STORE_PASSWORD']
+                keyAlias uploadEnv['GEMPUR_UPLOAD_KEY_ALIAS']
+                keyPassword uploadEnv['GEMPUR_UPLOAD_KEY_PASSWORD']
+            }
+        }
+    }
     buildTypes {
         debug { applicationIdSuffix '.debug'; versionNameSuffix '-debug' }
         release {
+            if (signingRequested) signingConfig signingConfigs.releaseUpload
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

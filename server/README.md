@@ -14,6 +14,8 @@ npm start
 
 Open <http://127.0.0.1:8080>. The default SQLite database is `server/data/gempur.sqlite` when launched from this directory. Do not commit the data directory or copy it into a public web root.
 
+For the Android Emulator, the debug client can reach the host loopback service at `http://10.0.2.2:8080`. With no `PUBLIC_ORIGIN`, the server accepts the exact `10.0.2.2` Host authority only when the actual TCP peer is loopback (`127.0.0.1`, `::1`, or IPv4-mapped loopback). Other hosts remain rejected; `X-Forwarded-For` and `X-Forwarded-Host` are never trusted to grant this exception. This does not enable remote HTTP binding or relax the HTTPS production-origin requirement.
+
 The browser stores its capability only in an HttpOnly, SameSite=Strict cookie. It is not saved to localStorage. Native clients receive the token once at registration and must encrypt it on the device. Accounts/sessions expire after 30 days; recovery and token rotation are not implemented in this alpha. Losing the session means creating a new identity and pairing again. This is an explicit production release blocker, not a claim of account maturity.
 
 ## Remote deployment

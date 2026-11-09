@@ -110,16 +110,26 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
       for (const table of ['snapshots','supports']) run(`DELETE FROM ${table} WHERE pairing_id=?`, pairingId);
     });
   }
-  async function body(req) {
+  async function body(req, requiresAuth = true) {
     if (!(req.headers['content-type'] || '').startsWith('application/json')) reject(415, 'content_type', 'Gunakan application/json.');
     let count = 0; const chunks = [];
     for await (const chunk of req) { count += chunk.length; if (count > 8192) reject(413, 'too_large', 'Permintaan terlalu besar.'); chunks.push(chunk); }
-    try { const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); if (!plain(parsed)) throw new Error(); return parsed; } catch { reject(400, 'invalid_json', 'JSON tidak valid.'); }
+    let parsed;
+    try { parsed = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); if (!plain(parsed)) throw new Error(); } catch { reject(400, 'invalid_json', 'JSON tidak valid.'); }
+    // A capability may have been revoked while an incomplete body was waiting.
+    if(requiresAuth)authenticate(req);
+    return parsed;
   }
   function expectedOrigin(req) {
     if (publicOrigin) return publicOrigin;
     const host = req.headers.host || '';
-    if (!/^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(host)) reject(403, 'origin_rejected', 'Akses jarak jauh memerlukan PUBLIC_ORIGIN dan HTTPS.');
+    const standardLocalHost=/^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(host);
+    // Android Emulator maps 10.0.2.2 to its host's loopback interface.
+    // Accept that exact development authority only for an actual loopback peer;
+    // forwarded headers never grant this exception.
+    const loopbackPeer=['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+    const emulatorHost=loopbackPeer&&/^10\.0\.2\.2(?::\d+)?$/.test(host);
+    if (!standardLocalHost&&!emulatorHost) reject(403, 'origin_rejected', 'Akses jarak jauh memerlukan PUBLIC_ORIGIN dan HTTPS.');
     return `http://${host}`;
   }
   function send(res, status, payload, headers = {}) {
@@ -152,7 +162,7 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
       if (path === '/api/health' && req.method === 'GET') return send(res,200,{ status:'ok', version:'0.1.0', mode:'voluntary-sharing' });
       if (path === '/api/devices' && req.method === 'POST') {
         throttle(`register:${ip}`,20,60*MINUTE);
-        const payload = await body(req); shape(payload,['role','name']);
+        const payload = await body(req,false); shape(payload,['role','name']);
         if (!['participant','companion'].includes(payload.role)) reject(400,'invalid_role','Peran tidak valid.');
         const name = text(payload.name,60), id = identifier('device'), token = secret();
         run('INSERT INTO devices VALUES (?,?,?,?,?,?)',id,payload.role,name,hash(token),now(),now()+TOKEN_TTL);

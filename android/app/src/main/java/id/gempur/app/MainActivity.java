@@ -108,7 +108,7 @@ public final class MainActivity extends Activity {
     }
     private void startProtection(){
         new AlertDialog.Builder(this).setTitle("Aktifkan filter DNS lokal?")
-            .setMessage("Gempur menggunakan slot VPN Android untuk memeriksa nama domain secara lokal. VPN lain dapat tergantikan. Trafik browsing tidak diunggah ke server Gempur.\n\nFilter ini belum menutup DoH/DoT, IP langsung, atau semua aplikasi. Always-on dan lockdown belum didukung versi ini. Kamu tetap dapat menghentikan layanan dan mencabut izin.")
+            .setMessage("Gempur menggunakan slot VPN Android untuk memeriksa nama domain secara lokal. VPN lain dapat tergantikan. Trafik browsing tidak diunggah ke server Gempur.\n\nNama domain yang diizinkan diteruskan melalui DNS UDP biasa ke resolver jaringan perangkat. Ini bukan VPN untuk mengenkripsi browsing. Private DNS ketat yang terdeteksi membuat layanan menolak aktif.\n\nFilter ini belum menutup DoH/DoT, IP langsung, atau semua aplikasi. Always-on dan lockdown belum didukung versi ini. Kamu tetap dapat menghentikan layanan dan mencabut izin.")
             .setNegativeButton("Batal",null).setPositiveButton("Saya setuju",(d,w)->{
                 if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)
                     requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},3);
@@ -124,8 +124,8 @@ public final class MainActivity extends Activity {
         label(content,"Lawan judol.\nLindungi masa depan.",28,INK,true);
         label(content,"Gempur membantu membatasi akses domain judi yang dikenal, mencatat kondisi secara pribadi, dan meminta dukungan.",16,MUTED,false);
         label(content,"Versi alpha: cakupan terbatas. Bukan terapi atau jaminan berhenti berjudi. Semua aktivitas tetap lokal kecuali kamu memilih membagikannya.",14,MUTED,false);
-        CheckBox adult=new CheckBox(this);adult.setText("Saya berusia 18+ dan memakai perangkat saya sendiri.");content.addView(adult);
-        CheckBox consent=new CheckBox(this);consent.setText("Saya memahami batas proteksi dan memilih menggunakannya secara sukarela.");content.addView(consent);
+        CheckBox adult=new CheckBox(this);adult.setText(R.string.consent_adult);content.addView(adult);
+        CheckBox consent=new CheckBox(this);consent.setText(R.string.consent_limits);content.addView(consent);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Selamat datang di Gempur").setView(content).setCancelable(false).setNegativeButton("Keluar",(d,w)->finish()).setPositiveButton("Mulai",null).create();
         dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
             if(!adult.isChecked()||!consent.isChecked()){info("Konfirmasi diperlukan","Centang kedua pilihan jika sesuai dengan kondisimu.");return;}
@@ -153,7 +153,7 @@ public final class MainActivity extends Activity {
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(24),dp(8),dp(24),0);
         TextView score=text("Dorongan saat ini: 0 / 10",18,INK,true);form.addView(score);
         SeekBar slider=new SeekBar(this);slider.setMax(10);form.addView(slider);
-        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar b,int p,boolean user){score.setText("Dorongan saat ini: "+p+" / 10");}public void onStartTrackingTouch(SeekBar b){}public void onStopTrackingTouch(SeekBar b){}});
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar b,int p,boolean user){score.setText(getString(R.string.urge_score,p));}public void onStartTrackingTouch(SeekBar b){}public void onStopTrackingTouch(SeekBar b){}});
         label(form,"Apakah hari ini ada kejadian berjudi?",14,MUTED,false);
         Spinner answer=new Spinner(this);answer.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Lewati pertanyaan","Tidak","Ya"}));form.addView(answer);
         new AlertDialog.Builder(this).setTitle("Check-in untuk dirimu").setView(form).setNegativeButton("Batal",null).setPositiveButton("Simpan lokal",(d,w)->{
@@ -256,7 +256,7 @@ public final class MainActivity extends Activity {
     }
     private void revokePairing(){
         confirm("Berhenti berbagi?","Pengiriman baru di HP ini akan dihentikan segera. Saat offline, server baru mengetahui pencabutan ketika kamu menyinkronkannya. Proteksi lokal tetap bisa dipakai.",()->{
-            try{String id=store.get("pairingId");store.put("pendingRevocation",id);store.put("pairingId","");RuleRepository.clearTemporaryAllowances(this);store.put("exceptionId","");render();syncRevocation();}catch(Exception e){info("Belum tersimpan","Coba kembali.");}
+            try{synchronized(store){String id=store.get("pairingId");store.put("pendingRevocation",id);store.put("pairingId","");RuleRepository.clearTemporaryAllowances(this);store.put("exceptionId","");}render();syncRevocation();}catch(Exception e){info("Belum tersimpan","Coba kembali.");}
         });
     }
     private void syncRevocation(){
@@ -291,7 +291,7 @@ public final class MainActivity extends Activity {
         label(p,"Tanpa lokasi, SMS, chat, isi rekening, atau pemantauan layar. Catatan terenkripsi di perangkat. Snapshot dan permintaan bantuan dikirim hanya setelah kamu memilihnya.",14,MUTED,false);
         button(p,"Hapus akun server",()->{
             if(store.get("token").isEmpty()){info("Tidak ada akun server","Mode lokal tidak membuat akun.");return;}
-            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",()->remote(()->api.request("DELETE","/api/me",null),r->{try{store.clearRemote();store.put("endpoint","");store.put("pendingPairingId","");store.put("exceptionId","");render();}catch(Exception e){info("Gagal",e.getMessage());}}));
+            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",()->remote(()->api.request("DELETE","/api/me",null),r->{try{store.clearRemote();store.put("endpoint","");store.put("pendingPairingId","");store.put("exceptionId","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception e){info("Gagal",e.getMessage());}}));
         },false);
         button(p,"Tentang proteksi & batasnya",()->info("Gempur "+BuildConfig.VERSION_NAME,"Filter DNS lokal dengan daftar domain terbatas. DoH/DoT, IP langsung, profil lain, VPN lain, dan perangkat lain dapat melewati batas ini. Tidak mendukung always-on/lockdown.\n\nGempur bukan terapi atau layanan darurat. Bantuan profesional dapat berjalan bersama pendampingan keluarga.\n\nSource dan perkembangan: github.com/benisprlh/Gempur"),false);
     }
@@ -307,8 +307,10 @@ public final class MainActivity extends Activity {
                     String permittedPairing=store.get("pairingId");
                     JSONObject permit=api.request("POST","/api/exceptions/"+id+"/permit",new JSONObject());
                     JSONObject applied=api.request("POST","/api/exceptions/"+id+"/apply",new JSONObject().put("permitToken",permit.getString("permitToken")));
-                    if(permittedPairing.isEmpty()||!permittedPairing.equals(store.get("pairingId"))||!store.get("pendingRevocation").isEmpty())throw new Exception("Izin berbagi telah dicabut; koreksi tidak diterapkan lokal.");
-                    RuleRepository.temporaryAllow(this,applied.getString("target"),Instant.parse(applied.getString("expiresAt")).toEpochMilli());return applied;
+                    synchronized(store){
+                        if(permittedPairing.isEmpty()||!permittedPairing.equals(store.get("pairingId"))||!store.get("pendingRevocation").isEmpty())throw new Exception("Izin berbagi telah dicabut; koreksi tidak diterapkan lokal.");
+                        RuleRepository.temporaryAllow(this,applied.getString("target"),Instant.parse(applied.getString("expiresAt")).toEpochMilli());
+                    }return applied;
                 },result->info("Koreksi diterapkan","Pengecualian hanya untuk target ini, maksimal 30 menit. Proteksi lain tetap aktif.")));
             }else info("Status koreksi",e.optString("target")+"\nStatus: "+state+"\nTidak ada pembukaan seluruh proteksi.");
         });

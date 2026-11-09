@@ -15,6 +15,7 @@ data/
 *.jks
 *.keystore
 *.pem
+!android/app/src/main/assets/rules-public.pem
 *.key
 coverage/
 *.log
