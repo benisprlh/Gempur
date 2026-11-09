@@ -1,0 +1,13 @@
+# Synthetic/essential-service negative controls, never a complete allowlist.
+example.com
+example.org
+google.com
+www.google.com
+kemkes.go.id
+ojk.go.id
+bca.co.id
+bankmandiri.co.id
+whatsapp.com
+github.com
+github.io
+cloudflare.com

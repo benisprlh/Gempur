@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "compiledAt": "2026-11-09",
+  "source": "Manually curated public gambling-brand domain names; independently compiled for Gempur. No third-party blocklist was copied.",
+  "coverage": "Limited international starter set, not a validated Indonesian judol feed.",
+  "realDomainCount": 10,
+  "testDomain": "gempur-block.test",
+  "referencePages": [
+    "https://www.bet365.com/",
+    "https://www.pokerstars.com/",
+    "https://www.betfair.com/",
+    "https://www.williamhill.com/",
+    "https://www.ladbrokes.com/",
+    "https://www.unibet.com/",
+    "https://www.888casino.com/",
+    "https://stake.com/",
+    "https://1xbet.com/",
+    "https://www.sbobet.com/"
+  ],
+  "limitations": ["No claim of current exhaustive coverage", "DNS-over-HTTPS, DNS-over-TLS, direct IP and a second VPN may bypass DNS-only filtering", "No inference about intent, bets, or money from a DNS request"]
+}

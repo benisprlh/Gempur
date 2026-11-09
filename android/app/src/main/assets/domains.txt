@@ -1,0 +1,16 @@
+# Gempur seed list v1 — manually selected public gambling brand domains, 2026-11-09.
+# Facts compiled for this project, not copied from a proprietary filtering feed.
+# This small starter list is not comprehensive coverage of Indonesian gambling.
+# Match each exact domain and its subdomains; no content inspection.
+bet365.com
+pokerstars.com
+betfair.com
+williamhill.com
+ladbrokes.com
+unibet.com
+888casino.com
+stake.com
+1xbet.com
+sbobet.com
+# Reserved .test diagnostic fixture; never a real gambling destination.
+gempur-block.test
