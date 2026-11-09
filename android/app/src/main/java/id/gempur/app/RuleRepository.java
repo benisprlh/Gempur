@@ -6,6 +6,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.AtomicFile;
 import android.util.Base64;
+import id.gempur.engine.DetectionPolicy;
 import id.gempur.engine.DomainRules;
 import id.gempur.engine.TemporaryAllowance;
 import org.json.JSONArray;
@@ -37,14 +38,27 @@ public final class RuleRepository {
     public static synchronized DomainRules load(Context context) {
         List<String> lines = trusted(context);
         lines.addAll(list(context));
+        return DomainRules.withExactExceptions(lines, activeExceptions(context));
+    }
+
+    public static DetectionPolicy.Decision evaluate(Context context, String domain) {
+        // Read the private store before taking the rules lock; stop/revoke may clear rules after updating consent.
+        boolean heuristicEnabled = BuildConfig.PRIVATE_BUILD && PrivateMonitoring.localEnabled(context);
+        synchronized (RuleRepository.class) {
+            return DetectionPolicy.evaluateDomain(domain, trusted(context), list(context), activeExceptions(context), heuristicEnabled);
+        }
+    }
+
+    private static List<String> activeExceptions(Context context) {
         List<String> exceptions = new ArrayList<>();
         try {
             JSONObject saved = new JSONObject(prefs(context).getString("temporary_allowance", "{}"));
             TemporaryAllowance allowance = new TemporaryAllowance(saved.getString("domain"), saved.getLong("createdWall"),
                     saved.getLong("createdElapsed"), saved.getLong("expiresWall"), saved.getInt("bootId"));
-            if (allowance.isActive(System.currentTimeMillis(), SystemClock.elapsedRealtime(), bootId(context))) exceptions.add(allowance.domain);
+            if (!DetectionPolicy.isDiagnosticDomain(allowance.domain)
+                    && allowance.isActive(System.currentTimeMillis(), SystemClock.elapsedRealtime(), bootId(context))) exceptions.add(allowance.domain);
         } catch (Exception absentOrExpired) { /* No active exception. */ }
-        return DomainRules.withExactExceptions(lines, exceptions);
+        return exceptions;
     }
 
     private static List<String> trusted(Context context) {
@@ -92,7 +106,8 @@ public final class RuleRepository {
 
     public static synchronized void temporaryAllow(Context context, String domain, long expiresAt) {
         String normalized = DomainRules.normalize(domain);
-        if (isBundledDomain(context, normalized)) throw new IllegalArgumentException("Domain judi yang dikenal tidak dapat dikecualikan");
+        if (DetectionPolicy.isDiagnosticDomain(normalized)) throw new IllegalArgumentException("Domain diagnostik tidak dapat dikecualikan");
+        if (!BuildConfig.PRIVATE_BUILD && isBundledDomain(context, normalized)) throw new IllegalArgumentException("Domain judi yang dikenal tidak dapat dikecualikan");
         TemporaryAllowance allowance = new TemporaryAllowance(normalized, System.currentTimeMillis(), SystemClock.elapsedRealtime(), expiresAt, bootId(context));
         try {
             JSONObject saved = new JSONObject();

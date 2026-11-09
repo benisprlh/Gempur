@@ -16,7 +16,7 @@ import android.net.VpnService;
 import android.os.ParcelFileDescriptor;
 import android.system.OsConstants;
 import id.gempur.engine.DnsCodec;
-import id.gempur.engine.DomainRules;
+import id.gempur.engine.DetectionPolicy;
 import id.gempur.engine.Ipv4Udp;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -143,9 +143,11 @@ public final class ProtectionService extends VpnService {
         if (!RUNNING.get()) return;
         try {
             DnsCodec.Query query = DnsCodec.parseQuery(packet.payload);
-            DomainRules rules = RuleRepository.load(this);
-            if (rules.isBlocked(query.domain)) {
-                countBlock(); send(packet, DnsCodec.nxdomain(packet.payload)); return;
+            DetectionPolicy.Decision decision = RuleRepository.evaluate(this, query.domain);
+            if (decision.blocked) {
+                PrivateMonitoring.record(this, "domain", query.domain, decision.reason, decision.verdict, "blocked");
+                if (!DetectionPolicy.isDiagnosticDomain(query.domain)) countBlock();
+                send(packet, DnsCodec.nxdomain(packet.payload)); return;
             }
             if (packet.payload.length > 4096) { send(packet, DnsCodec.servfail(packet.payload)); return; }
             for (Resolver resolver : resolvers()) {

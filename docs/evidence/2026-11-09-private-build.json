@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 2,
+  "runId": "20261109T044031466Z-7b1096",
+  "mode": "full",
+  "startedAt": "2026-11-09T04:40:31.466Z",
+  "finishedAt": "2026-11-09T04:40:55.715Z",
+  "status": "PASS",
+  "mergeEligible": true,
+  "tests": {
+    "node": {
+      "tests": 70,
+      "pass": 70,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "engine": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidClient": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "privateAndroidClient": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "privateLint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "distribution": {
+    "ordinaryMonitoringDisabled": true,
+    "privateMonitoringEnabled": true,
+    "ordinaryManifestIsolated": true,
+    "privateManifestDeclared": true,
+    "targetedAppVisibility": true,
+    "applicationIds": {
+      "release": "id.gempur.app",
+      "debug": "id.gempur.app.debug",
+      "private": "id.gempur.app.private.debug"
+    }
+  },
+  "limits": {
+    "emulatorExecuted": false,
+    "physicalDeviceTested": false,
+    "playApproved": false,
+    "productionSigningAttempted": false
+  },
+  "notice": "Local operator-generated evidence; not an independent CI attestation, device validation, or Play approval.",
+  "artifacts": [
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "kind": "debug-apk",
+      "bytes": 208169,
+      "sha256": "0028a10c9f92b055a0668e98a7a113d2ad3c7f033025965fd3b22f2ea771ffbd",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk",
+      "kind": "private-debug-apk",
+      "bytes": 219476,
+      "sha256": "afbef887125f4465962d15130c73c74ece6621902ab12fa04a27587fd88776de",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/bundle/release/app-release.aab",
+      "kind": "release-aab",
+      "bytes": 57693,
+      "sha256": "2784fe6b17d1928a4751ebc8e4da69088f657806cd62d7a1618179473b470bc5",
+      "signing": "unsigned"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "kind": "instrumentation-apk",
+      "bytes": 4666513,
+      "sha256": "9fbb6229cb2c89bae3acaeb7a073b6b291bd0bd69830182dbb5dba030afda8d4",
+      "signing": "development"
+    }
+  ],
+  "source": {
+    "before": "5ed14f0f660097fde558700a7388d7c8889c95b5638acad40633bf4a601bc331",
+    "after": "5ed14f0f660097fde558700a7388d7c8889c95b5638acad40633bf4a601bc331",
+    "unchanged": true,
+    "fileCount": 73,
+    "scope": [
+      "android",
+      "server",
+      "web",
+      "tools",
+      "rules"
+    ]
+  },
+  "commands": [
+    {
+      "id": "node-version",
+      "program": "node",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 8,
+      "validationPassed": true,
+      "logSha256": "9ce0c756238e2c1211cf4aff0648715a9e0f0e8fa36d4b45262b3b75aded0d1b"
+    },
+    {
+      "id": "node-tests",
+      "program": "node",
+      "arguments": [
+        "--test",
+        "--test-reporter=tap",
+        "server/test/api.test.mjs",
+        "server/test/private-monitoring.test.mjs",
+        "tools/dashboard.test.mjs",
+        "tools/rules.test.mjs",
+        "tools/verification.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationMs": 747,
+      "validationPassed": true,
+      "logSha256": "1350c9a60bfcbeb581177ca947cb2a366ae1cd754059ac79b59c39f8b3ee09ee"
+    },
+    {
+      "id": "java-version",
+      "program": "java",
+      "arguments": [
+        "-version"
+      ],
+      "exitCode": 0,
+      "durationMs": 23,
+      "validationPassed": true,
+      "logSha256": "44fe398dfaf7af6244ed7dfc857d60dffe22c196e0436c105be61c92fbe0a018"
+    },
+    {
+      "id": "gradle-version",
+      "program": "gradle",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 487,
+      "validationPassed": true,
+      "logSha256": "b9ee0f57f9b14655a5c59040506b2d444ffac361738cee3bad151942442214cc"
+    },
+    {
+      "id": "android-build",
+      "program": "gradle",
+      "arguments": [
+        "-p",
+        "android",
+        "--no-daemon",
+        "--console=plain",
+        "--rerun-tasks",
+        "--no-build-cache",
+        ":engine:test",
+        ":app:testDebugUnitTest",
+        ":app:testPrivateDebugUnitTest",
+        ":app:lintDebug",
+        ":app:lintPrivateDebug",
+        ":app:assembleDebug",
+        ":app:assemblePrivateDebug",
+        ":app:bundleRelease",
+        ":app:assembleDebugAndroidTest"
+      ],
+      "exitCode": 0,
+      "durationMs": 22658,
+      "validationPassed": true,
+      "logSha256": "2bb736757f1837d04c2fa1c07fa93e22850f0ff4e97a607c11f2bceefe68b56b"
+    },
+    {
+      "id": "apk-signature",
+      "program": "apksigner",
+      "arguments": [
+        "verify",
+        "--verbose",
+        "--print-certs",
+        "android/app/build/outputs/apk/debug/app-debug.apk"
+      ],
+      "exitCode": 0,
+      "durationMs": 146,
+      "validationPassed": true,
+      "logSha256": "6b024fb38343198b018d16595aa69cc05e2e4e0cc37b41b9bb487d6e909b3b7b"
+    },
+    {
+      "id": "private-apk-signature",
+      "program": "apksigner",
+      "arguments": [
+        "verify",
+        "--verbose",
+        "--print-certs",
+        "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk"
+      ],
+      "exitCode": 0,
+      "durationMs": 147,
+      "validationPassed": true,
+      "logSha256": "6b024fb38343198b018d16595aa69cc05e2e4e0cc37b41b9bb487d6e909b3b7b"
+    }
+  ],
+  "reports": [
+    {
+      "path": "android/engine/build/test-results/test/TEST-id.gempur.engine.DetectionPolicyTest.xml",
+      "bytes": 1408,
+      "sha256": "c28e1eebda80f828b2774406acf49292ec8ef908c43c0e4a410dd6d22ab6f3ce",
+      "modifiedAt": "2026-11-09T04:40:41.555Z"
+    },
+    {
+      "path": "android/engine/build/test-results/test/TEST-id.gempur.engine.EngineTest.xml",
+      "bytes": 1189,
+      "sha256": "266ec05cd99a5b073bc65688095693360923a325fffb04c67c2157a9ef9a99e2",
+      "modifiedAt": "2026-11-09T04:40:41.555Z"
+    },
+    {
+      "path": "android/app/build/test-results/testDebugUnitTest/TEST-id.gempur.app.CompanionClientTest.xml",
+      "bytes": 695,
+      "sha256": "6dbab120ff680ebb660efe4d4ea580adf79ce255f15b7ab84a80a42df01ecb2d",
+      "modifiedAt": "2026-11-09T04:40:44.493Z"
+    },
+    {
+      "path": "android/app/build/test-results/testDebugUnitTest/TEST-id.gempur.app.PrivateEventPolicyTest.xml",
+      "bytes": 799,
+      "sha256": "bb2210592f0c3c94ea5de643b21f84b60998b53eea66c7183ce24d606995b803",
+      "modifiedAt": "2026-11-09T04:40:44.493Z"
+    },
+    {
+      "path": "android/app/build/test-results/testPrivateDebugUnitTest/TEST-id.gempur.app.CompanionClientTest.xml",
+      "bytes": 697,
+      "sha256": "e87d937825fd23b9b9cc9a5290b64bc66e5a477f62d7683369cbd9d6d51c3d97",
+      "modifiedAt": "2026-11-09T04:40:45.024Z"
+    },
+    {
+      "path": "android/app/build/test-results/testPrivateDebugUnitTest/TEST-id.gempur.app.PrivateEventPolicyTest.xml",
+      "bytes": 799,
+      "sha256": "e3b5263629d373ccbb7232c50f6cdd6893c007ea63363323a367d62fc97a413f",
+      "modifiedAt": "2026-11-09T04:40:45.024Z"
+    },
+    {
+      "path": "android/app/build/reports/lint-results-debug.xml",
+      "bytes": 87,
+      "sha256": "f6a199ee69eaae06333f965106926fb34b6f8aba15a12b6b3fc06796e18c76cc",
+      "modifiedAt": "2026-11-09T04:40:55.146Z"
+    },
+    {
+      "path": "android/app/build/reports/lint-results-privateDebug.xml",
+      "bytes": 87,
+      "sha256": "f6a199ee69eaae06333f965106926fb34b6f8aba15a12b6b3fc06796e18c76cc",
+      "modifiedAt": "2026-11-09T04:40:55.183Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml",
+      "bytes": 2266,
+      "sha256": "37735e7b3f6fcc45d28851ebb8396e6233bff1e570ba6e07fc9055fad5cfe94a",
+      "modifiedAt": "2026-11-09T04:40:47.710Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml",
+      "bytes": 2311,
+      "sha256": "b8dc364e2592a397bb8d3b3bd6088ded55a7f80f93942bc222190f0b1e0b5644",
+      "modifiedAt": "2026-11-09T04:40:42.162Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/privateDebug/processPrivateDebugManifest/AndroidManifest.xml",
+      "bytes": 3673,
+      "sha256": "5e54335b98bd3c90cb0950a54af2f1868dab9e9bbf6c54916f1b38fd99342df4",
+      "modifiedAt": "2026-11-09T04:40:42.281Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/release/id/gempur/app/BuildConfig.java",
+      "bytes": 465,
+      "sha256": "95f642da677cd46665a6d4ba4b8d20a2e5a31b2191bf9e9538cf4b40d42945dd",
+      "modifiedAt": "2026-11-09T04:40:47.629Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/debug/id/gempur/app/BuildConfig.java",
+      "bytes": 498,
+      "sha256": "a75beff96f8081010e5314020bfb6fa552a4d58ffed4b93ea4af63f6a6eed377",
+      "modifiedAt": "2026-11-09T04:40:41.606Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/privateDebug/id/gempur/app/BuildConfig.java",
+      "bytes": 529,
+      "sha256": "6bd3033f94be2c29b307b1d00d5c3cceee6b889d161f80ff16dfe9209477781c",
+      "modifiedAt": "2026-11-09T04:40:42.187Z"
+    }
+  ],
+  "testedBaseHead": "eb92cb6639baebfafc7a7e65e37b96e5d8de4608",
+  "review": {
+    "result": "PASS",
+    "method": "Independent read-only code review plus focused tests",
+    "covered": [
+      "Ordinary/private variant and targeted package visibility",
+      "Separate consent, grant versions, epoch and durable server-off binding",
+      "Atomic account vault and pinned origin/capability HTTP requests",
+      "Bounded encrypted outbox, idempotency, scopes, diagnostic suppression",
+      "Notification visibility, foreground lifecycle, dismissal and revocation",
+      "Typed exact false-positive permit, TTL, replay and pair authorization",
+      "Web profile/pair/permission async races",
+      "Private-only scanner/Accessibility source and resource isolation"
+    ]
+  },
+  "runEvidencePath": "out/verify/20261109T044031466Z-7b1096/evidence.json",
+  "knownLimits": [
+    "No emulator or physical-phone runtime tests",
+    "No verified HTTPS two-phone notification delivery",
+    "No battery or DNS-burst latency evidence",
+    "Name heuristics are suspected classifications, not content analysis",
+    "Visible launchable app subset only; HOME interruption is not network firewall or suspension",
+    "DNS-only coverage still excludes DoH/DoT/direct IP/TCP DNS and other profiles/devices",
+    "Domain seed remains limited;480 Indonesian candidates stay pending",
+    "No public backend deployment, production signing, or Play approval"
+  ]
+}

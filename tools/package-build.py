@@ -33,23 +33,25 @@ def package(evidence_path, destination):
         raise ValueError("Evidence validation failed: " + (validation.stdout or validation.stderr).strip())
     evidence = json.loads(evidence_path.read_text())
     entries = {}
+    names = {"debug-apk": "Gempur-debug.apk", "private-debug-apk": "Gempur-private-debug.apk",
+             "release-aab": "Gempur-release-unsigned.aab"}
     for artifact in evidence["artifacts"]:
-        path = Path(artifact["path"])
-        parts = path.parts
-        if path.suffix == ".apk" and "debug" in parts and "androidTest" not in parts:
-            entries["Gempur-debug.apk"] = checked_bytes(artifact)
-        elif path.suffix == ".aab" and "release" in parts:
+        kind = artifact["kind"]
+        if kind == "release-aab":
             if artifact.get("signing") != "unsigned":
                 raise ValueError("Development package must not mislabel a signed release bundle")
-            entries["Gempur-release-unsigned.aab"] = checked_bytes(artifact)
-    if set(entries) != {"Gempur-debug.apk", "Gempur-release-unsigned.aab"}:
-        raise ValueError("Both debug APK and unsigned release AAB are required")
+        if kind in names:
+            entries[names[kind]] = checked_bytes(artifact)
+    if set(entries) != set(names.values()):
+        raise ValueError("Ordinary APK, isolated private APK and unsigned release AAB are required")
     entries["verification.json"] = evidence_path.read_bytes()
     entries["BACA_DULU.txt"] = (
         "GEMPUR — PAKET UJI BUILD MANDIRI\n\n"
         "Source: https://github.com/benisprlh/Gempur\n"
         "Build ini tidak memerlukan GitHub Actions atau verifikasi pembayaran GitHub.\n\n"
         "Gempur-debug.apk: aplikasi pengembangan untuk HP uji Android 10+.\n"
+        "Gempur-private-debug.apk: APK PRIVAT TERPISAH untuk uji deteksi/berbagi otomatis yang diizinkan peserta. "
+        "Application ID id.gempur.app.private.debug; akun/data tidak otomatis dipindah dari build biasa.\n"
         "Gempur-release-unsigned.aab: bundle tanpa upload signing produksi; belum siap diunggah ke Play.\n"
         "verification.json: hasil pemeriksaan penuh dan fingerprint source yang diuji.\n\n"
         "Ekstrak paket, baca keterbatasan, lalu pasang APK hanya pada perangkat yang pemiliknya setuju. "
@@ -57,6 +59,13 @@ def package(evidence_path, destination):
         "Ini masih alpha. Lulus build dan tes otomatis tidak membuktikan lulus uji HP nyata, emulator, "
         "baterai, seluruh browser, atau persetujuan Play. DNS-only masih dapat dilewati DoH/DoT, IP langsung, "
         "TCP DNS, VPN lain, serta perangkat lain. Daftar awal belum mencakup seluruh judol Indonesia.\n\n"
+        "APK privat tidak membuktikan kelayakan Play/Play Protect. Deteksi nama adalah dugaan yang bisa salah. "
+        "Pemblokiran aplikasi adalah interupsi lewat Accessibility setelah diaktifkan peserta, bukan suspensi sistem "
+        "atau pembacaan isi aplikasi. Peserta tetap dapat menghentikan fitur.\n\n"
+        "Berbagi otomatis OFF setelah instalasi dan memerlukan persetujuan terpisah dengan pairing terkonfirmasi. "
+        "Notifikasi pendamping memakai layanan polling yang dimulai pengguna dengan notifikasi terlihat, "
+        "bukan FCM/Web Push dan tidak dijamin segera terkirim. Izin notifikasi/Accessibility diatur peserta. "
+        "Backend HTTPS harus diaktifkan operator dengan GEMPUR_PRIVATE_MONITORING=true untuk uji dua HP.\n\n"
         "Fitur lokal dapat dipakai tanpa server. Pendamping jarak jauh memerlukan backend HTTPS sendiri. "
         "Aplikasi ini alat bantu pendampingan, bukan terapi atau layanan darurat.\n"
     ).encode()

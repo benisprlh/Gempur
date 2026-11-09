@@ -2,17 +2,35 @@
 
 | Atribut | Nilai |
 | --- | --- |
-| Versi | 0.1 |
+| Versi | 0.2 — baseline dasar dan adendum uji privat |
 | Tanggal | 9 November 2026, WIB |
-| Status | Draf spesifikasi produk; siap untuk desain, validasi teknis, dan perencanaan implementasi |
+| Status | Spesifikasi dan kandidat alpha; hasil build/perangkat mengikuti readiness, bukan status dokumen ini |
 | Pemilik kebutuhan | Pemilik repository Gempur |
 | Fokus | Mengurangi akses judi online dan memudahkan dukungan keluarga |
 | Pengguna awal | Peserta dewasa yang memakai Android dan bersedia didampingi |
-| Perangkat pendamping | Browser di HP Android atau iPhone |
+| Perangkat pendamping | Browser pada versi dasar; Android native untuk polling/notifikasi uji privat |
 | Pilot yang diusulkan | Satu pasangan peserta–pendamping, 14 hari setelah validasi teknis |
 | Bahasa produk | Bahasa Indonesia |
 
 > Dokumen ini menetapkan perilaku produk yang diinginkan. Angka target, durasi, stack, dan tahapan yang berlabel usulan belum merupakan hasil pengujian atau keputusan pengguna. Pinjol dan pengelolaan utang berada di luar versi ini.
+
+## Adendum uji privat — keputusan 9 November 2026
+
+Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberitahuan temuan kepada pendamping, serta persetujuan salah blok. Adendum ini mengubah batas manual-only **hanya untuk `privateDebug`**, beridentitas `id.gempur.app.private.debug`. Default debug/release tetap manual. Server juga default menolak private monitoring; flag operator tidak dapat mengaktifkan fitur pada build biasa. Ini belum merupakan penerimaan Play atau pengecualian Play Protect. [S1][S11]
+
+| Requirement privat | Perilaku dan batas penerimaan |
+| --- | --- |
+| P-FR-01 | Consent deteksi lokal dan consent berbagi otomatis terpisah, default mati. Peserta memilih scope domain/aplikasi untuk pasangan yang telah dikonfirmasi; perubahan grant memiliki versi sendiri. |
+| P-FR-02 | Pisahkan known/personal/suspected/unknown. Aturan domain dikenal tetap otomatis; pola nama yang kuat hanya dugaan dan dapat dikarantina setelah opt-in. Tidak ada AI, pembacaan isi HTTPS, atau jaminan semua target dikenali. |
+| P-FR-03 | Analisis nama/paket aplikasi bersifat lokal, terbatas pada subset launcher yang terlihat melalui query MAIN/LAUNCHER; headless/seluruh inventaris tidak tercakup dan tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Accessibility opsional hanya menerima event paket dan mencoba HOME; bukan suspend aplikasi, firewall, pembacaan teks layar, atau pencegahan uninstall. Aplikasi sistem/fungsi penting dikecualikan. |
+| P-FR-04 | Unggah hanya temuan sesuai scope: target domain/paket, alasan/verdict, tindakan, waktu bucket dan count gabungan. Tidak mengunggah URL lengkap, general browsing history, inventaris aplikasi, atau stream foreground. Fixture diagnostik dikecualikan. |
+| P-FR-05 | Antrean lokal terenkripsi terbatas, TTL 24 jam, penggabungan target per 5 menit dan deduplikasi ID. Server menahan maksimal 500 temuan/pasangan selama 7 hari, dengan batas batch/rate dan versi grant. Tidak ada klaim pengiriman seluruh kejadian. |
+| P-FR-06 | Native pendamping memakai layanan foreground yang dimulai pengguna dan polling sekitar 30 detik. Notifikasi umum pada lock screen; detail di app. Bukan FCM/Web Push, status live, jaminan 24/7, atau bukti manusia membaca. |
+| P-FR-07 | Salah blok diajukan peserta untuk jenis dan target tepat satu domain/paket. Pendamping meninjau; persetujuan memiliki cooldown 10 menit dan kedaluwarsa maksimal 30 menit setelah cooldown. Peserta tetap harus menerapkan lokal dengan permit satu kali. Tidak ada global unlock. |
+| P-FR-08 | Off/revoke/logout/delete menghentikan pengiriman terkait. Hapus riwayat deteksi lokal menghentikan tambahan privat dan membersihkan inbox HP, tetap menyimpan penanda penghentian server yang belum sinkron. Penghentian layanan/notifikasi bukan bukti revokasi server; re-enable ditahan sampai sinkronisasi grant yang sesuai. Saat offline, penghentian lokal segera dan revokasi server menyusul; salinan yang telah dilihat tidak dapat ditarik kembali. |
+| P-FR-09 | Rilis pilot memerlukan full build/lint varian biasa dan privat, review independen, isolasi manifest release, serta bukti dua HP. Daftar aktif tetap 10 seed domain dan fixture; 480 kandidat Indonesia belum otomatis aktif. |
+
+Skenario dan langkah setup berada pada [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md); detail antarmuka pada [kontrak privat](PRIVATE_AUTOMATION_CONTRACT.md). Bagian berikut tetap menjelaskan baseline dan kebutuhan jangka panjang; keberadaan kode tidak menandakan seluruh acceptance telah lulus.
 
 ## 1. Ringkasan keputusan
 
@@ -24,7 +42,7 @@ Produk memiliki tiga fungsi utama:
 2. **Membantu saat dorongan muncul:** menyediakan tombol meminta dukungan dan rencana kegiatan pengalihan yang ditentukan peserta.
 3. **Membantu pendamping bertindak:** menampilkan permintaan bantuan, ringkasan yang dibagikan, dan permintaan koreksi blok yang keliru.
 
-**Keputusan distribusi:** versi dasar menggunakan proteksi lokal dan pengiriman informasi yang dipicu peserta. Pemantauan aktivitas dewasa secara otomatis ke HP orang lain bukan komitmen MVP. Kebijakan Google Play membatasi penggunaan aplikasi monitoring orang lain, termasuk terhadap orang dewasa yang menyetujui. Fitur berbagi sukarela juga harus dinilai berdasarkan implementasinya; tidak dianggap otomatis disetujui. [S1]
+**Keputusan distribusi:** versi dasar menggunakan proteksi lokal dan pengiriman informasi yang dipicu peserta. Otomasi dewasa hanya menjadi kandidat uji privat yang dijelaskan pada adendum, bukan komitmen Play MVP. Kebijakan monitoring serta data flow tetap harus ditinjau; consent tidak menjamin penerimaan distribusi. [S1]
 
 **Keputusan kendali:** persetujuan pendamping memberi friksi pada perubahan aturan di dalam aplikasi. Produk tidak menjanjikan tidak dapat dihapus, tidak dapat dimatikan, atau mampu mengunci seluruh Settings Android. [S2]
 
@@ -58,9 +76,9 @@ Pemblokiran tidak menyelesaikan seluruh penyebab kecanduan. Layanan pemulihan da
 | Asumsi | Peserta berusia 18 tahun atau lebih; dikonfirmasi saat onboarding sebelum pilot. |
 | Asumsi | Versi awal mendukung satu peserta, satu HP Android, dan satu pendamping utama. |
 | Asumsi | HP peserta tidak di-root dan bukan perangkat enterprise yang dikelola. |
-| Asumsi | Pendamping dapat membuka browser modern; tidak perlu aplikasi native pendamping. |
+| Baseline | Pendamping dapat membuka browser modern; notifikasi polling privat memakai APK Android native. |
 | Belum diketahui | Merek HP, versi Android, browser utama, VPN lain, dan aplikasi penting peserta. |
-| Belum diketahui | Anggaran, tim, target tanggal rilis, dan jalur distribusi yang diterima. |
+| Dikonfirmasi | Pemilik memilih uji APK privat untuk otomasi; kelayakan rilis publik dan tanggalnya masih bersyarat. |
 
 Informasi perangkat yang belum diketahui menjadi tugas validasi, bukan alasan menunda penyusunan PRD atau mengasumsikan semua Android kompatibel.
 
@@ -114,7 +132,7 @@ Contoh user story:
 | Validasi awal | Prototipe filtering lokal, izin Android, konflik VPN, dan evaluasi distribusi | Perangkat nyata tersedia; daftar uji dan data flow disepakati |
 | MVP dasar | Blok domain lokal, rencana dukungan, pairing, check-in, ringkasan yang dikirim peserta, koreksi blok | Validasi filtering dan model berbagi telah selesai |
 | Peningkatan bersyarat | Blok jaringan aplikasi pilihan dan interupsi saat aplikasi dibuka | Mekanisme terbukti di perangkat target dan penggunaan API diterima |
-| Riset lanjutan | Pembaruan status/kejadian otomatis ke pendamping | Model produk dan distribusi diterima secara terdokumentasi; izin terpisah |
+| Uji privat terpisah | Temuan otomatis minimal, interupsi nama paket, polling pendamping, koreksi typed | Pilihan pemilik; consent terpisah; validasi full build serta dua HP sebelum pilot nyata |
 
 **Ketentuan:** jika fitur bersyarat belum lolos, dokumentasi rilis dan UI tidak boleh menampilkannya sebagai kemampuan aktif. Jalur sideload atau label parental control tidak dipakai untuk menghindari evaluasi penggunaan dewasa.
 
@@ -181,8 +199,8 @@ P0 wajib sebelum pilot MVP. P1 bersyarat atau setelah fondasi stabil. Setiap bat
 | FR-16 | P0 | Laporan domain terlewat | Peserta dapat mengirim domain secara sengaja setelah pratinjau; domain masuk antrean verifikasi sebelum daftar global berubah. |
 | FR-17 | P0 | Rencana dukungan | Peserta menyimpan tindakan pengalihan dan kontak pilihan secara manual; tidak perlu membaca seluruh buku kontak. |
 | FR-18 | P1 bersyarat | Blok jaringan aplikasi | Uji membuktikan koneksi aplikasi pilihan dibatasi; UI menyebut pembatasan jaringan, bukan mencegah aplikasi terbuka. |
-| FR-19 | P1 bersyarat | Interupsi aplikasi | Hanya setelah validasi API dan kebijakan; tanpa membaca teks layar atau menekan tombol di aplikasi keuangan. |
-| FR-20 | Riset | Status/kejadian otomatis | Tidak diaktifkan sebelum gate distribusi dan evaluasi data selesai; bukan dependency fitur dasar. |
+| FR-19 | P1 bersyarat | Interupsi aplikasi | Kandidat privat memakai event paket dan HOME; tanpa membaca teks layar. Bukan kemampuan release dasar atau suspend aplikasi. Lihat P-FR-03. |
+| FR-20 | Uji privat | Temuan otomatis minimal | Hanya privateDebug dan private server yang diopt-in; consent/grant terpisah; status bukan seluruh aktivitas atau bukti niat. Lihat P-FR-01–09. |
 
 Usulan parameter awal adalah konfigurasi pilot, bukan terapi yang telah dibuktikan.
 
@@ -472,8 +490,8 @@ Gate distribusi mencakup evaluasi VpnService, Accessibility bila dipakai, kebija
 | Cakupan browser pertama | Browser yang benar-benar dipakai peserta | Hasil matriks uji |
 | Mesin filtering | Kandidat local VPN | Prototipe jaringan dan evaluasi lisensi |
 | App blocking | Bukan dependency rilis dasar | Pembuktian teknis dan penerimaan penggunaan API |
-| Jalur distribusi | Belum diasumsikan | Penilaian kebijakan dan hasil review yang relevan |
-| Berbagi otomatis | Tidak aktif | Validasi eksplisit use case dewasa dan data flow |
+| Jalur distribusi | Uji APK privat dipilih; Play belum disetujui | Validasi pilot serta penilaian distribusi publik yang terpisah |
+| Berbagi otomatis | Default mati; dapat dipilih hanya pada build/server privat | Consent terpisah, scope/grant, security tests dan bukti dua HP |
 | Masa tunggu koreksi | Usulan 10 menit | Uji kegunaan dan kesepakatan peserta |
 | Retensi | Usulan di bagian 11 | Desain operasional dan pemberitahuan privasi final |
 | Nama/identitas produk | Gempur | Dipilih pemilik repository |
@@ -513,6 +531,8 @@ Diakses/ditinjau pada 9 November 2026. Referensi adalah dasar batas teknis dan d
 | S8 | [Google Play — AccessibilityService API](https://support.google.com/googleplay/android-developer/answer/10964491?hl=en) | Disclosure, deklarasi, serta batas pemakaian Accessibility |
 | S9 | [Kemenkes — Upaya Pemulihan untuk Pecandu Judi Online](https://kemkes.go.id/id/upaya-pemulihan-untuk-pecandu-judi-online) | Posisi dukungan keluarga dan bantuan profesional |
 | S10 | [NICE NG248 — Gambling-related harms](https://www.nice.org.uk/guidance/ng248) | Konteks dukungan serta penanganan dampak judi; bukan protokol terapi aplikasi |
+| S11 | [Google Play — isMonitoringTool](https://support.google.com/googleplay/android-developer/answer/12955211?hl=en) | Nilai other memerlukan penilaian pengecualian; bukan izin umum monitoring dewasa |
+| S12 | [Google Play — broad package visibility](https://support.google.com/googleplay/android-developer/answer/10158779?hl=en) | Mengutamakan query terbatas; kandidat memakai MAIN/LAUNCHER tanpa QUERY_ALL_PACKAGES pada seluruh varian |
 
 ### Temuan riset produk sebelumnya
 

@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Visible, owner-operated app. No activity is uploaded in the background. */
+/** Visible, owner-operated app. Private automation requires separately compiled build and separate consent. */
 public final class MainActivity extends Activity {
     private static final int INK=0xff142c2a, ORANGE=0xffe85d2a, PAPER=0xfff6f5ef, MUTED=0xff5b6d68;
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
@@ -32,6 +32,8 @@ public final class MainActivity extends Activity {
     private LinearLayout page;
     private int tab=0;
     private boolean busy=false;
+    private JSONArray privateRemoteDetections=new JSONArray();
+    private JSONArray privateExceptions=new JSONArray();
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         try{store=new LocalStore(this);api=new CompanionClient(store);}
@@ -40,8 +42,10 @@ public final class MainActivity extends Activity {
                 .setMessage("Vault terenkripsi tidak dapat dibaca. Data tidak dihapus otomatis. Periksa kunci perangkat atau hubungi pengembang.")
                 .setCancelable(false).setPositiveButton("Tutup",(d,w)->finish()).show();return;
         }
+        if(BuildConfig.PRIVATE_BUILD&&getIntent().getBooleanExtra("private_tab",false))tab=4;
         if(store.get("consent").isEmpty())onboarding();else render();
     }
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(BuildConfig.PRIVATE_BUILD&&intent.getBooleanExtra("private_tab",false)){tab=4;render();}}
     @Override protected void onResume(){super.onResume();if(store!=null&&!store.get("consent").isEmpty())render();}
     @Override protected void onDestroy(){worker.shutdown();super.onDestroy();}
     private int dp(int n){return (int)(getResources().getDisplayMetrics().density*n+0.5f);}
@@ -71,12 +75,14 @@ public final class MainActivity extends Activity {
         });
         LinearLayout header=new LinearLayout(this);header.setOrientation(LinearLayout.HORIZONTAL);header.setPadding(dp(24),dp(18),dp(24),dp(16));header.setBackgroundColor(INK);
         TextView brand=text("GEMPUR",23,Color.WHITE,true);header.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-        header.addView(text("ALPHA  0.1",11,0xffa8c6b8,true));outer.addView(header);
+        header.addView(text(BuildConfig.PRIVATE_BUILD?"PRIVAT · ALPHA":"ALPHA  0.2",11,0xffa8c6b8,true));outer.addView(header);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(22),dp(20),dp(20));
         scroll.addView(page);outer.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        if(tab==0)home();else if(tab==1)notes();else if(tab==2)companion();else settings();
+        if(tab==0)home();else if(tab==1)notes();else if(tab==2)companion();else if(tab==4&&BuildConfig.PRIVATE_BUILD){
+            try{privateAutomation();}catch(Exception unavailable){LinearLayout error=card();label(error,"Data deteksi privat belum dapat dibaca",21,INK,true);label(error,"Data tidak direset atau dihapus otomatis. Hentikan layanan privat dan periksa penyimpanan/kunci perangkat. Filter DNS dasar tetap terpisah.",14,MUTED,false);button(error,"Hentikan layanan privat",()->{stopPrivateLocally();info("Pengiriman lokal dihentikan","Izin server tetap perlu dicabut atau disinkronkan. Data lokal yang tidak dapat dibaca tetap disimpan.");},false);}
+        }else settings();
         LinearLayout nav=new LinearLayout(this);nav.setPadding(dp(10),dp(8),dp(10),dp(8));nav.setBackgroundColor(Color.WHITE);
-        String[] tabs={"Beranda","Catatan","Pendamping","Aturan"};
+        String[] tabs=BuildConfig.PRIVATE_BUILD?new String[]{"Beranda","Catatan","Pendamping","Aturan","Deteksi"}:new String[]{"Beranda","Catatan","Pendamping","Aturan"};
         for(int i=0;i<tabs.length;i++){final int index=i;TextView b=text(tabs[i],12,tab==i?ORANGE:MUTED,tab==i);b.setGravity(android.view.Gravity.CENTER);b.setPadding(0,dp(15),0,dp(15));nav.addView(b,new LinearLayout.LayoutParams(0,-2,1));b.setOnClickListener(v->{tab=index;render();});}
         outer.addView(nav);setContentView(outer);outer.requestApplyInsets();
     }
@@ -104,11 +110,11 @@ public final class MainActivity extends Activity {
             if(busy)return;busy=true;
             worker.execute(()->{boolean result=ProtectionService.selfTest();runOnUiThread(()->{busy=false;info(result?"Tes lokal berhasil":"Tes lokal belum berhasil",result?"Resolver lokal merespons domain uji sesuai aturan. Ini menguji jalur DNS sintetis, bukan seluruh browser, DoH, atau semua situs judi.":"Aktifkan proteksi, periksa Private DNS/VPN lain, lalu coba kembali. Tidak ada situs judi yang dibuka.");});});
         },false);
-        label(next,"Versi awal: belum layak sebagai satu-satunya perlindungan judol. Tidak ada pemantauan tersembunyi atau unggahan aktivitas otomatis.",12,MUTED,false);
+        label(next,BuildConfig.PRIVATE_BUILD?"Uji privat: deteksi tambahan dan berbagi otomatis hanya setelah pilihan terpisah di tab Deteksi. Bukan perlindungan menyeluruh.":"Versi awal: belum layak sebagai satu-satunya perlindungan judol. Tidak ada pemantauan tersembunyi atau unggahan aktivitas otomatis.",12,MUTED,false);
     }
     private void startProtection(){
         new AlertDialog.Builder(this).setTitle("Aktifkan filter DNS lokal?")
-            .setMessage("Gempur menggunakan slot VPN Android untuk memeriksa nama domain secara lokal. VPN lain dapat tergantikan. Trafik browsing tidak diunggah ke server Gempur.\n\nNama domain yang diizinkan diteruskan melalui DNS UDP biasa ke resolver jaringan perangkat. Ini bukan VPN untuk mengenkripsi browsing. Private DNS ketat yang terdeteksi membuat layanan menolak aktif.\n\nFilter ini belum menutup DoH/DoT, IP langsung, atau semua aplikasi. Always-on dan lockdown belum didukung versi ini. Kamu tetap dapat menghentikan layanan dan mencabut izin.")
+            .setMessage("Gempur menggunakan slot VPN Android untuk memeriksa nama domain secara lokal. VPN lain dapat tergantikan. Isi browsing tidak diunggah ke server Gempur."+(BuildConfig.PRIVATE_BUILD?" Pada uji privat, metadata target yang terdeteksi hanya dibagikan jika kamu mengaktifkan persetujuan otomatis terpisah di tab Deteksi.":"")+"\n\nNama domain yang diizinkan diteruskan melalui DNS UDP biasa ke resolver jaringan perangkat. Ini bukan VPN untuk mengenkripsi browsing. Private DNS ketat yang terdeteksi membuat layanan menolak aktif.\n\nFilter ini belum menutup DoH/DoT, IP langsung, atau semua aplikasi. Always-on dan lockdown belum didukung versi ini. Kamu tetap dapat menghentikan layanan dan mencabut izin.")
             .setNegativeButton("Batal",null).setPositiveButton("Saya setuju",(d,w)->{
                 if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)
                     requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},3);
@@ -177,6 +183,7 @@ public final class MainActivity extends Activity {
         }).show();
     }
     private void companion(){
+        if(BuildConfig.PRIVATE_BUILD&&"companion".equals(store.get("role"))){privateCompanionSetup();return;}
         label(page,"Ada teman di sisimu.",28,INK,true);
         label(page,"Berbagi atas pilihanmu. Pendamping tidak melihat layar, chat, atau histori browsing.",14,MUTED,false);
         LinearLayout c=card();
@@ -210,12 +217,15 @@ public final class MainActivity extends Activity {
         });
     }
     private void ensureAccount(CheckedAction next){
+        ensureAccountFor("participant",next);
+    }
+    private void ensureAccountFor(String role,CheckedAction next){
         if(store.get("endpoint").isEmpty()){configureServer();return;}
-        if(!store.get("token").isEmpty()){try{next.run();}catch(Exception e){info("Permintaan gagal",e.getMessage());}return;}
+        if(!store.get("token").isEmpty()){if(!role.equals(store.get("role").isEmpty()?"participant":store.get("role"))){info("Peran berbeda","Profil yang ada memakai peran lain. Hapus akun server secara sengaja sebelum mengganti peran; akun tidak direset otomatis.");return;}try{next.run();}catch(Exception e){info("Permintaan gagal",e.getMessage());}return;}
         prompt("Nama yang dilihat pendamping","Nama panggilan","",s->{
             if(s.trim().isEmpty()||s.length()>60)throw new Exception("Gunakan nama 1–60 karakter.");
-            remote(()->api.request("POST","/api/devices",new JSONObject().put("role","participant").put("name",s)),r->{
-                try{store.put("token",r.getString("token"));store.put("deviceId",r.getJSONObject("device").getString("id"));next.run();}
+            remote(()->api.request("POST","/api/devices",new JSONObject().put("role",role).put("name",s)),r->{
+                try{store.put("token",r.getString("token"));store.put("deviceId",r.getJSONObject("device").getString("id"));store.put("role",role);next.run();}
                 catch(Exception e){info("Akun belum tersimpan",e.getMessage());}
             });
         });
@@ -227,10 +237,10 @@ public final class MainActivity extends Activity {
         if(store.get("token").isEmpty()){info("Belum terhubung","Buat undangan untuk memulai.");return;}
         remote(()->api.request("GET","/api/me",null),r->{
             try{
-                JSONArray pairs=r.getJSONArray("pairings");String active="";String claimed="";String code="";
-                for(int i=0;i<pairs.length();i++){JSONObject p=pairs.getJSONObject(i);if("active".equals(p.getString("status")))active=p.getString("id");if("claimed".equals(p.getString("status"))){claimed=p.getString("id");code=p.optString("verificationCode");}}
-                store.put("pairingId",active);if(!claimed.isEmpty())store.put("pendingPairingId",claimed);
-                render();info("Status koneksi",!active.isEmpty()?"Pendamping aktif. Ringkasan hanya dikirim saat kamu memilih Kirim.":!claimed.isEmpty()?"Undangan diklaim. Cocokkan kode verifikasi: "+code:"Belum ada pendamping aktif.");
+                rememberPrivateConnection(r);JSONArray pairs=r.getJSONArray("pairings");String active=store.get("pairingId");String claimed="";String code="";
+                for(int i=0;i<pairs.length();i++){JSONObject p=pairs.getJSONObject(i);if("claimed".equals(p.getString("status"))){claimed=p.getString("id");code=p.optString("verificationCode");}}
+                if(!claimed.isEmpty())store.put("pendingPairingId",claimed);
+                render();info("Status koneksi",!active.isEmpty()?"Pasangan aktif. Ringkasan tetap manual; berbagi otomatis privat memerlukan pilihan terpisah.":!claimed.isEmpty()?"Undangan diklaim. Cocokkan kode verifikasi: "+code:"Belum ada pasangan aktif.");
             }catch(Exception e){info("Status belum diperbarui",e.getMessage());}
         });
     }
@@ -256,12 +266,14 @@ public final class MainActivity extends Activity {
     }
     private void revokePairing(){
         confirm("Berhenti berbagi?","Pengiriman baru di HP ini akan dihentikan segera. Saat offline, server baru mengetahui pencabutan ketika kamu menyinkronkannya. Proteksi lokal tetap bisa dipakai.",()->{
-            try{synchronized(store){String id=store.get("pairingId");store.put("pendingRevocation",id);store.put("pairingId","");RuleRepository.clearTemporaryAllowances(this);store.put("exceptionId","");}render();syncRevocation();}catch(Exception e){info("Belum tersimpan","Coba kembali.");}
+            try{synchronized(store){stopPrivateLocally();String id=store.get("pairingId");store.put("pendingRevocation",id);store.put("pairingId","");RuleRepository.clearTemporaryAllowances(this);store.put("exceptionId","");}render();syncRevocation();}catch(Exception e){info("Belum tersimpan","Coba kembali.");}
         });
     }
     private void syncRevocation(){
         String id=store.get("pendingRevocation");if(id.isEmpty())return;
-        remote(()->api.request("DELETE","/api/pairings/"+id,null),r->{try{store.put("pendingRevocation","");store.put("pendingPairingId","");render();info("Akses dicabut","Server telah menerima pencabutan. Informasi yang sudah dilihat atau disalin penerima tidak dapat ditarik kembali.");}catch(Exception e){info("Penyimpanan gagal",e.getMessage());}});
+        JSONObject pending=pendingPrivateOff();
+        final JSONObject account;try{account=store.remoteContext();}catch(Exception e){info("Akun belum terbaca",e.getMessage());return;}
+        remote(()->api.requestPinned("DELETE","/api/pairings/"+id,null,account),r->{try{acknowledgePrivateEnd(pending,account,id);if(!sameRemoteAccount(account)){info("Akses lama dicabut","Profil lokal telah berubah; data profil baru tidak diubah.");return;}if(id.equals(store.get("pendingRevocation")))store.put("pendingRevocation","");store.put("pendingPairingId","");if(id.equals(store.get("pendingAutomationOffPairing")))store.put("pendingAutomationOffPairing","");render();info("Akses dicabut","Server telah menerima pencabutan. Informasi yang sudah dilihat atau disalin penerima tidak dapat ditarik kembali.");}catch(Exception e){info("Penyimpanan gagal",e.getMessage());}});
     }
     private void requestCorrection(){
         prompt("Situs normal salah terblokir?","contoh.org","",target->remote(
@@ -291,7 +303,7 @@ public final class MainActivity extends Activity {
         label(p,"Tanpa lokasi, SMS, chat, isi rekening, atau pemantauan layar. Catatan terenkripsi di perangkat. Snapshot dan permintaan bantuan dikirim hanya setelah kamu memilihnya.",14,MUTED,false);
         button(p,"Hapus akun server",()->{
             if(store.get("token").isEmpty()){info("Tidak ada akun server","Mode lokal tidak membuat akun.");return;}
-            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",()->remote(()->api.request("DELETE","/api/me",null),r->{try{store.clearRemote();store.put("endpoint","");store.put("pendingPairingId","");store.put("exceptionId","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception e){info("Gagal",e.getMessage());}}));
+            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",()->{try{stopPrivateLocally();JSONObject pending=pendingPrivateOff();JSONObject account=store.remoteContext();remote(()->api.requestPinned("DELETE","/api/me",null,account),r->{try{acknowledgePrivateEnd(pending,account,"");if(!sameRemoteAccount(account)){info("Akun lama dihapus","Profil lokal telah berubah; profil baru tidak diubah.");return;}store.clearRemote();store.put("role","");store.put("endpoint","");store.put("pendingPairingId","");store.put("exceptionId","");store.put("pendingAutomationOffPairing","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception e){info("Gagal",e.getMessage());}});}catch(Exception e){info("Akun belum terbaca",e.getMessage());}});
         },false);
         button(p,"Tentang proteksi & batasnya",()->info("Gempur "+BuildConfig.VERSION_NAME,"Filter DNS lokal dengan daftar domain terbatas. DoH/DoT, IP langsung, profil lain, VPN lain, dan perangkat lain dapat melewati batas ini. Tidak mendukung always-on/lockdown.\n\nGempur bukan terapi atau layanan darurat. Bantuan profesional dapat berjalan bersama pendampingan keluarga.\n\nSource dan perkembangan: github.com/benisprlh/Gempur"),false);
     }
@@ -302,18 +314,182 @@ public final class MainActivity extends Activity {
             String state=e.optString("state");
             if("approved".equals(state)){
                 String target=e.optString("target");
-                if(RuleRepository.isBundledDomain(this,target)){info("Target tidak dapat dikecualikan","Domain ini masuk daftar judi yang dikenal. Koreksi perlu ditinjau pengelola daftar, bukan membuka akses melalui pendamping.");return;}
-                confirm("Terapkan koreksi untuk "+target+"?","Hanya domain normal yang salah diblokir. Masa tunggu server tetap berlaku; izin otomatis berakhir. Domain lain tetap dibatasi.",()->remote(()->{
+                String targetKind=e.optString("targetKind","domain");
+                if(!BuildConfig.PRIVATE_BUILD&&RuleRepository.isBundledDomain(this,target)){info("Target tidak dapat dikecualikan","Domain ini masuk daftar judi yang dikenal. Koreksi perlu ditinjau pengelola daftar, bukan membuka akses melalui pendamping.");return;}
+                confirm("Terapkan koreksi untuk "+target+"?","Hanya target yang dinilai salah blok. Persetujuan bukan verifikasi bahwa target aman. Masa tunggu 10 menit tetap berlaku; izin berakhir paling lambat 30 menit setelah masa tunggu. Target lain tetap dibatasi.",()->remote(()->{
                     String permittedPairing=store.get("pairingId");
                     JSONObject permit=api.request("POST","/api/exceptions/"+id+"/permit",new JSONObject());
                     JSONObject applied=api.request("POST","/api/exceptions/"+id+"/apply",new JSONObject().put("permitToken",permit.getString("permitToken")));
                     synchronized(store){
                         if(permittedPairing.isEmpty()||!permittedPairing.equals(store.get("pairingId"))||!store.get("pendingRevocation").isEmpty())throw new Exception("Izin berbagi telah dicabut; koreksi tidak diterapkan lokal.");
-                        RuleRepository.temporaryAllow(this,applied.getString("target"),Instant.parse(applied.getString("expiresAt")).toEpochMilli());
+                        if(!targetKind.equals(applied.optString("targetKind","domain"))||!target.equals(applied.getString("target")))throw new Exception("Target izin tidak cocok.");
+                        long expiry=Instant.parse(applied.getString("expiresAt")).toEpochMilli();
+                        if("app".equals(targetKind)&&BuildConfig.PRIVATE_BUILD)AppRiskRepository.temporaryAllow(this,target,expiry);
+                        else RuleRepository.temporaryAllow(this,target,expiry);
                     }return applied;
                 },result->info("Koreksi diterapkan","Pengecualian hanya untuk target ini, maksimal 30 menit. Proteksi lain tetap aktif.")));
             }else info("Status koreksi",e.optString("target")+"\nStatus: "+state+"\nTidak ada pembukaan seluruh proteksi.");
         });
+    }
+    private void rememberPrivateConnection(JSONObject result) throws Exception {
+        JSONObject device=result.getJSONObject("device");store.put("role",device.getString("role"));
+        JSONArray pairs=result.getJSONArray("pairings");JSONObject chosen=null;String selected=store.get("pairingId");
+        for(int i=0;i<pairs.length();i++){JSONObject p=pairs.getJSONObject(i);if("active".equals(p.optString("status"))&&(chosen==null||selected.equals(p.optString("id"))))chosen=p;}
+        String active=chosen==null?"":chosen.getString("id");
+        if(BuildConfig.PRIVATE_BUILD){
+            JSONObject grant=PrivateMonitoring.sharing(this);
+            JSONObject serverGrant=chosen==null?null:chosen.optJSONObject("automation");
+            if(!selected.equals(active)||(grant.optBoolean("enabled")&&(serverGrant==null||!serverGrant.optBoolean("enabled")||grant.optInt("automationVersion")!=serverGrant.optInt("version")))){
+                PrivateMonitoring.disableSharing(this);AppRiskRepository.clearTemporaryAllowances(this);RuleRepository.clearTemporaryAllowances(this);privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();
+                if(active.isEmpty())PrivateMonitoring.setCompanionWatching(this,false);
+            }
+            if("participant".equals(device.optString("role"))&&serverGrant!=null&&serverGrant.optBoolean("enabled")&&!grant.optBoolean("enabled")&&!active.isEmpty())store.put("pendingAutomationOffPairing",active);
+        }
+        store.put("pairingId",active);store.put("consentVersion",chosen==null?"":String.valueOf(chosen.getInt("consentVersion")));
+    }
+    private void stopPrivateLocally(){
+        if(!BuildConfig.PRIVATE_BUILD)return;
+        PrivateMonitoring.stop(this);AppRiskRepository.clearTemporaryAllowances(this);
+        privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();
+    }
+    private JSONObject pendingPrivateOff(){try{return PrivateMonitoring.pendingServerOff(this);}catch(Exception unreadable){return new JSONObject();}}
+    private boolean sameRemoteAccount(JSONObject expected) throws Exception {JSONObject current=store.remoteContext();return current.optString("endpoint").equals(expected.optString("endpoint"))&&current.optString("deviceId").equals(expected.optString("deviceId"))&&current.optString("token").equals(expected.optString("token"));}
+    private void acknowledgePrivateEnd(JSONObject pending,JSONObject account,String pairing){
+        if(BuildConfig.PRIVATE_BUILD&&pending.optString("endpoint").equals(account.optString("endpoint"))&&pending.optString("deviceId").equals(account.optString("deviceId"))&&(pairing.isEmpty()||pairing.equals(pending.optString("pairingId"))))PrivateMonitoring.acknowledgeServerOff(this,pending);
+    }
+    private boolean privateNotificationsReady(){
+        if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},83);info("Izin notifikasi diperlukan","Izinkan notifikasi agar layanan privat selalu terlihat. Setelah itu pilih fitur ini kembali.");return false;}
+        if(!getSystemService(android.app.NotificationManager.class).areNotificationsEnabled()){info("Notifikasi dimatikan","Aktifkan notifikasi Gempur pada pengaturan Android, lalu pilih fitur ini kembali. Deteksi privat tidak dijalankan diam-diam.");return false;}
+        return true;
+    }
+    private void privateAutomation(){
+        label(page,"Deteksi · uji privat",27,INK,true);
+        label(page,"Bukan klasifikasi seluruh isi internet. Aturan dikenal, aturan pribadi, dan dugaan nama dipisahkan. Koneksi yang cocok tidak membuktikan peserta sengaja berjudi.",14,MUTED,false);
+        if("companion".equals(store.get("role"))){privateCompanionInbox();return;}
+        LinearLayout local=card();boolean enabled=PrivateMonitoring.localEnabled(this);
+        label(local,enabled?"Deteksi lokal tambahan aktif":"Deteksi tambahan belum aktif",21,INK,true);
+        if(!ProtectionService.isRunning())label(local,"Filter DNS belum aktif. Aktifkan proteksi pada Beranda agar permintaan domain pada jalur yang didukung dapat diperiksa.",13,ORANGE,true);
+        label(local,"Aturan domain dikenal tetap otomatis diblokir lewat filter DNS. Opsi ini menambahkan pencatatan lokal dan karantina pola nama kuat yang masih berstatus diduga. Bisa salah blok; situs baru tanpa pola tetap belum diketahui.",14,MUTED,false);
+        if(enabled)button(local,"Hentikan deteksi dan berbagi privat",()->disableAutomaticSharing(true),false);
+        else button(local,"Pilih deteksi tambahan lokal",()->{
+            if(!privateNotificationsReady())return;
+            confirm("Aktifkan deteksi lokal tambahan?","Nama domain dan nama/paket aplikasi dianalisis di HP ini. Kombinasi nama berindikasi kuat dapat dibatasi sementara sebagai dugaan. Bukan pemeriksaan isi website atau aplikasi. Aplikasi sistem, Gempur, launcher, telepon, SMS, pengaturan, dan pemasang paket dikecualikan. Aplikasi penting lain masih perlu diuji. Tidak ada pengiriman ke pendamping sebelum persetujuan berbagi terpisah. Kamu bisa menghentikannya kapan saja.",()->{
+                try{PrivateMonitoring.setLocalEnabled(this,true);PrivateMonitoring.start(this);render();page.postDelayed(this::render,700);}catch(Exception e){PrivateMonitoring.setLocalEnabled(this,false);info("Belum aktif",e.getMessage());}
+            });
+        },true);
+        button(local,"Pengaturan aksesibilitas untuk aplikasi",()->{
+            confirm("Izin penghalang aplikasi opsional","Layanan Gempur hanya melihat nama paket saat jendela berganti. Dengan deteksi lokal aktif, target yang dicurigai diarahkan kembali ke Beranda Android. Tidak membaca teks layar, screenshot, atau pesan. Ini bukan suspend aplikasi atau firewall seluruh trafik dan bisa dimatikan di Android kapan saja.",()->startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        },false);
+        button(local,"Pindai indikasi aplikasi secara lokal",()->{
+            if(!PrivateMonitoring.localEnabled(this)){info("Deteksi belum aktif","Pilih deteksi lokal tambahan terlebih dahulu.");return;}
+            remote(()->new JSONObject().put("findings",AppRiskRepository.scan(this)),r->{
+                JSONArray findings=r.optJSONArray("findings");StringBuilder message=new StringBuilder("Hanya hasil dugaan nama; bukan inventaris semua aplikasi atau verifikasi isi.\n\n");
+                if(findings==null||findings.length()==0)message.append("Tidak ada pola kuat ditemukan. Ini tidak membuktikan semua aplikasi aman.");
+                else for(int i=0;i<Math.min(findings.length(),30);i++){JSONObject f=findings.optJSONObject(i);if(f!=null)message.append(f.optString("label")).append("\n").append(f.optString("target")).append(" — perlu ditinjau\n\n");}
+                info("Hasil lokal",message.toString());
+            });
+        },false);
+        LinearLayout sharing=card();JSONObject grant=PrivateMonitoring.sharing(this);
+        label(sharing,grant.optBoolean("enabled")?"Berbagi temuan otomatis aktif":"Berbagi temuan otomatis mati",21,INK,true);
+        label(sharing,"Hanya target yang terdeteksi sesuai cakupan yang disetujui, alasan/dugaan, tindakan, waktu, dan hitungan gabungan. Tidak mengirim seluruh histori, isi layar, URL lengkap, atau daftar semua aplikasi. Perlu server HTTPS mode privat milikmu.",14,MUTED,false);
+        if(store.get("token").isEmpty()){
+            button(sharing,"Atur server",this::configureServer,false);
+            button(sharing,"Saya peserta: buat profil",()->ensureAccountFor("participant",()->{render();info("Profil dibuat","Buat dan konfirmasi pasangan pada tab Pendamping.");}),true);
+            button(sharing,"Saya pendamping: buat profil",()->ensureAccountFor("companion",()->{render();info("Profil pendamping dibuat","Terima undangan dari tab Pendamping.");}),false);
+        }else{
+            button(sharing,"Perbarui pasangan dan izin server",this::refreshPairings,false);
+            if(grant.optBoolean("enabled"))button(sharing,"Hentikan berbagi otomatis",()->disableAutomaticSharing(false),false);
+            else button(sharing,"Pilih cakupan berbagi otomatis",this::automaticSharingConsent,true);
+        }
+        if(!store.get("pendingAutomationOffPairing").isEmpty()||!PrivateMonitoring.pendingServerOff(this).optString("pairingId").isEmpty()){label(sharing,"Pengiriman lokal dihentikan. Izin otomatis dan temuan lama di server masih perlu sinkronisasi; penghentian lokal belum membuktikan pencabutan server.",13,ORANGE,true);button(sharing,"Sinkronkan penghentian",this::syncAutomationOff,false);}
+        label(sharing,PrivateMonitoring.isRunning()?"Layanan privat sedang berjalan dengan notifikasi terlihat.":"Layanan privat belum berjalan. Tidak ada janji pemantauan 24/7.",12,MUTED,false);
+        JSONObject serviceStatus=PrivateMonitoring.status(this);if(!serviceStatus.optString("message").isEmpty())label(sharing,"Status terakhir: "+serviceStatus.optString("message"),13,MUTED,false);if(serviceStatus.optInt("overflowCount")>0)label(sharing,"Antrean pernah mencapai batas. Sebagian temuan tidak disimpan; ketiadaan laporan bukan bukti tidak ada kejadian.",13,ORANGE,false);
+        button(sharing,"Muat temuan yang diterima server",this::loadPrivateInbox,false);
+        button(sharing,"Hapus riwayat deteksi lokal",()->confirm("Hapus riwayat deteksi lokal?","Layanan privat akan dihentikan dan riwayat deteksi HP ini dihapus. Catatan check-in tetap ada. Izin server dicabut terpisah; penanda penghentian yang belum tersinkron dipertahankan.",()->{try{disableAutomaticSharing(true);PrivateMonitoring.clear(this);render();}catch(Exception e){info("Belum dapat dihapus",e.getMessage());}}),false);
+        renderPrivateDetections(false);
+        LinearLayout inbox=card();label(inbox,"Temuan lokal terbaru",20,INK,true);
+        try{JSONArray events=PrivateMonitoring.events(this);if(events.length()==0)label(inbox,"Belum ada temuan lokal. Domain diagnostik tidak dikirim sebagai temuan judi.",13,MUTED,false);
+            for(int i=0;i<Math.min(events.length(),15);i++){JSONObject event=events.getJSONObject(i);String target=event.optString("target"),kind=event.optString("kind","domain");label(inbox,kind+" · "+target+"\n"+privateVerdict(event.optString("verdict"))+" · "+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" koneksi/kejadian",13,INK,false);button(inbox,"Ajukan salah blok: "+target,()->requestPrivateCorrection(kind,target,""),false);}
+        }catch(Exception e){label(inbox,"Temuan lokal belum dapat dibaca; data tidak dihapus otomatis.",13,ORANGE,false);}
+    }
+    private void automaticSharingConsent(){
+        if(!privateNotificationsReady())return;
+        if(!PrivateMonitoring.localEnabled(this)){info("Aktifkan deteksi lokal","Persetujuan deteksi lokal dan berbagi otomatis adalah dua pilihan terpisah.");return;}
+        if(store.get("pairingId").isEmpty()||store.get("consentVersion").isEmpty()){info("Pasangan belum siap","Konfirmasikan pasangan pada tab Pendamping lalu Perbarui pasangan dan izin server.");return;}
+        if(!store.get("pendingRevocation").isEmpty()||!store.get("pendingAutomationOffPairing").isEmpty()||!PrivateMonitoring.pendingServerOff(this).optString("pairingId").isEmpty()){info("Pencabutan belum sinkron","Selesaikan penghentian yang tertunda terlebih dahulu.");return;}
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(20),dp(12),dp(20),dp(12));
+        label(form,"Temuan baru akan dikirim otomatis ke pasangan yang telah kamu konfirmasi: nama domain/paket aplikasi, alasan, status dugaan, tindakan, waktu dan hitungan gabungan. Tidak ada URL lengkap, isi layar, atau inventaris aplikasi. Antrean offline maksimal 24 jam. Informasi yang sudah dibaca tidak bisa ditarik kembali. Kamu bisa berhenti berbagi kapan saja.",14,INK,false);
+        CheckBox domains=new CheckBox(this);domains.setText(R.string.private_share_domains);form.addView(domains);CheckBox apps=new CheckBox(this);apps.setText(R.string.private_share_apps);form.addView(apps);
+        CheckBox agree=new CheckBox(this);agree.setText(R.string.private_share_consent);form.addView(agree);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Persetujuan berbagi otomatis privat").setView(form).setNegativeButton("Batal",null).setPositiveButton("Aktifkan",null).create();
+        dialog.setOnShowListener(v->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(b->{
+            if(!agree.isChecked()||(!domains.isChecked()&&!apps.isChecked())){info("Pilihan diperlukan","Pilih sedikitnya satu cakupan dan centang persetujuan jika sesuai.");return;}
+            final String pairing=store.get("pairingId");final long epoch=PrivateMonitoring.sharingEpoch(this);final int consent=Integer.parseInt(store.get("consentVersion"));final JSONArray scopes=new JSONArray();if(domains.isChecked())scopes.put("domain");if(apps.isChecked())scopes.put("app");
+            dialog.dismiss();remote(()->api.request("PUT","/api/pairings/"+pairing+"/automation",new JSONObject().put("enabled",true).put("scopes",scopes)),r->{
+                try{JSONObject accepted=r.getJSONObject("automation");
+                    if(!pairing.equals(store.get("pairingId"))||!store.get("pendingRevocation").isEmpty()||!accepted.optBoolean("enabled")||!PrivateMonitoring.enableSharingIfCurrent(this,epoch,pairing,consent,accepted.getInt("version"),scopes))throw new Exception("Pilihan lokal berubah; berbagi tidak diaktifkan kembali. Sinkronkan penghentian bila perlu.");
+                    PrivateMonitoring.start(this);render();info("Berbagi otomatis aktif","Hanya temuan baru sesuai cakupan ini yang diantrikan. Diterima server belum berarti telah dibaca pendamping.");
+                }catch(Exception e){PrivateMonitoring.disableSharing(this);try{store.put("pendingAutomationOffPairing",pairing);}catch(Exception ignored){}render();info("Belum aktif",e.getMessage());}
+            });
+        }));dialog.show();
+    }
+    private void disableAutomaticSharing(boolean localToo){
+        String pairing=store.get("pairingId");try{pairing=PrivateMonitoring.sharing(this).optString("pairingId",pairing);}catch(Exception unreadable){/* Stop remains available when the private vault cannot be read. */}
+        PrivateMonitoring.disableSharing(this);AppRiskRepository.clearTemporaryAllowances(this);RuleRepository.clearTemporaryAllowances(this);
+        if(localToo){PrivateMonitoring.setLocalEnabled(this,false);PrivateMonitoring.stop(this);}
+        try{if(!pairing.isEmpty())store.put("pendingAutomationOffPairing",pairing);}catch(Exception e){info("Perlu sinkronisasi","Pengiriman lokal berhenti; catat pasangan server yang perlu dinonaktifkan.");}
+        privateRemoteDetections=new JSONArray();render();if(!pairing.isEmpty())syncAutomationOff();
+    }
+    private void syncAutomationOff(){
+        final JSONObject pending,account;final String pairing;
+        try{pending=PrivateMonitoring.pendingServerOff(this);account=store.remoteContext();pairing=pending.optString("pairingId").isEmpty()?account.optString("pendingAutomationOffPairing"):pending.getString("pairingId");
+            if(pairing.isEmpty())return;
+            if(!pending.optString("pairingId").isEmpty()&&(!pending.optString("endpoint").equals(account.optString("endpoint"))||!pending.optString("deviceId").equals(account.optString("deviceId")))){info("Izin terkait profil sebelumnya","Koneksi server/profil berbeda. Jangan kirim credential profil baru ke server lama; periksa pencabutan dengan pengelola server sebelumnya.");return;}
+        }catch(Exception e){info("Status penghentian belum terbaca","Data tidak dihapus otomatis. Hentikan layanan dan periksa penyimpanan.");return;}
+        remote(()->{try{return api.requestPinned("PUT","/api/pairings/"+pairing+"/automation",new JSONObject().put("enabled",false).put("scopes",new JSONArray()),account);}catch(CompanionClient.ApiException e){
+            if(e.status==404||e.status==409){JSONObject current=api.requestPinned("GET","/api/me",null,account);JSONArray pairs=current.getJSONArray("pairings");boolean active=false;for(int i=0;i<pairs.length();i++){JSONObject p=pairs.getJSONObject(i);if(pairing.equals(p.optString("id"))&&"active".equals(p.optString("status")))active=true;}if(!active&&account.optString("deviceId").equals(current.getJSONObject("device").getString("id")))return new JSONObject().put("inactive",true);}
+            throw e;
+        }},r->{try{PrivateMonitoring.acknowledgeServerOff(this,pending);if(pairing.equals(store.get("pendingAutomationOffPairing")))store.put("pendingAutomationOffPairing","");render();info("Penghentian diterima","Izin otomatis server dinonaktifkan atau pasangan telah terbukti tidak aktif. Salinan yang telah diterima pihak lain tidak bisa ditarik kembali.");}catch(Exception e){info("Belum tersimpan",e.getMessage());}});
+    }
+    private void privateCompanionSetup(){
+        label(page,"HP pendamping · privat",27,INK,true);LinearLayout c=card();label(c,"Pasangkan dua HP secara terbuka. Peserta harus mengonfirmasi identitas dan memberi persetujuan berbagi otomatis terpisah.",14,MUTED,false);
+        button(c,"Terima kode undangan",()->ensureAccountFor("companion",()->prompt("Undangan dari peserta","Kode undangan","",code->remote(()->api.request("POST","/api/pairings/claim",new JSONObject().put("invitationCode",code)),r->info("Cocokkan kode di HP peserta",r.optString("verificationCode")+"\nPeserta perlu mengonfirmasinya. Setelah itu perbarui pasangan.")))),true);
+        button(c,"Perbarui pasangan",this::refreshPairings,false);button(c,"Buka kotak deteksi",()->{tab=4;render();},true);
+        if(!store.get("pairingId").isEmpty())button(c,"Akhiri pasangan",this::revokePairing,false);
+    }
+    private void privateCompanionInbox(){
+        LinearLayout c=card();label(c,"Notifikasi HP pendamping",21,INK,true);label(c,"Pemeriksaan server setiap sekitar 30 detik dengan layanan Android yang terlihat. Memerlukan HTTPS, koneksi dan izin notifikasi. Android dapat menunda/menutup layanan; pemberitahuan dapat tertunda.",14,MUTED,false);
+        button(c,"Perbarui pasangan",this::refreshPairings,false);
+        if(PrivateMonitoring.companionWatching(this))button(c,"Hentikan pemeriksaan notifikasi",()->{PrivateMonitoring.setCompanionWatching(this,false);PrivateMonitoring.stop(this);render();},false);
+        else button(c,"Mulai notifikasi pendamping",()->{
+            if(store.get("pairingId").isEmpty()){info("Belum ada pasangan aktif","Terima undangan pada tab Pendamping lalu perbarui pasangan setelah peserta mengonfirmasi.");return;}
+            if(!privateNotificationsReady())return;
+            confirm("Mulai pemeriksaan server?","HP ini akan mengambil temuan dan permintaan koreksi pasangan setiap sekitar 30 detik. Notifikasi layar kunci bersifat umum; detail hanya ditampilkan di aplikasi. Membuka daftar tidak otomatis menandai dibaca.",()->{try{PrivateMonitoring.setCompanionWatching(this,true);PrivateMonitoring.start(this);render();}catch(Exception e){PrivateMonitoring.setCompanionWatching(this,false);info("Belum aktif",e.getMessage());}});
+        },true);
+        button(c,"Muat temuan dan permintaan koreksi",this::loadPrivateInbox,true);renderPrivateDetections(true);
+        for(int i=0;i<privateExceptions.length();i++){JSONObject e=privateExceptions.optJSONObject(i);if(e==null)continue;LinearLayout review=card();label(review,"Koreksi "+e.optString("targetKind","domain")+" · "+e.optString("target"),18,INK,true);label(review,"Status: "+e.optString("state")+". Setuju hanya jika telah meninjau salah blok; bukan membuka semua proteksi.",13,MUTED,false);if("pending".equals(e.optString("state"))){String id=e.optString("id");button(review,"Setujui target ini",()->decidePrivateCorrection(id,true),true);button(review,"Tolak",()->decidePrivateCorrection(id,false),false);}}
+    }
+    private void loadPrivateInbox(){
+        if(store.get("pairingId").isEmpty()){info("Belum ada pasangan","Perbarui pasangan dahulu.");return;}
+        final String pairing=store.get("pairingId");final boolean companion="companion".equals(store.get("role"));
+        remote(()->{JSONObject detections=api.request("GET","/api/detections?pairingId="+pairing,null);if(companion)detections.put("exceptions",api.request("GET","/api/pairings/"+pairing+"/dashboard",null).getJSONArray("exceptions"));return detections;},r->{
+            if(!pairing.equals(store.get("pairingId")))return;privateRemoteDetections=r.optJSONArray("detections");if(privateRemoteDetections==null)privateRemoteDetections=new JSONArray();privateExceptions=r.optJSONArray("exceptions");if(privateExceptions==null)privateExceptions=new JSONArray();tab=4;render();
+        });
+    }
+    private void renderPrivateDetections(boolean companion){
+        for(int i=0;i<Math.min(privateRemoteDetections.length(),30);i++){JSONObject event=privateRemoteDetections.optJSONObject(i);if(event==null)continue;String id=event.optString("id"),kind=event.optString("kind"),target=event.optString("target");LinearLayout c=card();label(c,target,18,INK,true);label(c,kind+" · "+privateVerdict(event.optString("verdict"))+" · "+event.optString("reason")+"\n"+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" kejadian digabung\nWaktu temuan: "+format(event.optString("occurredAt"))+"\nDiterima: "+format(event.optString("receivedAt"))+"\nDibaca: "+(event.isNull("readAt")?"belum ditandai":format(event.optString("readAt"))),13,MUTED,false);
+            if(companion)button(c,"Tandai saya telah membaca",()->remote(()->api.request("POST","/api/detections/"+id+"/read",new JSONObject()),r->loadPrivateInbox()),false);
+            else button(c,"Ajukan koreksi salah blok",()->requestPrivateCorrection(kind,target,id),false);
+        }
+    }
+    private void requestPrivateCorrection(String kind,String target,String detectionId){
+        if(store.get("pairingId").isEmpty()){info("Pasangan belum aktif","Permintaan membutuhkan pasangan terkonfirmasi. Proteksi lokal tetap bisa dihentikan sendiri.");return;}
+        confirm("Ajukan salah blok untuk "+target+"?","Hanya target dan jenis "+kind+" dikirim kepada pendamping. Akses tetap dibatasi sambil menunggu keputusan. Persetujuan menunggu 10 menit dan berlaku terbatas; target lain tetap diblokir.",()->remote(()->{JSONObject payload=new JSONObject().put("pairingId",store.get("pairingId")).put("target",target).put("targetKind",kind).put("reason","false_positive");if(!detectionId.isEmpty())payload.put("detectionId",detectionId);return api.request("POST","/api/exceptions",payload);},r->{try{store.put("exceptionId",r.getJSONObject("exception").getString("id"));info("Diajukan ke pendamping","Periksa keputusan dan terapkan izin pada tab Aturan → Periksa permintaan koreksi. Sampai itu dilakukan target tetap dibatasi.");}catch(Exception e){info("Belum tersimpan",e.getMessage());}}));
+    }
+    private String privateVerdict(String verdict){return "suspected".equals(verdict)?"Diduga · perlu ditinjau":"personal".equals(verdict)?"Aturan pilihan peserta":"known".equals(verdict)?"Cocok daftar aturan":"Status belum diketahui";}
+    private String privateAction(String kind,String action){if(!"blocked".equals(action))return "Ditandai untuk tinjauan";return "app".equals(kind)?"Diarahkan ke Beranda Android; jaringan aplikasi tidak diputus":"Permintaan DNS diblokir";}
+    private void decidePrivateCorrection(String id,boolean approve){
+        confirm(approve?"Setujui salah blok target ini?":"Tolak permintaan?",approve?"Persetujuan hanya untuk target yang ditampilkan, dengan masa tunggu 10 menit dan durasi maksimum 30 menit. Pastikan telah ditinjau; persetujuan tidak membuktikan target aman.":"Target tetap dibatasi. Peserta masih mengendalikan perangkat dan dapat menghentikan layanan sendiri.",()->remote(()->api.request("POST","/api/exceptions/"+id+"/decision",new JSONObject().put("decision",approve?"approve":"deny")),r->loadPrivateInbox()));
     }
     private String format(String raw){try{return Instant.parse(raw).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy · HH:mm"));}catch(Exception e){return raw;}}
     private void openUrl(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){info("Browser tidak tersedia","Buka alamat tersebut pada browser pilihanmu.");}}
@@ -331,11 +507,12 @@ public final class MainActivity extends Activity {
     }
     private void remote(Work work,Done done){
         if(busy)return;busy=true;Toast.makeText(this,"Memproses permintaan…",Toast.LENGTH_SHORT).show();
-        worker.execute(()->{try{JSONObject r=work.run();runOnUiThread(()->{busy=false;if(!isFinishing())done.accept(r);});}
+        worker.execute(()->{try{JSONObject r=work.run();runOnUiThread(()->{busy=false;if(!isFinishing()&&!isDestroyed())done.accept(r);});}
             catch(Exception e){runOnUiThread(()->{busy=false;
+                if(isFinishing()||isDestroyed())return;
                 if(e instanceof CompanionClient.ApiException&&((CompanionClient.ApiException)e).status==401){
                     new AlertDialog.Builder(this).setTitle("Sesi server tidak berlaku").setMessage("Sesi mungkin kedaluwarsa atau tidak lagi valid. Kamu dapat melepas koneksi lokal lalu membuat akun perangkat baru. Ini bukan konfirmasi bahwa seluruh data server telah dihapus; hubungi pengelola bila diperlukan.")
-                        .setNegativeButton("Tutup",null).setPositiveButton("Lepas koneksi lokal",(d,w)->{try{store.clearRemote();store.put("pendingRevocation","");store.put("pendingPairingId","");store.put("exceptionId","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception ignored){info("Belum tersimpan","Coba kembali.");}}).show();
+                        .setNegativeButton("Tutup",null).setPositiveButton("Lepas koneksi lokal",(d,w)->{try{stopPrivateLocally();store.clearRemote();store.put("role","");store.put("pendingRevocation","");store.put("pendingPairingId","");store.put("exceptionId","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception ignored){info("Belum tersimpan","Coba kembali.");}}).show();
                 }else info("Permintaan belum berhasil",e.getMessage()==null?"Periksa koneksi dan coba kembali. Tidak ada pengiriman ulang otomatis.":e.getMessage());
             });}});
     }

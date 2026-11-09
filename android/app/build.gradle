@@ -11,8 +11,9 @@ android {
         applicationId 'id.gempur.app'
         minSdk 29
         targetSdk 36
-        versionCode 1
-        versionName '0.1.0-alpha.1'
+        versionCode 2
+        versionName '0.2.0-alpha.1'
+        buildConfigField 'boolean', 'PRIVATE_BUILD', 'false'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     signingConfigs {
@@ -27,12 +28,26 @@ android {
     }
     buildTypes {
         debug { applicationIdSuffix '.debug'; versionNameSuffix '-debug' }
+        privateDebug {
+            initWith debug
+            applicationIdSuffix '.private.debug'
+            versionNameSuffix '-private-debug'
+            matchingFallbacks = ['debug']
+            buildConfigField 'boolean', 'PRIVATE_BUILD', 'true'
+        }
         release {
             if (signingRequested) signingConfig signingConfigs.releaseUpload
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    sourceSets {
+        // Ordinary builds compile a no-op app-risk facade, never the private package scanner/guard.
+        debug { java.srcDirs += 'src/ordinary/java' }
+        release { java.srcDirs += 'src/ordinary/java' }
+        // initWith copies build-type settings, not source sets. Reuse only the debug TLS resources.
+        privateDebug { res.srcDirs += 'src/debug/res' }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     buildFeatures { buildConfig true }

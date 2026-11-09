@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, resolve, relative, basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sourceFingerprint, parseTap, parseJUnit, parseLint, requireFresh, artifact, assess, checkEvidence, sanitizeLog, noSymlinkSegments, sha256 } from './verification-core.mjs';
+import { sourceFingerprint, parseTap, parseJUnit, parseLint, parseDistribution, DISTRIBUTION_REPORTS, requireFresh, artifact, assess, checkEvidence, sanitizeLog, noSymlinkSegments, sha256 } from './verification-core.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const args=process.argv.slice(2);
@@ -16,8 +16,8 @@ if(args.some(arg=>arg!=='--quick')||args.length>1){console.error('Usage: node to
 const mode=args.includes('--quick')?'quick':'full';
 const startedAtMs=Date.now(),runId=new Date(startedAtMs).toISOString().replace(/[-:.]/g,'')+'-'+randomBytes(3).toString('hex');
 const output=resolve(root,'out','verify',runId),logs=resolve(output,'logs');mkdirSync(logs,{recursive:true,mode:0o700});
-const evidence={schemaVersion:1,runId,mode,startedAt:new Date(startedAtMs).toISOString(),finishedAt:null,status:'FAIL',mergeEligible:false,
-  source:{before:null,after:null,unchanged:false},commands:[],tests:{},lint:null,reports:[],artifacts:[],errors:[],
+const evidence={schemaVersion:2,runId,mode,startedAt:new Date(startedAtMs).toISOString(),finishedAt:null,status:'FAIL',mergeEligible:false,
+  source:{before:null,after:null,unchanged:false},commands:[],tests:{},lint:null,privateLint:null,distribution:null,reports:[],artifacts:[],errors:[],
   limits:{emulatorExecuted:false,physicalDeviceTested:false,playApproved:false,productionSigningAttempted:false},
   notice:'Local operator-generated evidence; not an independent CI attestation, device validation, or Play approval.'};
 const allowedEnv=new Set(['PATH','JAVA_HOME','ANDROID_HOME','ANDROID_SDK_ROOT','ANDROID_USER_HOME','ANDROID_SDK_HOME','GRADLE_USER_HOME','GRADLE_OPTS','JAVA_OPTS','JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','HOME','USERPROFILE','APPDATA','LOCALAPPDATA','SystemRoot','SYSTEMROOT','ComSpec','COMSPEC','PATHEXT','TMP','TEMP','TMPDIR','LANG','LANGUAGE','LC_ALL','LC_CTYPE','TZ','TERM','NO_COLOR','XDG_CONFIG_HOME','XDG_CACHE_HOME','XDG_DATA_HOME','HTTP_PROXY','HTTPS_PROXY','ALL_PROXY','NO_PROXY','http_proxy','https_proxy','all_proxy','no_proxy','SSL_CERT_FILE','SSL_CERT_DIR','REQUESTS_CA_BUNDLE','CURL_CA_BUNDLE','NODE_EXTRA_CA_CERTS']);
@@ -84,18 +84,27 @@ try{
     if(!existsSync(apksigner))throw new Error('Android build-tools 35.0.0 with apksigner is required');
     const gradle=process.env.GEMPUR_GRADLE||resolve(root,'android',process.platform==='win32'?'gradlew.bat':'gradlew');
     run('gradle-version',gradle,['--version'],120_000,text=>{if(!/^Gradle 8\.11\.1\s*$/m.test(text))throw new Error('Pinned Gradle 8.11.1 is required');});
-    for(const path of ['android/engine/build/test-results/test','android/app/build/test-results/testDebugUnitTest','android/app/build/reports/lint-results-debug.xml',
-      'android/app/build/outputs/apk/debug/app-debug.apk','android/app/build/outputs/bundle/release/app-release.aab','android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'])cleanGenerated(path);
-    run('android-build',gradle,['-p','android','--no-daemon','--console=plain','--rerun-tasks','--no-build-cache',':engine:test',':app:testDebugUnitTest',':app:lintDebug',':app:assembleDebug',':app:bundleRelease',':app:assembleDebugAndroidTest'],20*60_000);
+    for(const path of ['android/engine/build/test-results/test','android/app/build/test-results/testDebugUnitTest','android/app/build/test-results/testPrivateDebugUnitTest',
+      'android/app/build/reports/lint-results-debug.xml','android/app/build/reports/lint-results-privateDebug.xml',
+      'android/app/build/outputs/apk/debug/app-debug.apk','android/app/build/outputs/apk/privateDebug/app-privateDebug.apk',
+      'android/app/build/outputs/bundle/release/app-release.aab','android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',...Object.values(DISTRIBUTION_REPORTS)])cleanGenerated(path);
+    run('android-build',gradle,['-p','android','--no-daemon','--console=plain','--rerun-tasks','--no-build-cache',':engine:test',':app:testDebugUnitTest',':app:testPrivateDebugUnitTest',':app:lintDebug',':app:lintPrivateDebug',':app:assembleDebug',':app:assemblePrivateDebug',':app:bundleRelease',':app:assembleDebugAndroidTest'],20*60_000);
     evidence.tests.engine=junitGroup('android/engine/build/test-results/test');
     evidence.tests.androidClient=junitGroup('android/app/build/test-results/testDebugUnitTest');
+    evidence.tests.privateAndroidClient=junitGroup('android/app/build/test-results/testPrivateDebugUnitTest');
     evidence.lint=parseLint(report(resolve(root,'android/app/build/reports/lint-results-debug.xml')));
-    if(evidence.lint.errors)throw new Error('Android lint has errors');
+    evidence.privateLint=parseLint(report(resolve(root,'android/app/build/reports/lint-results-privateDebug.xml')));
+    if(evidence.lint.errors||evidence.privateLint.errors)throw new Error('Android lint has errors');
+    evidence.distribution=parseDistribution(Object.fromEntries(Object.entries(DISTRIBUTION_REPORTS).map(([key,path])=>[key,report(resolve(root,path))])));
     evidence.artifacts=[artifact(root,'android/app/build/outputs/apk/debug/app-debug.apk','debug-apk',startedAtMs),
+      artifact(root,'android/app/build/outputs/apk/privateDebug/app-privateDebug.apk','private-debug-apk',startedAtMs),
       artifact(root,'android/app/build/outputs/bundle/release/app-release.aab','release-aab',startedAtMs),
       artifact(root,'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk','instrumentation-apk',startedAtMs)];
     run('apk-signature',apksigner,['verify','--verbose','--print-certs','android/app/build/outputs/apk/debug/app-debug.apk'],30_000,text=>{
       if(!/^Verifies\s*$/m.test(text))throw new Error('APK signature verification did not confirm success');
+    });
+    run('private-apk-signature',apksigner,['verify','--verbose','--print-certs','android/app/build/outputs/apk/privateDebug/app-privateDebug.apk'],30_000,text=>{
+      if(!/^Verifies\s*$/m.test(text))throw new Error('Private APK signature verification did not confirm success');
     });
   }
 }catch(error){evidence.errors.push(sanitizeLog(error.message));}
