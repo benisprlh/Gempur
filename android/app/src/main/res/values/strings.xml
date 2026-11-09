@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Gempur</string>
+    <string name="consent_adult">Saya berusia 18+ dan memakai perangkat saya sendiri.</string>
+    <string name="consent_limits">Saya memahami batas proteksi dan memilih menggunakannya secara sukarela.</string>
+    <string name="urge_score">Dorongan saat ini: %1$d / 10</string>
+</resources>
+

@@ -1,0 +1,49 @@
+plugins { id 'com.android.application' }
+def uploadEnv = ['GEMPUR_UPLOAD_STORE_FILE', 'GEMPUR_UPLOAD_STORE_PASSWORD', 'GEMPUR_UPLOAD_KEY_ALIAS', 'GEMPUR_UPLOAD_KEY_PASSWORD'].collectEntries { [(it): System.getenv(it)] }
+def signingRequested = uploadEnv.values().any { it }
+if (signingRequested && uploadEnv.values().any { !it }) {
+    throw new GradleException('Upload signing configuration is incomplete; provide all GEMPUR_UPLOAD_* variables without committing them.')
+}
+android {
+    namespace 'id.gempur.app'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'id.gempur.app'
+        minSdk 29
+        targetSdk 36
+        versionCode 1
+        versionName '0.1.0-alpha.1'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    signingConfigs {
+        if (signingRequested) {
+            releaseUpload {
+                storeFile file(uploadEnv['GEMPUR_UPLOAD_STORE_FILE'])
+                storePassword uploadEnv['GEMPUR_UPLOAD_STORE_PASSWORD']
+                keyAlias uploadEnv['GEMPUR_UPLOAD_KEY_ALIAS']
+                keyPassword uploadEnv['GEMPUR_UPLOAD_KEY_PASSWORD']
+            }
+        }
+    }
+    buildTypes {
+        debug { applicationIdSuffix '.debug'; versionNameSuffix '-debug' }
+        release {
+            if (signingRequested) signingConfig signingConfigs.releaseUpload
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    buildFeatures { buildConfig true }
+    lint { abortOnError true; checkReleaseBuilds true }
+}
+dependencies {
+    implementation project(':engine')
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
+}
+

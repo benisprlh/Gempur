@@ -1,0 +1,152 @@
+[
+  {
+    "line": 8,
+    "input": "52.77.173.72",
+    "reason": "invalid_or_non_domain"
+  },
+  {
+    "line": 9,
+    "input": "54.179.153.162",
+    "reason": "invalid_or_non_domain"
+  },
+  {
+    "line": 11,
+    "input": "abandonthegrind.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 12,
+    "input": "absolutebriopainting.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 18,
+    "input": "aimautotinting.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 30,
+    "input": "apk-depot.s3.ap-northeast-1.amazonaws.com",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 48,
+    "input": "belaidabdelaziz.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 50,
+    "input": "benermeriah.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 99,
+    "input": "cupidamp4.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 117,
+    "input": "dw88gacor.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 134,
+    "input": "epicwin138co.vercel.app",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 208,
+    "input": "izin-kink.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 254,
+    "input": "link-amprusun22world.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 263,
+    "input": "los-zetas-emilio.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 278,
+    "input": "manajercity-noy10.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 283,
+    "input": "maxwin138ln.vercel.app",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 309,
+    "input": "naga33vip.s3.ap-southeast-2.amazonaws.com",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 334,
+    "input": "pages.dev",
+    "reason": "protected_service_or_public_suffix"
+  },
+  {
+    "line": 342,
+    "input": "pasarslot.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 344,
+    "input": "pemburu.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 353,
+    "input": "poriborton.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 380,
+    "input": "resto-akitaca.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 382,
+    "input": "rgv-employmentlawyer.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 388,
+    "input": "rtpkayabet99-0.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 407,
+    "input": "situs-slot.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 411,
+    "input": "slot88-rank1.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 417,
+    "input": "stay-humble-eh.b-cdn.net",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 473,
+    "input": "ulti700-yuk.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 477,
+    "input": "us-paper-helper.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  },
+  {
+    "line": 497,
+    "input": "weweidechranz2.pages.dev",
+    "reason": "shared_host_requires_separate_review"
+  }
+]

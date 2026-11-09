@@ -1,0 +1,41 @@
+# Signing release candidate
+
+APK debug memiliki identitas development terpisah (`id.gempur.app.debug`). Identitas ini bukan upload key produksi. Kunci debug lokal tidak disertakan dalam deliverable dan tidak dipakai untuk produksi.
+
+Build development tanpa konfigurasi signing menghasilkan AAB unsigned. Agar kandidat dapat diunggah ke Play, pemilik harus menetapkan upload key yang disimpan aman dan mengatur Play App Signing. Jangan membuat kunci produksi sementara yang hilang pada akhir sesi.
+
+## Signing lokal terpisah
+
+Verifier `node tools/verify.mjs` sengaja membangun artifact development tanpa menggunakan variable signing produksi. Jalankan signing hanya setelah verifikasi penuh dan review selesai, dengan environment yang diprovisikan secara terotorisasi melalui secret manager atau proses pemilik kunci.
+
+Konfigurasi Gradle menerima empat environment variable:
+
+| Variable | Isi |
+| --- | --- |
+| `GEMPUR_UPLOAD_STORE_FILE` | Path absolut ke keystore di luar repository |
+| `GEMPUR_UPLOAD_STORE_PASSWORD` | Password keystore |
+| `GEMPUR_UPLOAD_KEY_ALIAS` | Alias upload key |
+| `GEMPUR_UPLOAD_KEY_PASSWORD` | Password key |
+
+Jika hanya sebagian konfigurasi tersedia, build gagal. Jangan menulis nilai ke dokumen, chat publik, git, command-line argument Gradle, atau log. Hindari merekam secret ke shell history. Pastikan file keystore dapat dibaca hanya oleh pemilik yang berwenang dan tidak masuk direktori artifact.
+
+Setelah keempat variable disediakan oleh environment yang berwenang:
+
+```sh
+cd android
+./gradlew :engine:test :app:testDebugUnitTest :app:lintRelease :app:bundleRelease
+```
+
+Pada Windows gunakan `gradlew.bat`. Tidak ada workflow GitHub Actions yang diperlukan. Langkah ini hanya menyiapkan AAB bertanda tangan; tidak melakukan upload atau publish ke Play.
+
+## Verifikasi kandidat signed
+
+- Pastikan source sama dengan kandidat yang lulus verifier penuh; jangan mengandalkan artifact dari run lama.
+- Periksa adanya signature AAB, verifikasi integritasnya menggunakan `jarsigner`, lalu cocokkan fingerprint sertifikat dengan identitas upload milik pemilik. Nama task `signReleaseBundle` saja tidak membuktikan signing telah terjadi.
+- Catat checksum AAB signed, sertifikat publik yang dipakai, `versionCode`, commit/source fingerprint dan hasil tes. Jangan menyertakan private key/password.
+- Gunakan `versionCode` yang meningkat untuk upload berikutnya dan pertahankan application ID serta jalur upgrade.
+- Pastikan privacy/deletion URL, data safety, deklarasi, hasil pengujian perangkat dan persyaratan akun sudah dipenuhi sebelum upload yang diotorisasi.
+
+Workflow kandidat Actions sebelumnya dihentikan atas pilihan pemilik pada 9 November 2026. Konfigurasi signing lokal menggantikannya tanpa membutuhkan akun CI baru atau pemulihan billing GitHub.
+
+Kunci update daftar domain merupakan identitas terpisah dari upload key APK/AAB; prosesnya dijelaskan pada [rules/README.md](../rules/README.md). Produksi tetap ditahan sampai kunci dan proses operasionalnya ditetapkan dengan benar.

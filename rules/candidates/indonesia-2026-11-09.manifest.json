@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "pending_human_review_not_active",
+  "sourceUrl": "https://raw.githubusercontent.com/arfshl/anti-gambling-domains/f96fee6ab791b7eaa9a6a85c437f19f39abecc79/domains.txt",
+  "sourceRevision": "f96fee6ab791b7eaa9a6a85c437f19f39abecc79",
+  "license": "BSD-3-Clause",
+  "snapshotSha256": "6b4745a33004e21c09cbb7dd87f43c76d4df1b77a52155bf02b4f7d6a8b7b70b",
+  "licenseSha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2",
+  "candidateCount": 480,
+  "rejectedCount": 30,
+  "normalizedSha256": "45282cf5b8d613eece96e46a001308d50b7e769cf1bdbe8d40ef8ee7cc506432",
+  "warning": "Upstream category claim is not independent verification; DNS/WHOIS liveness does not establish gambling content. No domains have been visited.",
+  "retrievedOn": "2026-11-09",
+  "retrievalTimePrecision": "day; exact connector retrieval time not retained",
+  "recordedAt": "2026-11-09T02:10:26.898Z"
+}

@@ -1,0 +1,74 @@
+{
+  "version": "0.1.0-alpha.1",
+  "date": "2026-11-09",
+  "androidSdk": 36,
+  "minSdk": 29,
+  "buildType": "development",
+  "physicalDeviceTested": false,
+  "emulatorExecuted": false,
+  "playApproved": false,
+  "ciBlocked": "GitHub account locked due to billing issue",
+  "tests": {
+    "serverIntegration": 26,
+    "rulesTooling": 4,
+    "engineJUnit": 8,
+    "androidClientJUnit": 3
+  },
+  "artifacts": [
+    {
+      "name": "app-debug.apk",
+      "bytes": 230489,
+      "sha256": "d7dca3fb6126e944018c09e5c86845e02e8dfab75e63bf2fe70147933738de65"
+    },
+    {
+      "name": "app-release.aab",
+      "bytes": 54033,
+      "sha256": "d71c2a4e1308052001453b57c48b1636e6710224219eb709689529d4d846a935"
+    }
+  ],
+  "lintIssues": 0,
+  "androidSourceSha256": "6a64c2013d0551c4729f00050223eac6ef62d1e83a9dfce8234b20b09b305a6e",
+  "sourceFiles": {
+    "android/app/build.gradle": "5bc08797ad7c142d34fd86169b144ceae692fdfed0928f4925a7db5313c27014",
+    "android/app/proguard-rules.pro": "bd6bf439b051f9fe3d86f80bf4260adc126770d3cddaf1b9f54e77b6dd5bc39e",
+    "android/app/src/androidTest/java/id/gempur/app/SmokeTest.java": "cf9f0137339e011c6e247813950da74204eb5767089e701c9a3d2d6a0bd96431",
+    "android/app/src/debug/AndroidManifest.xml": "ccea530438fa9e9a871738591a53cfcf53f48d9bb73584fbca71a0a9bfee8996",
+    "android/app/src/debug/res/xml/network_security_debug.xml": "a88c31855002fa7780ea82b41078d766ea124490e2282ce78ffda00988a170e8",
+    "android/app/src/main/AndroidManifest.xml": "486df3eed59fcbbb0866157b46675a5d4b6736f707aedcd2cf2b273174bfb8b7",
+    "android/app/src/main/assets/domains.txt": "920aee6c3886af298b010b027585dcf7eafb13d785bff9f82da25e57a206bc42",
+    "android/app/src/main/assets/rules-provenance.json": "b5d9745f417e46a4dc73d8dcfc5d1f80176ce9b64fce08cc12c6804e82514220",
+    "android/app/src/main/java/id/gempur/app/CompanionClient.java": "eb16c77355d55bf0d17d29096fdedb160aaa579a5ab8de1be5318e20bb31ae68",
+    "android/app/src/main/java/id/gempur/app/LocalStore.java": "7ab0fabb7ec00a5442e2d79874b03d3fb29a1ff2a478d4d4ac2f23df821793d5",
+    "android/app/src/main/java/id/gempur/app/MainActivity.java": "7e114c99c72d5c6546b0e9ede77d76aae88a1c3ca06b7db77400f3dfd58ba7d8",
+    "android/app/src/main/java/id/gempur/app/ProtectionService.java": "7ca4161cab55a4b76d1e792ddbd53048f866d6999a95fbc24d535b89e3918307",
+    "android/app/src/main/java/id/gempur/app/RuleRepository.java": "7d6db79338c55a3066ea725374d5f68ba1ee21bb6fbb68da2a81ef4b4e7dbf12",
+    "android/app/src/main/res/drawable/ic_shield.xml": "ac9d10e100c3f70bf5fb7211a1c29dff57d73d11f7ba120e5a92805fd4ea8394",
+    "android/app/src/main/res/values/strings.xml": "1dfb1ed6a51659cc2fa09417e22adb1aa32d3b91c17d0bfb6b41083e25fae292",
+    "android/app/src/main/res/values/styles.xml": "bfd8ba9aa1971d6924d0abbc04329bb403937c2b69207f0e5a085b6e242be370",
+    "android/app/src/main/res/xml/data_extraction_rules.xml": "c871abf237f1fd1e058c4db44ff437027f5d7bb1116693cbac1c600474a994c1",
+    "android/app/src/main/res/xml/network_security_config.xml": "7d36f7c3e8635187f3f225fd5ae4760b9865a95ad556c31b8ce72f138a1a3795",
+    "android/app/src/test/java/id/gempur/app/CompanionClientTest.java": "bc1e2b17fae825af8b243e006f25af3281cc89d1796e6b2ced0ab2d134ee21d2",
+    "android/build.gradle": "7dc5184ad325c68710ddde2bf405db0dcdb220f1fe33edeec2a0cd502b8c5a93",
+    "android/engine/build.gradle": "cd64ff7dafc8cf0629ebf1a75bb6293ed5ca90fbb77aa0ede5db8a779e253c33",
+    "android/engine/src/main/java/id/gempur/engine/DnsCodec.java": "5d107a555fe8fcc044f9661b8417ac7746073b7bb1ea62d09d703357071f7fd6",
+    "android/engine/src/main/java/id/gempur/engine/DomainRules.java": "7f01a373476cd1f3025103b4bf5920960fbf6387c77c1eedd2ad5d1f55add49e",
+    "android/engine/src/main/java/id/gempur/engine/Ipv4Udp.java": "56b5b282871dfb36ff345838bc799301a8014e4838d873a50224436a82243509",
+    "android/engine/src/main/java/id/gempur/engine/TemporaryAllowance.java": "85498678dd2cecb4b766fe47cc923da98a0bd98c92f8c83ab53ddc9c7b98ba71",
+    "android/engine/src/test/java/id/gempur/engine/EngineTest.java": "f6706d491429f4b4a6f4a6e5e4a549394b83b0a38d5b58bcc0a0294c86a9be08",
+    "android/gradle/wrapper/gradle-wrapper.jar": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046",
+    "android/gradle/wrapper/gradle-wrapper.properties": "50d0ce8eddfb08cf5fe269e624f53812e37830380cb78ae34ce357cde7d29ed0",
+    "android/gradle.properties": "62ce6df78ce8ff97c9e137a50f504f39aecb1401803ab5b756fa618659460a26",
+    "android/gradlew": "a3648413b47ef77af21d5ebc36c687c7d103aaef3e17f33de7d4f080a6f300a3",
+    "android/gradlew.bat": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f",
+    "android/settings.gradle": "6364dc5f2258092a139b1d251e2bf28af17bd2f32bd6bb3c5cfd7e6e73183723"
+  },
+  "toolchain": {
+    "jdk": "Temurin 17.0.21+9",
+    "gradle": "8.11.1",
+    "agp": "8.10.1"
+  },
+  "signing": {
+    "apk": "development Android Debug certificate",
+    "aab": "unsigned; not ready for Play upload"
+  }
+}

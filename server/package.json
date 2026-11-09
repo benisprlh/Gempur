@@ -1,0 +1,8 @@
+{
+  "name": "gempur-companion",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "scripts": { "start": "node index.mjs", "test": "node --test test/*.test.mjs" }
+}
