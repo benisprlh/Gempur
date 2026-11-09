@@ -2,7 +2,7 @@
 
 | Atribut | Nilai |
 | --- | --- |
-| Versi | 0.2 — baseline dasar dan adendum uji privat |
+| Versi | 0.3 — baseline dasar, uji privat dan eksperimen AI domain lokal |
 | Tanggal | 9 November 2026, WIB |
 | Status | Spesifikasi dan kandidat alpha; hasil build/perangkat mengikuti readiness, bukan status dokumen ini |
 | Pemilik kebutuhan | Pemilik repository Gempur |
@@ -21,7 +21,7 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | Requirement privat | Perilaku dan batas penerimaan |
 | --- | --- |
 | P-FR-01 | Consent deteksi lokal dan consent berbagi otomatis terpisah, default mati. Peserta memilih scope domain/aplikasi untuk pasangan yang telah dikonfirmasi; perubahan grant memiliki versi sendiri. |
-| P-FR-02 | Pisahkan known/personal/suspected/unknown. Aturan domain dikenal tetap otomatis; pola nama yang kuat hanya dugaan dan dapat dikarantina setelah opt-in. Tidak ada AI, pembacaan isi HTTPS, atau jaminan semua target dikenali. |
+| P-FR-02 | Pisahkan known/personal/suspected/unknown. Aturan domain dikenal tetap otomatis; pola nama yang kuat hanya dugaan dan dapat dikarantina setelah opt-in. AI domain tambahan mengikuti adendum 0.3 di bawah, tanpa pembacaan isi HTTPS atau jaminan semua target dikenali. |
 | P-FR-03 | Analisis nama/paket aplikasi bersifat lokal, terbatas pada subset launcher yang terlihat melalui query MAIN/LAUNCHER; headless/seluruh inventaris tidak tercakup dan tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Accessibility opsional hanya menerima event paket dan mencoba HOME; bukan suspend aplikasi, firewall, pembacaan teks layar, atau pencegahan uninstall. Aplikasi sistem/fungsi penting dikecualikan. |
 | P-FR-04 | Unggah hanya temuan sesuai scope: target domain/paket, alasan/verdict, tindakan, waktu bucket dan count gabungan. Tidak mengunggah URL lengkap, general browsing history, inventaris aplikasi, atau stream foreground. Fixture diagnostik dikecualikan. |
 | P-FR-05 | Antrean lokal terenkripsi terbatas, TTL 24 jam, penggabungan target per 5 menit dan deduplikasi ID. Server menahan maksimal 500 temuan/pasangan selama 7 hari, dengan batas batch/rate dan versi grant. Tidak ada klaim pengiriman seluruh kejadian. |
@@ -31,6 +31,23 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | P-FR-09 | Rilis pilot memerlukan full build/lint varian biasa dan privat, review independen, isolasi manifest release, serta bukti dua HP. Daftar aktif tetap 10 seed domain dan fixture; 480 kandidat Indonesia belum otomatis aktif. |
 
 Skenario dan langkah setup berada pada [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md); detail antarmuka pada [kontrak privat](PRIVATE_AUTOMATION_CONTRACT.md). Bagian berikut tetap menjelaskan baseline dan kebutuhan jangka panjang; keberadaan kode tidak menandakan seluruh acceptance telah lulus.
+
+## Adendum AI domain lokal 0.3 — 9 November 2026
+
+Pemilik meminta AI dan pengujian akurasi yang tinggi. Implementasi memakai inferensi lokal tanpa API berbayar atau pengiriman target/konten ke penyedia AI. Batas penerimaan ditentukan oleh bukti evaluasi, bukan janji angka sebelum pengujian. [Model card](LOCAL_AI_MODEL_CARD.md) menjelaskan hasil dan keterbatasannya.
+
+| Requirement AI privat | Perilaku dan bukti penerimaan |
+| --- | --- |
+| A-FR-01 | Model regresi logistik char-ngram yang dilatih dari data hanya menilai nama domain. Ia tidak menilai isi halaman, screenshot, perilaku aplikasi atau diagnosis kecanduan. |
+| A-FR-02 | Pilihan AI lokal terpisah dan default mati termasuk upgrade; hanya privateDebug dengan model immutable yang lolos hash/parser. Ordinary memakai stub tanpa aset model. |
+| A-FR-03 | AI hanya mengeluarkan suspected/flagged untuk ditinjau; tidak memblokir otomatis. Aturan known/personal/diagnostic/exact allowance dan heuristik lama tetap mempunyai prioritas terpisah. |
+| A-FR-04 | Dataset dipin pada commit+hash dengan lisensi/atribusi; kategori publik diperlakukan sebagai proxy label. Tidak mengaktifkan domain training sebagai aturan blokir hanya karena ikut dataset. |
+| A-FR-05 | Pisahkan registrable domain/keluarga merek dan source holdout; vocabulary train-only. Split/model selection dibekukan sebelum final test dan tidak diubah menggunakan hasil test. |
+| A-FR-06 | Laporkan precision/recall/FPR/accuracy/PR-AUC, support/confusion matrix, coverage/abstain, confidence interval dan holdout secara terpisah untuk model, heuristik dan guard. Benchmark domain tidak membuktikan akurasi aplikasi atau dunia nyata. |
+| A-FR-07 | Model/input rusak atau dukungan fitur rendah menyebabkan abstain, bukan safe verdict. Feature-support check tidak dianggap universal OOD detection. Skor belum dikalibrasi sebagai peluang. |
+| A-FR-08 | Blokir otomatis AI tetap ineligible tanpa independently adjudicated real-world labels, precision lower bound satu sisi 95% ≥99%, FPR upper bound ≤0,1%, nol critical false block dan holdout relevan. Proxy feed tidak memenuhi syarat independensi. |
+| A-FR-09 | Preview nama domain tidak membuka situs atau membuat laporan. Sinyal dari jalur DNS nyata hanya dibagikan jika scope domain/grant aktif; alasan ml_model hanya sah untuk domain+suspected+flagged, tanpa skor/model version/konten baru dalam payload. Backend 0.3 harus menyatakan localDomainAiSignals. |
+| A-FR-10 | AI-off menghentikan penilaian baru, bukan menarik kembali antrean lama. Penghentian pengiriman tetap lewat sharing-off/revokasi dengan pending server-off yang dipertahankan. Uji HP, performa, DoH dan batas jaringan tetap gate terpisah. |
 
 ## 1. Ringkasan keputusan
 

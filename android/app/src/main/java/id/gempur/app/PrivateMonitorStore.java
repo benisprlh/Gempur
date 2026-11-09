@@ -126,7 +126,7 @@ final class PrivateMonitorStore {
     }
 
     boolean record(String kind, String target, String reason, String verdict, String action) throws Exception {
-        String normalized = PrivateEventPolicy.target(kind, target); PrivateEventPolicy.validate(reason, verdict, action);
+        String normalized = PrivateEventPolicy.target(kind, target); PrivateEventPolicy.validate(kind, reason, verdict, action);
         final long now = System.currentTimeMillis(), bucket = PrivateEventPolicy.bucket(now);
         return transaction(true, value -> {
             JSONArray events = value.optJSONArray("events"); if (events == null) events = new JSONArray();

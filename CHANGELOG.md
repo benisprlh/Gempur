@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0-alpha.1 — eksperimen AI domain lokal, 2026-11-09
+
+- Model char-ngram regresi logistik yang dilatih dari kategori domain publik dan berjalan offline di APK privat, dengan pilihan AI terpisah yang default mati.
+- Sinyal model advisory-only: suspected/flagged, tidak otomatis memblokir. Aturan blokir yang ada tetap berlaku; aplikasi tetap memakai heuristik terpisah.
+- Parser bounded, integritas hash manifest, dukungan fitur/abstention dan Python–Java parity; kegagalan model tidak menjadi safe verdict atau reset data.
+- Dataset/pin/lisensi, split family/source holdout, selection validation-only, evaluasi final terpisah, serta model card yang memisahkan proxy accuracy dari klaim real-world.
+- Backend menerima ml_model hanya untuk domain+suspected+flagged dan mengiklankan localDomainAiSignals; UI menahan sharing pada backend lama. Payload tidak menambahkan skor, isi halaman atau inventaris.
+- Preview domain lokal tidak membuka situs atau membuat laporan. Mematikan analisis baru tidak menghapus antrean yang telah disetujui; penghentian sharing tetap terpisah.
+
+Benchmark beku dan perhitungan ulang independen tersedia: test 16.006, precision 99,57%, recall 63,75%, accuracy 90,87%, FPR 0,0916%; source holdout Indonesia pada simulasi kebijakan acuan 7/443 (1,58%), bukan pengukuran HP. Batas atas FPR95 0,1516% dan ketiadaan label independen membuat auto-quarantine tetap ineligible. [Model card](docs/LOCAL_AI_MODEL_CARD.md) menjelaskan kegagalan generalisasi serta tradeoff. [Gate source AI](docs/evidence/2026-11-09-local-ai-build.json) lulus 120 eksekusi tes, kedua lint 0 issue, 69 vektor parity dan 13 tes protokol Python terpisah. Tidak ada klaim AI sangat akurat pada seluruh judol, aplikasi, semua browser, atau HP nyata.
+
 Verifikasi kandidat 0.2 pada 9 November 2026: 100 tes PASS, lint biasa/privat 0 issue, kedua APK terverifikasi, AAB biasa unsigned, instrumentation dikompilasi. Source dan evidence cocok; uji emulator/HP/dua perangkat/baterai belum dilakukan. Lihat [bukti](docs/evidence/2026-11-09-private-build.json).
 
 ## 0.2.0-alpha.1 — kandidat uji privat, 2026-11-09
@@ -14,7 +25,7 @@ Verifikasi kandidat 0.2 pada 9 November 2026: 100 tes PASS, lint biasa/privat 0 
 - Server privat default mati, versi grant/scope terpisah, deduplikasi, retensi dan pembersihan pada revoke/logout/delete.
 - Hapus riwayat deteksi lokal mempertahankan catatan check-in dan penanda penghentian server tertunda; penghentian lokal tidak disajikan sebagai bukti revokasi server.
 
-Verifikasi penuh kandidat ini masih perlu dicatat setelah source final. Tidak ada klaim uji HP, operasi 24/7, seluruh website/aplikasi terdeteksi, hosting siap, atau persetujuan Play. Daftar 10 seed domain dan 480 kandidat Indonesia pending review belum diperluas oleh fitur ini.
+Verifikasi penuh 0.2 tercatat pada bukti historis di atas. Tidak ada klaim uji HP, operasi 24/7, seluruh website/aplikasi terdeteksi, hosting siap, atau persetujuan Play. Daftar 10 seed domain dan 480 kandidat Indonesia pending review belum diperluas oleh fitur ini.
 
 ## 0.1.0-alpha.1 — 2026-11-09
 

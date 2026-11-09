@@ -1,0 +1,5 @@
+# Optional offline model-development toolchain; Android inference uses no Python or API.
+# Measured reference environment: CPython 3.12.14.
+numpy==2.3.5
+scipy==1.17.0
+scikit-learn==1.8.0

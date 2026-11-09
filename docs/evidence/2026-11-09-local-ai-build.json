@@ -1,0 +1,380 @@
+{
+  "schemaVersion": 3,
+  "runId": "20261109T071213341Z-2f647f",
+  "mode": "full",
+  "startedAt": "2026-11-09T07:12:13.341Z",
+  "finishedAt": "2026-11-09T07:12:38.400Z",
+  "status": "PASS",
+  "mergeEligible": true,
+  "tests": {
+    "node": {
+      "tests": 80,
+      "pass": 80,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "engine": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidClient": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "privateAndroidClient": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "privateLint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "distribution": {
+    "ordinaryMonitoringDisabled": true,
+    "privateMonitoringEnabled": true,
+    "ordinaryManifestIsolated": true,
+    "privateManifestDeclared": true,
+    "targetedAppVisibility": true,
+    "applicationIds": {
+      "release": "id.gempur.app",
+      "debug": "id.gempur.app.debug",
+      "private": "id.gempur.app.private.debug"
+    }
+  },
+  "ml": {
+    "valid": true,
+    "modelVersion": "domain-ml-2026-11-09-v1",
+    "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+    "paritySha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+    "manifestSha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8",
+    "evaluationSha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb",
+    "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+    "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+    "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c",
+    "frozenSelectionSha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff",
+    "featureCount": 24000,
+    "reviewThreshold": 0.9948492012769712,
+    "mode": "advisory-only",
+    "autoQuarantineEligible": false,
+    "independentlyReviewedLabelCount": 0,
+    "parityRows": 69,
+    "asciiParityVerified": 66,
+    "metricSets": 12
+  },
+  "limits": {
+    "emulatorExecuted": false,
+    "physicalDeviceTested": false,
+    "playApproved": false,
+    "productionSigningAttempted": false
+  },
+  "notice": "Local operator-generated evidence; not an independent CI attestation, device validation, or Play approval.",
+  "artifacts": [
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "kind": "debug-apk",
+      "bytes": 226413,
+      "sha256": "08ef40a927272ac274f719922e82c47f7058adab3d28e8aac4db1d8640945c9a",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk",
+      "kind": "private-debug-apk",
+      "bytes": 571170,
+      "sha256": "1b39290785e210ef3a5bb958b22eacb893f97f915a6518e7dc381f441522078b",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/bundle/release/app-release.aab",
+      "kind": "release-aab",
+      "bytes": 57779,
+      "sha256": "dabaa1f778dcc782ab1aa120529ecc8d5a7b631ee09c70d3b4c6812614f57b45",
+      "signing": "unsigned"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "kind": "instrumentation-apk",
+      "bytes": 4666513,
+      "sha256": "9fbb6229cb2c89bae3acaeb7a073b6b291bd0bd69830182dbb5dba030afda8d4",
+      "signing": "development"
+    }
+  ],
+  "source": {
+    "before": "c66633ffeaf221a6a209919307e6eff476dc105c4c4199e119f89bac09ad36a3",
+    "after": "c66633ffeaf221a6a209919307e6eff476dc105c4c4199e119f89bac09ad36a3",
+    "unchanged": true,
+    "fileCount": 102,
+    "scope": [
+      "android",
+      "server",
+      "web",
+      "tools",
+      "rules",
+      "ml"
+    ]
+  },
+  "commands": [
+    {
+      "id": "node-version",
+      "program": "node",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 6,
+      "validationPassed": true,
+      "logSha256": "9ce0c756238e2c1211cf4aff0648715a9e0f0e8fa36d4b45262b3b75aded0d1b"
+    },
+    {
+      "id": "node-tests",
+      "program": "node",
+      "arguments": [
+        "--test",
+        "--test-reporter=tap",
+        "server/test/api.test.mjs",
+        "server/test/private-monitoring.test.mjs",
+        "tools/dashboard.test.mjs",
+        "tools/ml-artifact.test.mjs",
+        "tools/rules.test.mjs",
+        "tools/verification.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationMs": 766,
+      "validationPassed": true,
+      "logSha256": "0f1a56c5c19203232596e2aa5d248c2f20c3f269f255278a6e0d1bc077058ee2"
+    },
+    {
+      "id": "java-version",
+      "program": "java",
+      "arguments": [
+        "-version"
+      ],
+      "exitCode": 0,
+      "durationMs": 23,
+      "validationPassed": true,
+      "logSha256": "44fe398dfaf7af6244ed7dfc857d60dffe22c196e0436c105be61c92fbe0a018"
+    },
+    {
+      "id": "gradle-version",
+      "program": "gradle",
+      "arguments": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 476,
+      "validationPassed": true,
+      "logSha256": "b9ee0f57f9b14655a5c59040506b2d444ffac361738cee3bad151942442214cc"
+    },
+    {
+      "id": "android-build",
+      "program": "gradle",
+      "arguments": [
+        "-p",
+        "android",
+        "--no-daemon",
+        "--console=plain",
+        "--rerun-tasks",
+        "--no-build-cache",
+        ":engine:test",
+        ":app:testDebugUnitTest",
+        ":app:testPrivateDebugUnitTest",
+        ":app:lintDebug",
+        ":app:lintPrivateDebug",
+        ":app:assembleDebug",
+        ":app:assemblePrivateDebug",
+        ":app:bundleRelease",
+        ":app:assembleDebugAndroidTest"
+      ],
+      "exitCode": 0,
+      "durationMs": 23372,
+      "validationPassed": true,
+      "logSha256": "08ade632a9f74ec1eda931c65fe5d4e5cacfd2bb3dd31deb82f54b44b9d0790d"
+    },
+    {
+      "id": "apk-signature",
+      "program": "apksigner",
+      "arguments": [
+        "verify",
+        "--verbose",
+        "--print-certs",
+        "android/app/build/outputs/apk/debug/app-debug.apk"
+      ],
+      "exitCode": 0,
+      "durationMs": 168,
+      "validationPassed": true,
+      "logSha256": "6b024fb38343198b018d16595aa69cc05e2e4e0cc37b41b9bb487d6e909b3b7b"
+    },
+    {
+      "id": "private-apk-signature",
+      "program": "apksigner",
+      "arguments": [
+        "verify",
+        "--verbose",
+        "--print-certs",
+        "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk"
+      ],
+      "exitCode": 0,
+      "durationMs": 170,
+      "validationPassed": true,
+      "logSha256": "6b024fb38343198b018d16595aa69cc05e2e4e0cc37b41b9bb487d6e909b3b7b"
+    }
+  ],
+  "reports": [
+    {
+      "path": "android/engine/build/test-results/test/TEST-id.gempur.engine.DetectionPolicyTest.xml",
+      "bytes": 1406,
+      "sha256": "aa624dd1819c3cdab12fa417b2bbc5e04ca25ce234df9800befca5d56f508468",
+      "modifiedAt": "2026-11-09T07:12:23.419Z"
+    },
+    {
+      "path": "android/engine/build/test-results/test/TEST-id.gempur.engine.EngineTest.xml",
+      "bytes": 1189,
+      "sha256": "e9eae501416f78dcbc482ce38814cdf8e9cb0622a2a18374c73d236df60d0e1d",
+      "modifiedAt": "2026-11-09T07:12:23.419Z"
+    },
+    {
+      "path": "android/engine/build/test-results/test/TEST-id.gempur.engine.LexicalDomainModelTest.xml",
+      "bytes": 1454,
+      "sha256": "ed8e346c53243e03b405d62ed94e820e45fec07daa6ea7057386efc7820bbf09",
+      "modifiedAt": "2026-11-09T07:12:23.419Z"
+    },
+    {
+      "path": "android/app/build/test-results/testDebugUnitTest/TEST-id.gempur.app.CompanionClientTest.xml",
+      "bytes": 695,
+      "sha256": "53bcb321aa463b4659ff705c497321b9e47061a1f3cacb01ea34d77f03ce2715",
+      "modifiedAt": "2026-11-09T07:12:26.428Z"
+    },
+    {
+      "path": "android/app/build/test-results/testDebugUnitTest/TEST-id.gempur.app.PrivateEventPolicyTest.xml",
+      "bytes": 921,
+      "sha256": "4f534f38da0257670d317d169a24831644c7c1d25dff7d12f4a0ce070459fc27",
+      "modifiedAt": "2026-11-09T07:12:26.428Z"
+    },
+    {
+      "path": "android/app/build/test-results/testPrivateDebugUnitTest/TEST-id.gempur.app.CompanionClientTest.xml",
+      "bytes": 695,
+      "sha256": "1665fe6e7672bdbc3c1bd158ca9296f0efd059d4b5187303bdfa963d2edea6e5",
+      "modifiedAt": "2026-11-09T07:12:27.048Z"
+    },
+    {
+      "path": "android/app/build/test-results/testPrivateDebugUnitTest/TEST-id.gempur.app.PrivateEventPolicyTest.xml",
+      "bytes": 918,
+      "sha256": "5da1b708e110ba0b940ad9dbb84d38bf12cda6476e1698eb4cd11915166a9d9b",
+      "modifiedAt": "2026-11-09T07:12:27.048Z"
+    },
+    {
+      "path": "android/app/build/reports/lint-results-debug.xml",
+      "bytes": 87,
+      "sha256": "f6a199ee69eaae06333f965106926fb34b6f8aba15a12b6b3fc06796e18c76cc",
+      "modifiedAt": "2026-11-09T07:12:37.393Z"
+    },
+    {
+      "path": "android/app/build/reports/lint-results-privateDebug.xml",
+      "bytes": 87,
+      "sha256": "f6a199ee69eaae06333f965106926fb34b6f8aba15a12b6b3fc06796e18c76cc",
+      "modifiedAt": "2026-11-09T07:12:37.393Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml",
+      "bytes": 2266,
+      "sha256": "4dc8f48d06fd7ce082414c80a6febcd55415424eca5e35ccf68174aaa99050e2",
+      "modifiedAt": "2026-11-09T07:12:30.092Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml",
+      "bytes": 2311,
+      "sha256": "75c428740254c3c9337f92bf23269dba923dc3e6769ffd1efbf257e834684a43",
+      "modifiedAt": "2026-11-09T07:12:24.037Z"
+    },
+    {
+      "path": "android/app/build/intermediates/merged_manifests/privateDebug/processPrivateDebugManifest/AndroidManifest.xml",
+      "bytes": 3673,
+      "sha256": "ad173fdf2d0f3d68b6804360e6c193193e269e318b6c27e72855c97928a9763b",
+      "modifiedAt": "2026-11-09T07:12:24.222Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/release/id/gempur/app/BuildConfig.java",
+      "bytes": 465,
+      "sha256": "6a2e67e4b89d84e9dbca4c8132f1c276757218095bebcfb9551a18861f44f864",
+      "modifiedAt": "2026-11-09T07:12:30.005Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/debug/id/gempur/app/BuildConfig.java",
+      "bytes": 498,
+      "sha256": "11d97d71658bd28673989a03b4f5c541027d1752e783e976a74b0dc2fc5d3860",
+      "modifiedAt": "2026-11-09T07:12:23.475Z"
+    },
+    {
+      "path": "android/app/build/generated/source/buildConfig/privateDebug/id/gempur/app/BuildConfig.java",
+      "bytes": 529,
+      "sha256": "e0665f3f1d5ead1fe03f88c1576f29f5430036436736d902b5b0b85202b1462c",
+      "modifiedAt": "2026-11-09T07:12:24.063Z"
+    }
+  ],
+  "testedBaseHead": "e0a73b91fd39f92c1d3d2e64fe144db9324303c9",
+  "accuracyEvaluation": {
+    "reportPath": "ml/evaluation.json",
+    "modelCardPath": "docs/LOCAL_AI_MODEL_CARD.md",
+    "reportSha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb",
+    "scientificAutoQuarantineDecision": "NO-GO",
+    "independentlyReviewedLabels": 0,
+    "sourceCategoryLabelsOnly": true,
+    "finalTest": {
+      "domains": 16006,
+      "truePositive": 2552,
+      "falsePositive": 11,
+      "trueNegative": 11992,
+      "falseNegative": 1451,
+      "precision": 0.9957081545,
+      "recall": 0.6375218586,
+      "accuracy": 0.9086592527802074,
+      "falsePositiveRate": 0.0009164375572773473
+    },
+    "indonesiaPositiveSourceHoldout": {
+      "families": 443,
+      "rawModelFlags": 8,
+      "referencePolicyFlags": 7,
+      "referencePolicyRecall": 0.01580135440180587,
+      "note": "Positive-only proxy labels; reference policy simulation, not measured Android runtime or real-world accuracy."
+    }
+  },
+  "review": {
+    "codeAndArtifactIntegrity": "PASS",
+    "scientificAutomaticBlockEligibility": "NO-GO",
+    "method": "Independent pre-fit protocol review and post-freeze numerical recomputation without retraining",
+    "verified": [
+      "Train-only vocabulary and validation-only selection",
+      "Frozen model/hash before final-test scoring",
+      "Disjoint source/family groups and abstentions counted in recall",
+      "Separate model scorer, confusion matrix, Average Precision and confidence intervals",
+      "69 Python/Java parity vectors within1e-9",
+      "Private-only assets, separate consent, strict domain/suspected/flagged protocol",
+      "Hash-bound provenance/licenses/model/evaluation and packaged model bytes"
+    ],
+    "supplementaryPythonProtocolTests": 13
+  },
+  "runEvidencePath": "out/verify/20261109T071213341Z-2f647f/evidence.json",
+  "knownLimits": [
+    "High Indonesian judol accuracy target is not met",
+    "Model is domain-name lexical classification, not website-content or app classification",
+    "Model scores are uncalibrated; feature coverage is not general OOD validation",
+    "Category source labels are weak/stale and not independently adjudicated ground truth",
+    "AI is advisory-only and defaults off; existing rule protection remains separate",
+    "No phone/emulator, battery, actual two-phone delivery or Android AI latency validation",
+    "No cloud AI requests/API key or public backend deployment, production signing, or Play approval"
+  ]
+}

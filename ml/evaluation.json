@@ -1,0 +1,883 @@
+{
+  "artifact": {
+    "featureCount": 24000,
+    "modelBytes": 627278,
+    "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+    "paritySha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4"
+  },
+  "autoQuarantineEligible": false,
+  "automaticGateReasons": [
+    "No independently adjudicated current real-world labels",
+    "Source-category agreement is not verified judol accuracy",
+    "Domain benchmark cannot validate application classification",
+    "No physical-device or future temporal holdout validation"
+  ],
+  "challengeDetails": [
+    {
+      "baselineHeuristic": false,
+      "domain": "bca.co.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 17,
+        "score": 0.41012242778890606,
+        "total": 24
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "bankmandiri.co.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 32,
+        "score": 0.11277690152829992,
+        "total": 48
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "bni.co.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 15,
+        "score": 0.20713404557471185,
+        "total": 24
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "bri.co.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 18,
+        "score": 0.2094708347428305,
+        "total": 24
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "komdigi.go.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 15,
+        "score": 0.7597696275994739,
+        "total": 36
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "kemkes.go.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 12,
+        "score": 0.4662159834508087,
+        "total": 33
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "binus.ac.id",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 13,
+        "score": 0.9247067582832252,
+        "total": 30
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "wikipedia.org",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 28,
+        "score": 0.07830980363262519,
+        "total": 36
+      },
+      "runtimeAiGuardAllows": true,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "mozilla.org",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 17,
+        "score": 0.19770358293204826,
+        "total": 30
+      },
+      "runtimeAiGuardAllows": true,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "github.com",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 19,
+        "score": 0.05729223800977956,
+        "total": 27
+      },
+      "runtimeAiGuardAllows": true,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "google.com",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 25,
+        "score": 0.0316496997413149,
+        "total": 27
+      },
+      "runtimeAiGuardAllows": true,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "microsoft.com",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 32,
+        "score": 0.0031049264062683337,
+        "total": 36
+      },
+      "runtimeAiGuardAllows": true,
+      "type": "developer-authored-critical-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "slot-deposit-education.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 51,
+        "score": 0.9712305132221745,
+        "total": 87
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-educational-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "berita-slot-gacor.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 39,
+        "score": 0.9909986116333495,
+        "total": 72
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-news-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "research-casino-jackpot.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": true,
+        "matched": 62,
+        "score": 0.999887277013839,
+        "total": 90
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-research-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "calendar-time-slot.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 42,
+        "score": 0.9203805162914493,
+        "total": 75
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-benign-word-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "museum-poker-deposit.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 49,
+        "score": 0.9807931884202932,
+        "total": 81
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-museum-control"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "tutorial-roulette-jackpot.example",
+      "label": 0,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 55,
+        "score": 0.9429068089141222,
+        "total": 96
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-tutorial-control"
+    },
+    {
+      "baselineHeuristic": true,
+      "domain": "slotgacor.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 28,
+        "score": 0.9769066469382803,
+        "total": 48
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-pattern-positive-not-real-website"
+    },
+    {
+      "baselineHeuristic": true,
+      "domain": "casino-deposit.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": true,
+        "matched": 44,
+        "score": 0.9998902877789432,
+        "total": 63
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-pattern-positive-not-real-website"
+    },
+    {
+      "baselineHeuristic": true,
+      "domain": "togel-maxwin.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": true,
+        "matched": 21,
+        "score": 0.9979256248933963,
+        "total": 57
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-pattern-positive-not-real-website"
+    },
+    {
+      "baselineHeuristic": true,
+      "domain": "baccarat-withdraw.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 34,
+        "score": 0.40361662847680535,
+        "total": 72
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-pattern-positive-not-real-website"
+    },
+    {
+      "baselineHeuristic": true,
+      "domain": "poker-taruhan.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": true,
+        "matched": 29,
+        "score": 0.9960949372285077,
+        "total": 60
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-pattern-positive-not-real-website"
+    },
+    {
+      "baselineHeuristic": false,
+      "domain": "random-renamed-target.example",
+      "label": 1,
+      "rawPrediction": {
+        "abstained": false,
+        "flagged": false,
+        "matched": 38,
+        "score": 0.048096807965897034,
+        "total": 84
+      },
+      "runtimeAiGuardAllows": false,
+      "type": "synthetic-opaque-positive-demonstrates-name-limit"
+    }
+  ],
+  "createdAt": "2026-11-09T07:06:33.369763+00:00",
+  "dataset": {
+    "assignment": "SHA256(seed:SHA256(brand-family)) modulo10000;70/15/15",
+    "excluded": {
+      "challengeFamiliesReserved": 4,
+      "conflictingLabelFamilies": 605,
+      "conflictingLabelRows": 4888,
+      "knownRuleFamilies": 5,
+      "poolRowsReservedForSourceHoldout": 1051,
+      "sourceHoldoutFamiliesReserved": 1667
+    },
+    "familyOverlapAcrossSplits": 0,
+    "familyOverlapWithSourceHoldouts": 0,
+    "grouping": "Pinned PSL registrable roots plus equal digit/hyphen-stripped brand stems across TLDs; one representative per family",
+    "residualLeakageRisk": "Similar brands with different remaining stems can remain in different groups; no complete near-duplicate or temporal independence claim",
+    "schemaVersion": 1,
+    "seed": 20261109,
+    "sourceCounts": {
+      "arfshl-indonesia": {
+        "invalid": 0,
+        "label": 1,
+        "rawParsed": 480,
+        "role": "source_holdout",
+        "uniqueNormalized": 480
+      },
+      "sinfonietta-gambling": {
+        "invalid": 0,
+        "label": 1,
+        "rawParsed": 2694,
+        "role": "source_holdout",
+        "uniqueNormalized": 2690
+      },
+      "ut1-bank": {
+        "invalid": 1,
+        "label": 0,
+        "rawParsed": 6646,
+        "role": "train_pool",
+        "uniqueNormalized": 6645
+      },
+      "ut1-financial": {
+        "invalid": 0,
+        "label": 0,
+        "rawParsed": 472,
+        "role": "train_pool",
+        "uniqueNormalized": 472
+      },
+      "ut1-gambling": {
+        "invalid": 17,
+        "invalidPublicSuffix": 1,
+        "label": 1,
+        "rawParsed": 47818,
+        "role": "train_pool",
+        "uniqueNormalized": 47544
+      },
+      "ut1-games": {
+        "invalid": 89,
+        "invalidPublicSuffix": 6,
+        "label": 0,
+        "rawParsed": 33741,
+        "role": "train_pool",
+        "uniqueNormalized": 33652
+      },
+      "ut1-liste_bu": {
+        "invalid": 17,
+        "invalidPublicSuffix": 22,
+        "label": 0,
+        "rawParsed": 2827,
+        "role": "train_pool",
+        "uniqueNormalized": 2810
+      },
+      "ut1-press": {
+        "invalid": 0,
+        "label": 0,
+        "rawParsed": 4644,
+        "role": "train_pool",
+        "uniqueNormalized": 4644
+      },
+      "ut1-shopping": {
+        "invalid": 5,
+        "invalidPublicSuffix": 1,
+        "label": 0,
+        "rawParsed": 36968,
+        "role": "train_pool",
+        "uniqueNormalized": 36963
+      },
+      "ut1-sports": {
+        "invalid": 0,
+        "label": 0,
+        "rawParsed": 2362,
+        "role": "train_pool",
+        "uniqueNormalized": 2362
+      }
+    },
+    "sourceHoldoutFamilyOverlapBetweenFeeds": 1,
+    "sourceHoldoutUnionFamilies": 1667,
+    "sourceHoldouts": {
+      "arfshl-indonesia": {
+        "familyAssignmentsSha256": "2ac058de1917d400ad6ac599cb00b3d9c74e9ac1c2a9182af77e82161b951cb2",
+        "n": 443,
+        "normalizedRowsSha256": "13d6547d09621d80e340f77f78e4c93da773a8b853d634b47a5ff1e87785d136",
+        "positiveOnly": true
+      },
+      "sinfonietta-gambling": {
+        "familyAssignmentsSha256": "4e0749718f49edcc44a2d7f13d265cd02dff13b117015ddc62992d4d153f4f84",
+        "n": 1225,
+        "normalizedRowsSha256": "26107ddb986fcd4555dc725b175f6599c2fc263d42ebd127597e99c3463a6e42",
+        "positiveOnly": true
+      }
+    },
+    "splits": {
+      "test": {
+        "familyAssignmentsSha256": "bf6f28ededee54c651ae4c96adbaa1153bdab660523f0c5ac826d4008d44b67c",
+        "n": 16006,
+        "negative": 12003,
+        "normalizedRowsSha256": "eac3f686a69fec6bfb4c5510f99aff7a5ab5dbcd77a8e56281340962d59dc66e",
+        "positive": 4003
+      },
+      "train": {
+        "familyAssignmentsSha256": "e2c0129a57741eb0b41d212e747c5551ceb7e83feb728ce06bb5b4c539037952",
+        "n": 74920,
+        "negative": 56260,
+        "normalizedRowsSha256": "ab009a33190e5d8a56e9e8323710b03caece5222ca65c94ae6c2e8e50bb0d1c2",
+        "positive": 18660
+      },
+      "validation": {
+        "familyAssignmentsSha256": "d117787e1e027f3c1fd231abe10983558ea3ac502e2bc71c620399ab8d6d86ac",
+        "n": 15954,
+        "negative": 11939,
+        "normalizedRowsSha256": "ebd5800d8efe33ba6ea1969f4077105a53d0c55df94e1afbfa38f06584355bd3",
+        "positive": 4015
+      }
+    },
+    "unknownSuffixPolicy": "Exclude source rows without an explicit pinned PSL suffix; PSL default wildcard is not used to admit training/evaluation sources"
+  },
+  "evaluation": {
+    "challenge": {
+      "automaticMlBlocks": 0,
+      "baselineHeuristicDetection": {
+        "abstained": 0,
+        "accuracy": 0.9583333333333334,
+        "balancedAccuracy": 0.9166666666666667,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.0,
+        "flaggedCoverage": 0.20833333333333334,
+        "fn": 1,
+        "fp": 0,
+        "fprUpper95": 0.1533175539572782,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": null,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 1.0,
+        "precisionLower95": 0.5492802716530588,
+        "predictedPositive": 5,
+        "recall": 0.8333333333333334,
+        "recallLower95": 0.4181965907479741,
+        "tn": 18,
+        "tp": 5
+      },
+      "hybridDetection": {
+        "abstained": 0,
+        "accuracy": 0.9583333333333334,
+        "balancedAccuracy": 0.9166666666666667,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.0,
+        "flaggedCoverage": 0.20833333333333334,
+        "fn": 1,
+        "fp": 0,
+        "fprUpper95": 0.1533175539572782,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": null,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 1.0,
+        "precisionLower95": 0.5492802716530588,
+        "predictedPositive": 5,
+        "recall": 0.8333333333333334,
+        "recallLower95": 0.4181965907479741,
+        "tn": 18,
+        "tp": 5
+      },
+      "meaning": "Heuristic may block; ML and hybrid positives are review signals. This does not certify live-site classification.",
+      "modelAtHalf": {
+        "abstained": 0,
+        "accuracy": 0.5833333333333334,
+        "balancedAccuracy": 0.611111111111111,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.4444444444444444,
+        "flaggedCoverage": 0.5,
+        "fn": 2,
+        "fp": 8,
+        "fprUpper95": 0.6594019352407128,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": 0.599025974025974,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.3333333333333333,
+        "precisionLower95": 0.12285066324360105,
+        "predictedPositive": 12,
+        "recall": 0.6666666666666666,
+        "recallLower95": 0.2713383725197525,
+        "tn": 10,
+        "tp": 4
+      },
+      "modelAtHalfWithoutAbstention": {
+        "abstained": 0,
+        "accuracy": 0.5833333333333334,
+        "balancedAccuracy": 0.611111111111111,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.4444444444444444,
+        "flaggedCoverage": 0.5,
+        "fn": 2,
+        "fp": 8,
+        "fprUpper95": 0.6594019352407128,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": 0.599025974025974,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.3333333333333333,
+        "precisionLower95": 0.12285066324360105,
+        "predictedPositive": 12,
+        "recall": 0.6666666666666666,
+        "recallLower95": 0.2713383725197525,
+        "tn": 10,
+        "tp": 4
+      },
+      "modelAtReviewThreshold": {
+        "abstained": 0,
+        "accuracy": 0.8333333333333334,
+        "balancedAccuracy": 0.7222222222222222,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.05555555555555555,
+        "flaggedCoverage": 0.16666666666666666,
+        "fn": 3,
+        "fp": 1,
+        "fprUpper95": 0.23766091507463977,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": 0.599025974025974,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.75,
+        "precisionLower95": 0.2486046257301818,
+        "predictedPositive": 4,
+        "recall": 0.5,
+        "recallLower95": 0.15316111797522317,
+        "tn": 17,
+        "tp": 3
+      },
+      "newAiSignalsBeyondHeuristic": 0,
+      "runtimeAiReviewSignals": {
+        "abstained": 0,
+        "accuracy": 0.75,
+        "balancedAccuracy": 0.5,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.0,
+        "flaggedCoverage": 0.0,
+        "fn": 6,
+        "fp": 0,
+        "fprUpper95": 0.1533175539572782,
+        "n": 24,
+        "negativeSupport": 18,
+        "positiveSupport": 6,
+        "prAuc": 0.599025974025974,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": null,
+        "precisionLower95": null,
+        "predictedPositive": 0,
+        "recall": 0.0,
+        "recallLower95": 0.0,
+        "tn": 18,
+        "tp": 0
+      }
+    },
+    "sourceHoldouts": {
+      "arfshl-indonesia": {
+        "abstained": 15,
+        "accuracy": null,
+        "baselineHeuristicRecall": 0.002257336343115124,
+        "falsePositiveRate": null,
+        "hybridDetectionRecall": 0.01805869074492099,
+        "labelQuality": "Positive-only source-category proxy, not independent current website adjudication",
+        "missedOrAbstained": 435,
+        "modelHalfRecall": 0.327313769751693,
+        "modelReviewFlags": 8,
+        "n": 443,
+        "negativeSupport": 0,
+        "positiveSupport": 443,
+        "precision": null,
+        "recall": 0.01805869074492099,
+        "runtimeAiReviewFlags": 7,
+        "runtimeAiReviewRecall": 0.01580135440180587,
+        "sourceFamilyOverlapWithTraining": 0,
+        "sourceIndependenceLimit": "The feeds can share upstream labels even after host/family overlap is removed."
+      },
+      "sinfonietta-gambling": {
+        "abstained": 29,
+        "accuracy": null,
+        "baselineHeuristicRecall": 0.0008163265306122449,
+        "falsePositiveRate": null,
+        "hybridDetectionRecall": 0.08489795918367347,
+        "labelQuality": "Positive-only source-category proxy, not independent current website adjudication",
+        "missedOrAbstained": 1121,
+        "modelHalfRecall": 0.6171428571428571,
+        "modelReviewFlags": 104,
+        "n": 1225,
+        "negativeSupport": 0,
+        "positiveSupport": 1225,
+        "precision": null,
+        "recall": 0.08489795918367347,
+        "runtimeAiReviewFlags": 104,
+        "runtimeAiReviewRecall": 0.08489795918367347,
+        "sourceFamilyOverlapWithTraining": 0,
+        "sourceIndependenceLimit": "The feeds can share upstream labels even after host/family overlap is removed."
+      }
+    },
+    "test": {
+      "automaticMlBlocks": 0,
+      "baselineHeuristicDetection": {
+        "abstained": 0,
+        "accuracy": 0.7500937148569287,
+        "balancedAccuracy": 0.5003747189607795,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.0,
+        "flaggedCoverage": 0.0001874297138573035,
+        "fn": 4000,
+        "fp": 0,
+        "fprUpper95": 0.00024955081765276415,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": null,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 1.0,
+        "precisionLower95": 0.3684031498640387,
+        "predictedPositive": 3,
+        "recall": 0.0007494379215588309,
+        "recallLower95": 0.00020429983450797972,
+        "tn": 12003,
+        "tp": 3
+      },
+      "hybridDetection": {
+        "abstained": 0,
+        "accuracy": 0.9086592527802074,
+        "balancedAccuracy": 0.818302710524384,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.0009164375572773473,
+        "flaggedCoverage": 0.16012745220542296,
+        "fn": 1451,
+        "fp": 11,
+        "fprUpper95": 0.0015164581871154957,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": null,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.9957081545064378,
+        "precisionLower95": 0.9929060038013944,
+        "predictedPositive": 2563,
+        "recall": 0.6375218586060455,
+        "recallLower95": 0.624827961569878,
+        "tn": 11992,
+        "tp": 2552
+      },
+      "meaning": "Heuristic may block; ML and hybrid positives are review signals. This does not certify live-site classification.",
+      "modelAtHalf": {
+        "abstained": 270,
+        "accuracy": 0.9688241909284019,
+        "balancedAccuracy": 0.9530730087067707,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 0.9831313257528427,
+        "falsePositiveRate": 0.015412813463300841,
+        "flaggedCoverage": 0.2420342371610646,
+        "fn": 314,
+        "fp": 185,
+        "fprUpper95": 0.017393760892690624,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": 0.9788181379944741,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.9522457408363448,
+        "precisionLower95": 0.946222649786967,
+        "predictedPositive": 3874,
+        "recall": 0.9215588308768423,
+        "recallLower95": 0.9142134605319805,
+        "tn": 11818,
+        "tp": 3689
+      },
+      "modelAtHalfWithoutAbstention": {
+        "abstained": 0,
+        "accuracy": 0.9718230663501187,
+        "balancedAccuracy": 0.9605670132970546,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 1.0,
+        "falsePositiveRate": 0.01691243855702741,
+        "flaggedCoverage": 0.2472822691490691,
+        "fn": 248,
+        "fp": 203,
+        "fprUpper95": 0.018979344626073175,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": 0.9788181379944741,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.948711470439616,
+        "precisionLower95": 0.9425673160404946,
+        "predictedPositive": 3958,
+        "recall": 0.9380464651511367,
+        "recallLower95": 0.9314134335814129,
+        "tn": 11800,
+        "tp": 3755
+      },
+      "modelAtReviewThreshold": {
+        "abstained": 270,
+        "accuracy": 0.9086592527802074,
+        "balancedAccuracy": 0.818302710524384,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 0.9831313257528427,
+        "falsePositiveRate": 0.0009164375572773473,
+        "flaggedCoverage": 0.16012745220542296,
+        "fn": 1451,
+        "fp": 11,
+        "fprUpper95": 0.0015164581871154957,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": 0.9788181379944741,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.9957081545064378,
+        "precisionLower95": 0.9929060038013944,
+        "predictedPositive": 2563,
+        "recall": 0.6375218586060455,
+        "recallLower95": 0.624827961569878,
+        "tn": 11992,
+        "tp": 2552
+      },
+      "newAiSignalsBeyondHeuristic": 2560,
+      "runtimeAiReviewSignals": {
+        "abstained": 270,
+        "accuracy": 0.9086592527802074,
+        "balancedAccuracy": 0.818302710524384,
+        "confidenceIntervalMethod": "One-sided95%Clopper-Pearson; proxy labels and residual family/source dependence limit deployment interpretation",
+        "coverage": 0.9831313257528427,
+        "falsePositiveRate": 0.0009164375572773473,
+        "flaggedCoverage": 0.16012745220542296,
+        "fn": 1451,
+        "fp": 11,
+        "fprUpper95": 0.0015164581871154957,
+        "n": 16006,
+        "negativeSupport": 12003,
+        "positiveSupport": 4003,
+        "prAuc": 0.9788181379944741,
+        "prAucDefinition": "average_precision_of_raw_scores_not_trapezoidal_area",
+        "precision": 0.9957081545064378,
+        "precisionLower95": 0.9929060038013944,
+        "predictedPositive": 2563,
+        "recall": 0.6375218586060455,
+        "recallLower95": 0.624827961569878,
+        "tn": 11992,
+        "tp": 2552
+      }
+    }
+  },
+  "independentlyReviewedLabelCount": 0,
+  "limitations": [
+    "Feed categories can be wrong, stale, broad, shared or re-registered; no websites were visited or independently adjudicated",
+    "Negative categories are proxy non-gambling labels, not proof of current safe content",
+    "Family grouping prevents exact-root, TLD and numeric-stem leakage but not every semantic/near-duplicate relation",
+    "Final test is a frozen cross-sectional source split, not a future temporal or representative deployment sample",
+    "Source holdouts are positive-only, upstream category claims may overlap, and do not estimate precision/FPR",
+    "Synthetic/developer-authored challenge controls are separate from empirical source metrics",
+    "Uncalibrated hostname score cannot read hidden content, arbitrary renamed targets, encrypted DNS or app content",
+    "ML remains advisory; its flags are not automatic blocks or evidence of intentional gambling"
+  ],
+  "modelVersion": "domain-ml-2026-11-09-v1",
+  "prAucDefinition": "average_precision",
+  "prevalenceIllustrations": [
+    {
+      "assumedPrevalence": 0.001,
+      "meaning": "Hypothetical proxy illustration combining two marginal one-sided95% bounds, not a joint95% or deployment precision guarantee",
+      "proxyPointPrecision": 0.41049852934087666,
+      "sampleBoundIllustration": 0.29200710915032313
+    },
+    {
+      "assumedPrevalence": 0.01,
+      "meaning": "Hypothetical proxy illustration combining two marginal one-sided95% bounds, not a joint95% or deployment precision guarantee",
+      "proxyPointPrecision": 0.8754172046276115,
+      "sampleBoundIllustration": 0.8062740279442596
+    },
+    {
+      "assumedPrevalence": 0.1,
+      "meaning": "Hypothetical proxy illustration combining two marginal one-sided95% bounds, not a joint95% or deployment precision guarantee",
+      "proxyPointPrecision": 0.9872277426744845,
+      "sampleBoundIllustration": 0.9786239077715625
+    }
+  ],
+  "provenance": {
+    "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+    "frozenSelectionSha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff",
+    "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+    "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c"
+  },
+  "runtime": {
+    "numpy": "2.3.5",
+    "python": "3.12.14",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.0"
+  },
+  "schemaVersion": 1,
+  "scoreMeaning": "Uncalibrated lexical risk score, not verified probability of judol",
+  "selection": {
+    "C": 0.25,
+    "finalTestConsultedForSelection": false,
+    "reviewThreshold": 0.9948492012769712,
+    "selectionScope": "validation"
+  },
+  "sourceProxyLabels": true
+}

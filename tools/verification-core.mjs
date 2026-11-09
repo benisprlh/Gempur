@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { resolve, relative, sep, isAbsolute } from 'node:path';
+import { inflateRawSync } from 'node:zlib';
 
 export const REQUIRED_STAGES = ['node-version', 'node-tests', 'java-version', 'gradle-version', 'android-build', 'apk-signature', 'private-apk-signature'];
 export const DISTRIBUTION_REPORTS = {
@@ -33,7 +34,7 @@ export function sourceFingerprint(root) {
       }
     }
   }
-  for (const dir of ['android','server','web','tools','rules']) visit(resolve(root,dir));
+  for (const dir of ['android','server','web','tools','rules','ml']) visit(resolve(root,dir));
   files.sort((a,b)=>a.path.localeCompare(b.path));
   return { sha256:sha256(Buffer.from(JSON.stringify(files.map(({path,sha256})=>[path,sha256])))),files };
 }
@@ -129,6 +130,135 @@ export function zipEntryNames(bytes) {
   }
   return names;
 }
+/** Extract one bounded stored/deflated entry; duplicate names are rejected. */
+export function zipEntryBytes(bytes, name, limit=2*1024*1024) {
+  let end=-1;
+  for(let at=bytes.length-22;at>=Math.max(0,bytes.length-65557);at--)if(bytes.readUInt32LE(at)===0x06054b50){end=at;break;}
+  if(end<0)throw new Error('ZIP end record missing');
+  const count=bytes.readUInt16LE(end+10),size=bytes.readUInt32LE(end+12),offset=bytes.readUInt32LE(end+16);
+  if(count===0xffff||size===0xffffffff||offset===0xffffffff||offset+size>end)throw new Error('Unsupported ZIP directory');
+  let at=offset,found=null;
+  for(let i=0;i<count;i++){
+    if(at+46>offset+size||bytes.readUInt32LE(at)!==0x02014b50)throw new Error('Malformed ZIP directory');
+    const length=bytes.readUInt16LE(at+28),extra=bytes.readUInt16LE(at+30),comment=bytes.readUInt16LE(at+32);
+    if(at+46+length+extra+comment>offset+size)throw new Error('Truncated ZIP directory');
+    const entryName=bytes.subarray(at+46,at+46+length).toString('utf8');
+    if(entryName===name){
+      if(found)throw new Error('Duplicate ZIP model entry');
+      const flags=bytes.readUInt16LE(at+8),method=bytes.readUInt16LE(at+10),compressed=bytes.readUInt32LE(at+20),uncompressed=bytes.readUInt32LE(at+24),local=bytes.readUInt32LE(at+42);
+      if(flags&1||![0,8].includes(method)||uncompressed<1||uncompressed>limit||compressed>limit||local+30>offset||bytes.readUInt32LE(local)!==0x04034b50)throw new Error('Unsupported or oversized ZIP model entry');
+      if(bytes.readUInt16LE(local+6)!==flags||bytes.readUInt16LE(local+8)!==method)throw new Error('ZIP model compression/flags disagree');
+      const localLength=bytes.readUInt16LE(local+26),localExtra=bytes.readUInt16LE(local+28),start=local+30+localLength+localExtra;
+      if(start+compressed>offset||bytes.subarray(local+30,local+30+localLength).toString('utf8')!==name)throw new Error('ZIP entry header mismatch');
+      const data=bytes.subarray(start,start+compressed);
+      found=method===0?Buffer.from(data):inflateRawSync(data,{maxOutputLength:limit});
+      if(found.length!==uncompressed)throw new Error('ZIP entry length mismatch');
+    }
+    at+=46+length+extra+comment;
+  }
+  if(!found)throw new Error('Required ZIP model entry missing');
+  return found;
+}
+export const ML_ASSET_ROOT='android/app/src/privateDebug/assets/ml';
+export const ML_ASSET_FILES=['domain-model.tsv','manifest.json','parity.tsv','NOTICE.txt','LICENSE-CC-BY-SA-4.0.txt'];
+const HEX256=/^[a-f0-9]{64}$/;
+function requireValue(value,message){if(!value)throw new Error(message);}
+function closeNumber(actual,expected){return expected===null?actual===null:Number.isFinite(actual)&&Math.abs(actual-expected)<=1e-10;}
+function localBytes(root,path,limit=2*1024*1024){const absolute=resolve(root,path);noSymlinkSegments(root,absolute);const stats=lstatSync(absolute);requireValue(stats.isFile()&&!stats.isSymbolicLink()&&stats.size>0&&stats.size<=limit,'ML input absent, oversized or invalid');return readFileSync(absolute);}
+function jsonInput(root,path){return JSON.parse(localBytes(root,path).toString('utf8'));}
+/** Independent, bounded parser for the bundled inference representation. */
+export function parseMlModel(bytes){
+  requireValue(bytes.length>0&&bytes.length<=2*1024*1024&&!bytes.some(byte=>byte>127),'ML model must be bounded ASCII');
+  const lines=bytes.toString('ascii').trimEnd().split('\n').map(line=>line.replace(/\r$/,''));
+  requireValue(lines.shift()==='GEMPUR_DOMAIN_MODEL_V1','ML model format mismatch');
+  const keys=['model_version','min_ngram','max_ngram','intercept','review_threshold','min_coverage','min_matched','auto_quarantine','features'];
+  const fields={};for(const key of keys){const parts=(lines.shift()||'').split('\t');requireValue(parts.length===2&&parts[0]===key,'ML model header missing or ambiguous');fields[key]=parts[1];}
+  requireValue(/^[a-z0-9.-]{1,80}$/.test(fields.model_version)&&fields.min_ngram==='3'&&fields.max_ngram==='5'&&fields.min_matched==='10'&&Number(fields.min_coverage)===0.30&&fields.auto_quarantine==='false','ML model policy incompatible');
+  const intercept=Number(fields.intercept),threshold=Number(fields.review_threshold),count=Number(fields.features);
+  requireValue(Number.isFinite(intercept)&&Math.abs(intercept)<=100&&Number.isFinite(threshold)&&threshold>=0&&threshold<=1&&Number.isSafeInteger(count)&&count>=1&&count<=24000&&lines.length===count,'ML model numeric bounds invalid');
+  const features=new Map();for(const line of lines){const parts=line.split('\t'),weight=Number(parts[1]);requireValue(parts.length===2&&/^[a-z0-9.^$-]{3,5}$/.test(parts[0])&&!features.has(parts[0])&&Number.isFinite(weight)&&Math.abs(weight)<=100,'ML feature invalid, duplicate or nonfinite');features.set(parts[0],weight);}
+  return {version:fields.model_version,intercept,threshold,features};
+}
+function asciiPrediction(model,raw){
+  const domain=raw.trim().toLowerCase().replace(/\.$/,'');
+  const labels=domain.split('.');
+  if(domain.length>253||labels.length<2||/^\d+(?:\.\d+){3}$/.test(domain)||labels.some(label=>!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label)))return {score:null,matched:0,total:0,abstained:true,flagged:false};
+  const text='^'+domain+'$',ngrams=new Set();for(let length=3;length<=5;length++)for(let at=0;at+length<=text.length;at++)ngrams.add(text.slice(at,at+length));
+  let logit=model.intercept,matched=0;for(const gram of ngrams)if(model.features.has(gram)){logit+=model.features.get(gram);matched++;}
+  const score=logit>=0?1/(1+Math.exp(-logit)):Math.exp(logit)/(1+Math.exp(logit));
+  const abstained=matched<10||matched/ngrams.size<0.30;
+  return {score,matched,total:ngrams.size,abstained,flagged:!abstained&&model.threshold<1&&score>=model.threshold};
+}
+/** ASCII numerical parity is independently checked here; full IDNA parity is exercised by Java tests. */
+export function checkMlParity(model,bytes){
+  requireValue(bytes.length>0&&bytes.length<=512*1024,'ML parity input size invalid');
+  const lines=bytes.toString('utf8').trimEnd().split('\n').map(line=>line.replace(/\r$/,''));
+  requireValue(lines.shift()==='domain\tscore\tmatched\ttotal\tabstained\tflagged'&&lines.length>=20&&lines.length<=1000,'ML parity cases missing');
+  let asciiChecked=0;for(const line of lines){
+    const parts=line.split('\t');requireValue(parts.length===6&&/^\d+$/.test(parts[2])&&/^\d+$/.test(parts[3])&&['true','false'].includes(parts[4])&&['true','false'].includes(parts[5]),'ML parity row malformed');
+    const expected={score:parts[1]==='NA'?null:Number(parts[1]),matched:Number(parts[2]),total:Number(parts[3]),abstained:parts[4]==='true',flagged:parts[5]==='true'};
+    requireValue((expected.score===null||(Number.isFinite(expected.score)&&expected.score>=0&&expected.score<=1))&&expected.matched<=expected.total&&(!expected.abstained||!expected.flagged),'ML parity result invalid');
+    if(/^[\x00-\x7f]*$/.test(parts[0])){
+      const actual=asciiPrediction(model,parts[0]);requireValue(closeNumber(actual.score,expected.score)&&['matched','total','abstained','flagged'].every(key=>actual[key]===expected[key]),'ML exported weights do not match ASCII parity');asciiChecked++;
+    }
+  }
+  requireValue(asciiChecked>=10,'ML ASCII parity support too small');return {rows:lines.length,asciiChecked};
+}
+function validateMetric(value){
+  for(const key of ['tp','fp','tn','fn','n','positiveSupport','negativeSupport','predictedPositive','abstained'])requireValue(Number.isSafeInteger(value[key])&&value[key]>=0,'ML metric count invalid');
+  const {tp,fp,tn,fn,n,positiveSupport:positive,negativeSupport:negative,predictedPositive:predicted,abstained}=value;
+  requireValue(tp+fp+tn+fn===n&&tp+fn===positive&&tn+fp===negative&&tp+fp===predicted&&abstained<=n,'ML metric counts disagree');
+  const precision=negative&&predicted?tp/predicted:null,recall=positive?tp/positive:null,fpr=negative?fp/negative:null;
+  requireValue(closeNumber(value.precision,precision)&&closeNumber(value.recall,recall)&&closeNumber(value.falsePositiveRate,fpr),'ML metric ratios disagree with counts');
+  if(positive&&negative)requireValue(closeNumber(value.accuracy,(tp+tn)/n)&&closeNumber(value.balancedAccuracy,(tp/positive+tn/negative)/2),'ML accuracy ratios disagree with counts');
+  else requireValue(value.accuracy===null&&value.balancedAccuracy===null,'One-class holdout must not claim overall accuracy');
+  requireValue(closeNumber(value.coverage,n?1-abstained/n:null)&&closeNumber(value.flaggedCoverage,n?predicted/n:null),'ML coverage ratios disagree');
+  requireValue(value.prAuc===null||(Number.isFinite(value.prAuc)&&value.prAuc>=0&&value.prAuc<=1),'ML ranking score invalid');
+  for(const [key,point,lower]of [['precisionLower95',precision,true],['fprUpper95',fpr,false],['recallLower95',recall,true]])requireValue(point===null?value[key]===null:Number.isFinite(value[key])&&value[key]>=0&&value[key]<=1&&(lower?value[key]<=point+1e-10:value[key]>=point-1e-10),'ML interval bounds invalid');
+}
+/** Hash-bound source/protocol/model/report checks; this certifies consistency, not real-world accuracy. */
+export function verifyMlArtifacts(root){
+  const manifest=jsonInput(root,ML_ASSET_ROOT+'/manifest.json'),evaluation=jsonInput(root,'ml/evaluation.json'),frozen=jsonInput(root,'ml/frozen_selection.json'),experiment=jsonInput(root,'ml/experiment.json'),split=jsonInput(root,'ml/split_manifest.json'),sources=jsonInput(root,'ml/sources.lock.json');
+  const rawModel=localBytes(root,ML_ASSET_ROOT+'/domain-model.tsv'),model=parseMlModel(rawModel),rawParity=localBytes(root,ML_ASSET_ROOT+'/parity.tsv'),parity=checkMlParity(model,rawParity);
+  const modelHash=sha256(rawModel),parityHash=sha256(rawParity),provenance=Object.fromEntries([['sourcesLockSha256','ml/sources.lock.json'],['experimentSha256','ml/experiment.json'],['splitManifestSha256','ml/split_manifest.json'],['frozenSelectionSha256','ml/frozen_selection.json']].map(([key,path])=>[key,sha256(localBytes(root,path))]));
+  requireValue(manifest.schemaVersion===1&&evaluation.schemaVersion===1&&experiment.schemaVersion===1&&split.schemaVersion===1&&sources.schemaVersion===1,'ML metadata schema invalid');
+  requireValue(manifest.modelFile==='domain-model.tsv'&&manifest.parityFile==='parity.tsv'&&manifest.modelVersion===model.version&&evaluation.modelVersion===model.version&&experiment.modelVersion===model.version,'ML model identity mismatch');
+  requireValue(manifest.modelSha256===modelHash&&manifest.modelBytes===rawModel.length&&manifest.paritySha256===parityHash&&manifest.featureCount===model.features.size&&manifest.reviewThreshold===model.threshold,'ML manifest does not match weights/parity');
+  requireValue(evaluation.artifact?.modelSha256===modelHash&&evaluation.artifact?.modelBytes===rawModel.length&&evaluation.artifact?.paritySha256===parityHash&&evaluation.artifact?.featureCount===model.features.size&&frozen.modelSha256===modelHash,'ML evaluation or frozen model differs');
+  for(const [key,digest]of Object.entries(provenance))requireValue(manifest.training?.[key]===digest&&evaluation.provenance?.[key]===digest,'ML provenance hash mismatch');
+  requireValue(experiment.selectionScope==='validation'&&experiment.finalTestConsultedForSelection===false&&experiment.splitBeforeFit===true&&experiment.fitVocabularyOn==='train'&&frozen.selectionScope==='validation'&&frozen.finalTestConsultedForSelection===false,'ML selection protocol missing');
+  const chosenC=frozen.selectedC??frozen.C;
+  requireValue(Number.isFinite(chosenC)&&chosenC>0&&chosenC===(evaluation.selection?.C??evaluation.selection?.selectedC)&&frozen.reviewThreshold===model.threshold&&evaluation.selection?.reviewThreshold===model.threshold,'ML frozen selection mismatch');
+  requireValue(manifest.autoQuarantineEligible===false&&evaluation.autoQuarantineEligible===false&&experiment.autoQuarantineEligible===false&&evaluation.independentlyReviewedLabelCount===0&&evaluation.sourceProxyLabels===true,'Proxy-labelled model cannot claim automatic quarantine eligibility');
+  requireValue(evaluation.prAucDefinition==='average_precision','ML ranking metric definition missing');
+  requireValue(JSON.stringify(evaluation.dataset)===JSON.stringify(split)&&split.familyOverlapAcrossSplits===0&&split.familyOverlapWithSourceHoldouts===0,'ML split/report assignment proof differs');
+  for(const key of ['train','validation','test']){
+    const counts=split.splits?.[key];requireValue(counts&&['n','positive','negative'].every(name=>Number.isSafeInteger(counts[name])&&counts[name]>=0)&&counts.n>0&&counts.positive+counts.negative===counts.n&&HEX256.test(counts.familyAssignmentsSha256||'')&&HEX256.test(counts.normalizedRowsSha256||''),'ML split counts/hashes invalid');
+  }
+  requireValue(typeof manifest.scoreMeaning==='string'&&/uncalibrated|bukan probabilitas|not.*probability/i.test(manifest.scoreMeaning),'ML score meaning must disclose its limitations');
+  requireValue(Array.isArray(sources.sources)&&sources.sources.some(s=>s.role==='train_pool'&&s.label===0)&&sources.sources.some(s=>s.role==='train_pool'&&s.label===1)&&sources.sources.some(s=>s.role==='source_holdout'),'ML training/holdout sources missing');
+  for(const source of [...sources.sources,sources.psl])requireValue(source&&/^https:\/\//.test(source.url)&&/^[a-f0-9]{40}$/.test(source.revision)&&source.url.includes(source.revision)&&HEX256.test(source.sha256)&&Number.isSafeInteger(source.bytes)&&source.bytes>0,'ML source is not pinned');
+  requireValue(sources.psl.includesPrivateSuffixes===true&&Array.isArray(sources.licenses)&&sources.licenses.length>0,'ML grouping/license evidence missing');
+  const licenseFiles=new Set();for(const license of sources.licenses){requireValue(typeof license.path==='string'&&license.path.startsWith('ml/licenses/')&&inside(resolve(root,'ml/licenses'),resolve(root,license.path))&&sha256(localBytes(root,license.path))===license.sha256,'ML source license changed or absent');licenseFiles.add(license.path);}
+  requireValue([...sources.sources,sources.psl].every(source=>licenseFiles.has(source.licensePath)),'ML source license mapping incomplete');
+  requireValue(manifest.licenses?.noticeFile==='NOTICE.txt'&&manifest.licenses?.licenseFile==='LICENSE-CC-BY-SA-4.0.txt','ML bundled attribution declaration missing');
+  for(const [file,key]of [['NOTICE.txt','noticeSha256'],['LICENSE-CC-BY-SA-4.0.txt','licenseSha256']])requireValue(sha256(localBytes(root,ML_ASSET_ROOT+'/'+file))===manifest.licenses[key],'ML bundled attribution hash mismatch');
+  let metricSets=0;function walk(value){if(!value||typeof value!=='object')return;if(['tp','fp','tn','fn'].every(key=>key in value)){validateMetric(value);metricSets++;}else for(const item of Object.values(value))walk(item);}
+  requireValue(evaluation.evaluation?.test?.modelAtHalf&&evaluation.evaluation?.test?.modelAtReviewThreshold&&evaluation.evaluation?.test?.baselineHeuristicDetection&&evaluation.evaluation?.test?.hybridDetection&&evaluation.evaluation?.sourceHoldouts&&evaluation.evaluation?.challenge,'ML evaluation scopes incomplete');walk(evaluation.evaluation);requireValue(metricSets>=6,'ML evaluation metrics incomplete');
+  for(const metric of Object.values(evaluation.evaluation.test))if(metric&&typeof metric==='object'&&'tp' in metric)requireValue(metric.n===split.splits.test.n&&metric.positiveSupport===split.splits.test.positive&&metric.negativeSupport===split.splits.test.negative,'ML test metric support differs from frozen split');
+  requireValue(split.sourceHoldouts&&Object.keys(split.sourceHoldouts).length>0,'ML source holdout proof missing');
+  for(const [key,counts]of Object.entries(split.sourceHoldouts)){
+    const measured=evaluation.evaluation.sourceHoldouts[key];requireValue(counts.positiveOnly===true&&Number.isSafeInteger(counts.n)&&counts.n>=0&&HEX256.test(counts.familyAssignmentsSha256||'')&&HEX256.test(counts.normalizedRowsSha256||'')&&measured?.n===counts.n&&measured.positiveSupport===counts.n&&measured.negativeSupport===0&&measured.precision===null&&measured.falsePositiveRate===null,'ML positive-only holdout count/scope invalid');
+    if(counts.n)requireValue(Number.isSafeInteger(measured.modelReviewFlags)&&Number.isSafeInteger(measured.missedOrAbstained)&&measured.modelReviewFlags+measured.missedOrAbstained===counts.n&&closeNumber(measured.recall,measured.modelReviewFlags/counts.n)&&measured.accuracy===null,'ML source holdout recall arithmetic invalid');
+  }
+  return {valid:true,modelVersion:model.version,modelSha256:modelHash,paritySha256:parityHash,manifestSha256:sha256(localBytes(root,ML_ASSET_ROOT+'/manifest.json')),evaluationSha256:sha256(localBytes(root,'ml/evaluation.json')),...provenance,featureCount:model.features.size,reviewThreshold:model.threshold,mode:'advisory-only',autoQuarantineEligible:false,independentlyReviewedLabelCount:0,parityRows:parity.rows,asciiParityVerified:parity.asciiChecked,metricSets};
+}
+export function verifyMlPackaging(root){
+  const regular=readFileSync(resolve(root,'android/app/build/outputs/apk/debug/app-debug.apk')),release=readFileSync(resolve(root,'android/app/build/outputs/bundle/release/app-release.aab')),privateApk=readFileSync(resolve(root,'android/app/build/outputs/apk/privateDebug/app-privateDebug.apk'));
+  for(const bytes of [regular,release])requireValue(!zipEntryNames(bytes).some(name=>/^(?:base\/)?assets\/ml(?:\/|$)/.test(name)),'Ordinary artifact contains private ML assets');
+  const files={};for(const file of ML_ASSET_FILES){const expected=localBytes(root,ML_ASSET_ROOT+'/'+file),actual=zipEntryBytes(privateApk,'assets/ml/'+file);requireValue(sha256(actual)===sha256(expected),'Private APK contains mismatched ML assets');files[file]=sha256(actual);}
+  return {ordinaryAssetsAbsent:true,privateAssetsBound:true,files};
+}
 export function artifact(root,path,kind,startedAtMs) {
   const absolute=resolve(root,path),allowed=resolve(root,'android/app/build/outputs');
   if(!inside(allowed,absolute) || !/\.(?:apk|aab)$/.test(path))throw new Error('Artifact path is outside Android build outputs');
@@ -157,12 +287,14 @@ export function assess(evidence) {
   if(!evidence.lint || evidence.lint.errors!==0||!Number.isSafeInteger(evidence.lint.issues)||evidence.lint.issues<0||evidence.lint.warnings!==evidence.lint.issues)return 'FAIL';
   if(!evidence.privateLint || evidence.privateLint.errors!==0||!Number.isSafeInteger(evidence.privateLint.issues)||evidence.privateLint.issues<0||evidence.privateLint.warnings!==evidence.privateLint.issues)return 'FAIL';
   if(!evidence.distribution||['ordinaryMonitoringDisabled','privateMonitoringEnabled','ordinaryManifestIsolated','privateManifestDeclared','targetedAppVisibility'].some(key=>evidence.distribution[key]!==true))return 'FAIL';
+  if(evidence.ml?.valid!==true||evidence.ml.mode!=='advisory-only'||evidence.ml.autoQuarantineEligible!==false||evidence.ml.independentlyReviewedLabelCount!==0||!HEX256.test(evidence.ml.modelSha256||''))return 'FAIL';
+  if(evidence.mlPackaging?.ordinaryAssetsAbsent!==true||evidence.mlPackaging.privateAssetsBound!==true||ML_ASSET_FILES.some(file=>!HEX256.test(evidence.mlPackaging.files?.[file]||'')))return 'FAIL';
   if(!Array.isArray(evidence.artifacts)||evidence.artifacts.length!==4)return 'FAIL';
   return 'PASS';
 }
 export function checkEvidence(root,evidence,now=Date.now()) {
   const failures=[];
-  if(evidence.schemaVersion!==2 || evidence.mode!=='full' || evidence.status!=='PASS' || evidence.mergeEligible!==true)failures.push('Evidence is not a full PASS');
+  if(evidence.schemaVersion!==3 || evidence.mode!=='full' || evidence.status!=='PASS' || evidence.mergeEligible!==true)failures.push('Evidence is not a full PASS');
   if(!Number.isFinite(Date.parse(evidence.finishedAt)) || Date.parse(evidence.finishedAt)>now+60_000 || now-Date.parse(evidence.finishedAt)>MAX_EVIDENCE_AGE_MS)failures.push('Evidence is stale or has invalid finish time');
   if(!Number.isFinite(Date.parse(evidence.startedAt)) || Date.parse(evidence.startedAt)>Date.parse(evidence.finishedAt))failures.push('Evidence start time invalid');
   try{if(assess(evidence)!=='PASS')failures.push('Required stages, results or unchanged-source proof missing');}catch{failures.push('Evidence structure invalid');}
@@ -216,6 +348,8 @@ export function checkEvidence(root,evidence,now=Date.now()) {
     }catch{failures.push(`Artifact missing, stale or invalid: ${item.kind}`);}
   }
   if(seen.size!==4)failures.push('Required artifacts missing');
+  try{if(JSON.stringify(verifyMlArtifacts(root))!==JSON.stringify(evidence.ml))throw new Error('ML source proof mismatch');}catch{failures.push('ML model, parity, source protocol or evaluation changed/invalid');}
+  try{if(JSON.stringify(verifyMlPackaging(root))!==JSON.stringify(evidence.mlPackaging))throw new Error('ML packaged proof mismatch');}catch{failures.push('ML asset distribution boundaries changed/invalid');}
   return {valid:failures.length===0,status:evidence.status||'INVALID',mergeEligible:failures.length===0,failures};
 }
 export function sanitizeLog(text,env=process.env) {

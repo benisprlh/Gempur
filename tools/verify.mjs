@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, resolve, relative, basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sourceFingerprint, parseTap, parseJUnit, parseLint, parseDistribution, DISTRIBUTION_REPORTS, requireFresh, artifact, assess, checkEvidence, sanitizeLog, noSymlinkSegments, sha256 } from './verification-core.mjs';
+import { sourceFingerprint, parseTap, parseJUnit, parseLint, parseDistribution, DISTRIBUTION_REPORTS, requireFresh, artifact, assess, checkEvidence, sanitizeLog, noSymlinkSegments, sha256, verifyMlArtifacts, verifyMlPackaging } from './verification-core.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const args=process.argv.slice(2);
@@ -16,8 +16,8 @@ if(args.some(arg=>arg!=='--quick')||args.length>1){console.error('Usage: node to
 const mode=args.includes('--quick')?'quick':'full';
 const startedAtMs=Date.now(),runId=new Date(startedAtMs).toISOString().replace(/[-:.]/g,'')+'-'+randomBytes(3).toString('hex');
 const output=resolve(root,'out','verify',runId),logs=resolve(output,'logs');mkdirSync(logs,{recursive:true,mode:0o700});
-const evidence={schemaVersion:2,runId,mode,startedAt:new Date(startedAtMs).toISOString(),finishedAt:null,status:'FAIL',mergeEligible:false,
-  source:{before:null,after:null,unchanged:false},commands:[],tests:{},lint:null,privateLint:null,distribution:null,reports:[],artifacts:[],errors:[],
+const evidence={schemaVersion:3,runId,mode,startedAt:new Date(startedAtMs).toISOString(),finishedAt:null,status:'FAIL',mergeEligible:false,
+  source:{before:null,after:null,unchanged:false},commands:[],tests:{},lint:null,privateLint:null,distribution:null,ml:null,mlPackaging:null,reports:[],artifacts:[],errors:[],
   limits:{emulatorExecuted:false,physicalDeviceTested:false,playApproved:false,productionSigningAttempted:false},
   notice:'Local operator-generated evidence; not an independent CI attestation, device validation, or Play approval.'};
 const allowedEnv=new Set(['PATH','JAVA_HOME','ANDROID_HOME','ANDROID_SDK_ROOT','ANDROID_USER_HOME','ANDROID_SDK_HOME','GRADLE_USER_HOME','GRADLE_OPTS','JAVA_OPTS','JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','HOME','USERPROFILE','APPDATA','LOCALAPPDATA','SystemRoot','SYSTEMROOT','ComSpec','COMSPEC','PATHEXT','TMP','TEMP','TMPDIR','LANG','LANGUAGE','LC_ALL','LC_CTYPE','TZ','TERM','NO_COLOR','XDG_CONFIG_HOME','XDG_CACHE_HOME','XDG_DATA_HOME','HTTP_PROXY','HTTPS_PROXY','ALL_PROXY','NO_PROXY','http_proxy','https_proxy','all_proxy','no_proxy','SSL_CERT_FILE','SSL_CERT_DIR','REQUESTS_CA_BUNDLE','CURL_CA_BUNDLE','NODE_EXTRA_CA_CERTS']);
@@ -75,6 +75,7 @@ try{
   if(!testFiles.length)throw new Error('No Node test files found');
   const tap=run('node-tests',process.execPath,['--test','--test-reporter=tap',...testFiles],120_000);
   evidence.tests.node=parseTap(tap);
+  evidence.ml=verifyMlArtifacts(root);
   if(mode==='full'){
     const java=process.env.JAVA_HOME?resolve(process.env.JAVA_HOME,'bin',process.platform==='win32'?'java.exe':'java'):'java';
     run('java-version',java,['-version'],30_000,text=>{if(!/(?:openjdk|java) version "17\./.test(text))throw new Error('A full JDK 17 installation is required');});
@@ -100,6 +101,7 @@ try{
       artifact(root,'android/app/build/outputs/apk/privateDebug/app-privateDebug.apk','private-debug-apk',startedAtMs),
       artifact(root,'android/app/build/outputs/bundle/release/app-release.aab','release-aab',startedAtMs),
       artifact(root,'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk','instrumentation-apk',startedAtMs)];
+    evidence.mlPackaging=verifyMlPackaging(root);
     run('apk-signature',apksigner,['verify','--verbose','--print-certs','android/app/build/outputs/apk/debug/app-debug.apk'],30_000,text=>{
       if(!/^Verifies\s*$/m.test(text))throw new Error('APK signature verification did not confirm success');
     });

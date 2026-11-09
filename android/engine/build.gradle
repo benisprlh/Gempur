@@ -8,3 +8,6 @@ java {
 dependencies { testImplementation 'junit:junit:4.13.2' }
 
 test { useJUnit() }
+
+// Real private-model parity vectors are test fixtures only; never an ordinary runtime asset.
+sourceSets.test.resources.srcDir '../app/src/privateDebug/assets'

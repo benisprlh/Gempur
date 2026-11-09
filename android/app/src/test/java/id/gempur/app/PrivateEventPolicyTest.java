@@ -36,4 +36,17 @@ public final class PrivateEventPolicyTest {
         assertFalse(PrivateEventPolicy.fresh(now - PrivateEventPolicy.TTL_MS - 1, now));
         assertFalse(PrivateEventPolicy.fresh(now + 60_001, now));
     }
+    @Test public void domainAiCanOnlyReportAnAdvisorySignal() {
+        PrivateEventPolicy.validate("domain", "ml_model", "suspected", "flagged");
+        for (String[] fields : new String[][]{
+                {"app", "suspected", "flagged"}, {"domain", "known", "flagged"},
+                {"domain", "personal", "flagged"}, {"domain", "suspected", "blocked"},
+                {"unknown", "suspected", "flagged"}, {null, "suspected", "flagged"}}) {
+            try { PrivateEventPolicy.validate(fields[0], "ml_model", fields[1], fields[2]); fail(); }
+            catch (IllegalArgumentException expected) {}
+        }
+        // Callers that omit kind cannot accidentally turn an app into a domain AI report.
+        try { PrivateEventPolicy.validate("ml_model", "suspected", "flagged"); fail(); }
+        catch (IllegalArgumentException expected) {}
+    }
 }

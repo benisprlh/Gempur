@@ -31,6 +31,19 @@ public final class DetectionPolicy {
     }
 
     public static Decision unknown() { return new Decision(false, "unknown", "unknown"); }
+    /** A learned lexical signal is advisory only; it never changes network enforcement. */
+    public static Decision mlFlagged() { return new Decision(false, "ml_model", "suspected"); }
+
+    /** Suppresses speculative ML review of protected or educational/news/support host names. */
+    public static boolean canReviewDomain(String input) {
+        final String domain;
+        try { domain = DomainRules.normalize(input); } catch (IllegalArgumentException invalid) { return false; }
+        if (isDiagnosticDomain(domain) || heuristicExemptDomain(domain)) return false;
+        for (String word : domain.split("[^a-z]+")) {
+            if (CONTEXT.contains(word) || word.matches("anti|stop|cegah|pemulihan|rehab|recovery|support|help|bantuan|konseling")) return false;
+        }
+        return true;
+    }
 
     public static boolean isDiagnosticDomain(String input) {
         if (input == null) return false;

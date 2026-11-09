@@ -1,0 +1,84 @@
+{
+  "autoQuarantineEligible": false,
+  "candidates": [
+    {
+      "C": 0.25,
+      "fitSeconds": 3.4018490729940822,
+      "reviewThreshold": 0.9948492012769712,
+      "validationOperatingPoint": {
+        "falsePositiveRate": 0.0009213501968339057,
+        "fp": 11,
+        "precision": 0.9956980836918263,
+        "predictedPositive": 2557,
+        "reason": "Validation-only proxy operating point; no independent-label gate",
+        "tp": 2546
+      },
+      "validationPrAuc": 0.9781477252166965
+    },
+    {
+      "C": 1.0,
+      "fitSeconds": 4.850824395995005,
+      "reviewThreshold": 0.9976511612156833,
+      "validationOperatingPoint": {
+        "falsePositiveRate": 0.0009213501968339057,
+        "fp": 11,
+        "precision": 0.9956828885400314,
+        "predictedPositive": 2548,
+        "reason": "Validation-only proxy operating point; no independent-label gate",
+        "tp": 2537
+      },
+      "validationPrAuc": 0.9777190465633174
+    },
+    {
+      "C": 4.0,
+      "fitSeconds": 8.999372195001342,
+      "reviewThreshold": 0.9997044705698677,
+      "validationOperatingPoint": {
+        "falsePositiveRate": 0.0009213501968339057,
+        "fp": 11,
+        "precision": 0.9951838879159369,
+        "predictedPositive": 2284,
+        "reason": "Validation-only proxy operating point; no independent-label gate",
+        "tp": 2273
+      },
+      "validationPrAuc": 0.9757272381888751
+    }
+  ],
+  "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+  "exportedValidationOperatingPoint": {
+    "falsePositiveRate": 0.0009213501968339057,
+    "fp": 11,
+    "precision": 0.9956980836918263,
+    "predictedPositive": 2557,
+    "reason": "Validation-only proxy operating point; no independent-label gate",
+    "tp": 2546
+  },
+  "featureCount": 24000,
+  "finalTestConsultedForSelection": false,
+  "frozenAt": "2026-11-09T07:06:32.804477+00:00",
+  "independentlyReviewedLabelCount": 0,
+  "modelBytes": 627278,
+  "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+  "modelVersion": "domain-ml-2026-11-09-v1",
+  "reviewThreshold": 0.9948492012769712,
+  "schemaVersion": 1,
+  "scoreMeaning": "Uncalibrated lexical risk score, not verified probability of judol",
+  "selectedC": 0.25,
+  "selectedValidation": {
+    "C": 0.25,
+    "fitSeconds": 3.4018490729940822,
+    "reviewThreshold": 0.9948492012769712,
+    "validationOperatingPoint": {
+      "falsePositiveRate": 0.0009213501968339057,
+      "fp": 11,
+      "precision": 0.9956980836918263,
+      "predictedPositive": 2557,
+      "reason": "Validation-only proxy operating point; no independent-label gate",
+      "tp": 2546
+    },
+    "validationPrAuc": 0.9781477252166965
+  },
+  "selectionScope": "validation",
+  "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+  "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c"
+}

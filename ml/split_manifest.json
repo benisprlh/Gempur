@@ -1,0 +1,133 @@
+{
+  "assignment": "SHA256(seed:SHA256(brand-family)) modulo10000;70/15/15",
+  "excluded": {
+    "challengeFamiliesReserved": 4,
+    "conflictingLabelFamilies": 605,
+    "conflictingLabelRows": 4888,
+    "knownRuleFamilies": 5,
+    "poolRowsReservedForSourceHoldout": 1051,
+    "sourceHoldoutFamiliesReserved": 1667
+  },
+  "familyOverlapAcrossSplits": 0,
+  "familyOverlapWithSourceHoldouts": 0,
+  "grouping": "Pinned PSL registrable roots plus equal digit/hyphen-stripped brand stems across TLDs; one representative per family",
+  "residualLeakageRisk": "Similar brands with different remaining stems can remain in different groups; no complete near-duplicate or temporal independence claim",
+  "schemaVersion": 1,
+  "seed": 20261109,
+  "sourceCounts": {
+    "arfshl-indonesia": {
+      "invalid": 0,
+      "label": 1,
+      "rawParsed": 480,
+      "role": "source_holdout",
+      "uniqueNormalized": 480
+    },
+    "sinfonietta-gambling": {
+      "invalid": 0,
+      "label": 1,
+      "rawParsed": 2694,
+      "role": "source_holdout",
+      "uniqueNormalized": 2690
+    },
+    "ut1-bank": {
+      "invalid": 1,
+      "label": 0,
+      "rawParsed": 6646,
+      "role": "train_pool",
+      "uniqueNormalized": 6645
+    },
+    "ut1-financial": {
+      "invalid": 0,
+      "label": 0,
+      "rawParsed": 472,
+      "role": "train_pool",
+      "uniqueNormalized": 472
+    },
+    "ut1-gambling": {
+      "invalid": 17,
+      "invalidPublicSuffix": 1,
+      "label": 1,
+      "rawParsed": 47818,
+      "role": "train_pool",
+      "uniqueNormalized": 47544
+    },
+    "ut1-games": {
+      "invalid": 89,
+      "invalidPublicSuffix": 6,
+      "label": 0,
+      "rawParsed": 33741,
+      "role": "train_pool",
+      "uniqueNormalized": 33652
+    },
+    "ut1-liste_bu": {
+      "invalid": 17,
+      "invalidPublicSuffix": 22,
+      "label": 0,
+      "rawParsed": 2827,
+      "role": "train_pool",
+      "uniqueNormalized": 2810
+    },
+    "ut1-press": {
+      "invalid": 0,
+      "label": 0,
+      "rawParsed": 4644,
+      "role": "train_pool",
+      "uniqueNormalized": 4644
+    },
+    "ut1-shopping": {
+      "invalid": 5,
+      "invalidPublicSuffix": 1,
+      "label": 0,
+      "rawParsed": 36968,
+      "role": "train_pool",
+      "uniqueNormalized": 36963
+    },
+    "ut1-sports": {
+      "invalid": 0,
+      "label": 0,
+      "rawParsed": 2362,
+      "role": "train_pool",
+      "uniqueNormalized": 2362
+    }
+  },
+  "sourceHoldoutFamilyOverlapBetweenFeeds": 1,
+  "sourceHoldoutUnionFamilies": 1667,
+  "sourceHoldouts": {
+    "arfshl-indonesia": {
+      "familyAssignmentsSha256": "2ac058de1917d400ad6ac599cb00b3d9c74e9ac1c2a9182af77e82161b951cb2",
+      "n": 443,
+      "normalizedRowsSha256": "13d6547d09621d80e340f77f78e4c93da773a8b853d634b47a5ff1e87785d136",
+      "positiveOnly": true
+    },
+    "sinfonietta-gambling": {
+      "familyAssignmentsSha256": "4e0749718f49edcc44a2d7f13d265cd02dff13b117015ddc62992d4d153f4f84",
+      "n": 1225,
+      "normalizedRowsSha256": "26107ddb986fcd4555dc725b175f6599c2fc263d42ebd127597e99c3463a6e42",
+      "positiveOnly": true
+    }
+  },
+  "splits": {
+    "test": {
+      "familyAssignmentsSha256": "bf6f28ededee54c651ae4c96adbaa1153bdab660523f0c5ac826d4008d44b67c",
+      "n": 16006,
+      "negative": 12003,
+      "normalizedRowsSha256": "eac3f686a69fec6bfb4c5510f99aff7a5ab5dbcd77a8e56281340962d59dc66e",
+      "positive": 4003
+    },
+    "train": {
+      "familyAssignmentsSha256": "e2c0129a57741eb0b41d212e747c5551ceb7e83feb728ce06bb5b4c539037952",
+      "n": 74920,
+      "negative": 56260,
+      "normalizedRowsSha256": "ab009a33190e5d8a56e9e8323710b03caece5222ca65c94ae6c2e8e50bb0d1c2",
+      "positive": 18660
+    },
+    "validation": {
+      "familyAssignmentsSha256": "d117787e1e027f3c1fd231abe10983558ea3ac502e2bc71c620399ab8d6d86ac",
+      "n": 15954,
+      "negative": 11939,
+      "normalizedRowsSha256": "ebd5800d8efe33ba6ea1969f4077105a53d0c55df94e1afbfa38f06584355bd3",
+      "positive": 4015
+    }
+  },
+  "unknownSuffixPolicy": "Exclude source rows without an explicit pinned PSL suffix; PSL default wildcard is not used to admit training/evaluation sources"
+}

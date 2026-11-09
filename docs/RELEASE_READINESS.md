@@ -4,9 +4,27 @@ Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluru
 
 Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi seluruh bukti; `PASS` bukti penerimaan tersedia; `BLOCKED` dependency menghalangi; `DEFERRED` di luar alpha dengan batas jelas.
 
-## Kandidat uji privat 0.2 — prioritas saat ini
+## Kandidat AI domain lokal 0.3 — prioritas saat ini
 
-Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP di bawah tetap berlaku untuk baseline. Kode privat tersedia sebagai kandidat, **belum menjadi bukti full build atau dua HP**. Verifikasi baru harus dicatat setelah source final.
+AI offline berupa regresi logistik char-ngram nama domain, dengan opt-in terpisah yang default mati. Sinyalnya hanya `ml_model/suspected/flagged`, bukan blokir otomatis atau bukti niat berjudi. Data kategori publik adalah proxy; unit test dan akurasi kategori sumber harus dilaporkan terpisah. Lihat [model card](LOCAL_AI_MODEL_CARD.md) dan [kontrak AI](LOCAL_AI_CONTRACT.md).
+
+| Gate kandidat AI | Status | Bukti yang diperlukan |
+| --- | --- | --- |
+| Sumber/pin/lisensi dan raw-cache hash | PASS akuisisi | Lock 10 sumber + PSL/provenance, atribusi dan lisensi; downloader check-only serta HTTPS pinned diuji. Ini bukan verifikasi label. |
+| Protokol train/validation/test dan source/family holdout | PASS eksperimen | Train 74.920, validation 15.954, test 16.006; nol family overlap yang didefinisikan, selection validation-only dibekukan; ketergantungan/residual similarity tetap dilaporkan |
+| Model domain privat/default-off dan parser strict | CODE | Ordinary tanpa aset, model gagal dibaca abstain, batas fitur/ukuran/koefisien, opt-in lokal + layanan terlihat |
+| Python–Java parity dan hash artifact/report | PASS otomatis | Verifier source final memeriksa 69 vektor, model/preprocessing/skor/keputusan dan hash-bound manifest/report; 13 tes protokol Python terpisah |
+| Benchmark model/heuristik/guard runtime | PASS reproduksi, kualitas belum memenuhi target | Report/skor dihitung ulang independen; test recall 63,75%, accuracy 90,87%, holdout Indonesia simulasi kebijakan 1,58%; FPR upper95 0,1516% >0,1%. Guard acuan belum mengukur HP; lihat model card, bukan klaim 99% accuracy |
+| Backend 0.3 dan consent metadata AI | CODE | Health localDomainAiSignals, domain+suspected+flagged saja, tanpa skor/konten/inventaris, UI menahan backend lama |
+| AI memblokir otomatis | BLOCKED | Independently adjudicated labels belum tersedia; autoQuarantineEligible=false tanpa memandang angka proxy |
+| Akurasi aplikasi/isi halaman/semua internet | DEFERRED | Model hanya hostname; heuristik aplikasi tetap terpisah dan tidak divalidasi oleh benchmark domain |
+| Full build/lint/review dan QA HP | PASS gate software; QA HP PENDING | 120 eksekusi tes, kedua lint 0 issue, APK biasa/privat terverifikasi dan review independen. Uji runtime dua HP/baterai/DoH tetap belum dilakukan |
+
+[Bukti source final AI 0.3](evidence/2026-11-09-local-ai-build.json) terpisah dari [laporan model](LOCAL_AI_MODEL_CARD.md). Lulus gate software tidak membuka auto-quarantine atau membuktikan akurasi dunia nyata.
+
+## Bukti kandidat uji privat 0.2
+
+Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP di bawah tetap berlaku untuk baseline. Bukti build 0.2 bersifat historis dan tidak menggantikan gate source AI 0.3; uji dua HP masih perlu dibuktikan.
 
 | Kemampuan privat | Status | Bukti yang masih harus dicatat |
 | --- | --- | --- |

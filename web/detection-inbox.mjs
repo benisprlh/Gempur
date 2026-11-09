@@ -4,7 +4,7 @@ export const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char 
 export function detectionPresentation(item) {
   const kind = item.kind === 'app' ? 'Aplikasi' : item.kind === 'domain' ? 'Domain' : 'Target';
   const verdict = { known:'Cocok daftar aturan', personal:'Aturan pribadi peserta', suspected:'Diduga · perlu ditinjau' }[item.verdict] || 'Belum terverifikasi';
-  const reason = { known_rule:'Cocok aturan yang dipasang di perangkat', personal_rule:'Aturan yang dipilih peserta', name_heuristic:'Indikasi dari nama; isi belum diverifikasi' }[item.reason] || 'Alasan belum tersedia';
+  const reason = { known_rule:'Cocok aturan yang dipasang di perangkat', personal_rule:'Aturan yang dipilih peserta', name_heuristic:'Indikasi dari nama; isi belum diverifikasi', ml_model:'Sinyal AI lokal, perlu ditinjau; isi belum diverifikasi' }[item.reason] || 'Alasan belum tersedia';
   const action = item.action === 'blocked' ? (item.kind === 'app' ? 'Pembukaan aplikasi diinterupsi' : 'Koneksi DNS diblokir') : 'Ditandai untuk ditinjau';
   return { kind, verdict, reason, action };
 }
