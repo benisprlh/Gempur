@@ -112,7 +112,7 @@ test('event payload rejects URLs, diagnostics, inventories, unknown fields and i
 test('local domain AI reports are scoped advisory signals and remain idempotent',async t=>{
   const f=await fixture(t),pair=await f.pair(),grant=await f.grant(pair,['domain']);
   const health=(await f.call('/api/health')).body;
-  assert.equal(health.version,'0.3.0-alpha.1');assert.equal(health.localDomainAiSignals,true);
+  assert.equal(health.version,'0.3.2-alpha.1');assert.equal(health.localDomainAiSignals,true);
   const event=f.event({reason:'ml_model',verdict:'suspected',action:'flagged'});
   const uploaded=await f.upload(pair,grant,[event]);
   assert.equal(uploaded.status,200);assert.deepEqual(uploaded.body.acceptedEventIds,[event.eventId]);

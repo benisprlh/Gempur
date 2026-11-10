@@ -1,0 +1,1165 @@
+{
+  "schemaVersion": 3,
+  "runId": "20261110T025137668Z-e70b3f",
+  "mode": "full",
+  "startedAt": "2026-11-10T02:51:37.668Z",
+  "finishedAt": "2026-11-10T02:53:03.343Z",
+  "status": "PASS",
+  "mergeEligible": true,
+  "tests": {
+    "node": {
+      "tests": 80,
+      "pass": 80,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "engine": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidClient": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "privateAndroidClient": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "artifacts": [
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "kind": "debug-apk",
+      "bytes": 226809,
+      "sha256": "20b85290bee06e014771842e17f1db980a5d14e6a0ddce7c999f30e6c1faa479",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk",
+      "kind": "private-debug-apk",
+      "bytes": 571454,
+      "sha256": "4a38d6d5b0b4253ad1c036c3e921fbacd491de7a1770cb073229b339ee1bb7d3",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/bundle/release/app-release.aab",
+      "kind": "release-aab",
+      "bytes": 57854,
+      "sha256": "2ae482f1186dd3a8784756274f4dd5ffa4e3b1c104d51c815398be6463dbe4de",
+      "signing": "unsigned"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "kind": "instrumentation-apk",
+      "bytes": 4666513,
+      "sha256": "2cdfadd912af6bb4cf24acd6ae536babaea07622941422f6bed4a45c52156172",
+      "signing": "development"
+    }
+  ],
+  "ml": {
+    "valid": true,
+    "modelVersion": "domain-ml-2026-11-09-v1",
+    "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+    "paritySha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+    "manifestSha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8",
+    "evaluationSha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb",
+    "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+    "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+    "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c",
+    "frozenSelectionSha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff",
+    "featureCount": 24000,
+    "reviewThreshold": 0.9948492012769712,
+    "mode": "advisory-only",
+    "autoQuarantineEligible": false,
+    "independentlyReviewedLabelCount": 0,
+    "parityRows": 69,
+    "asciiParityVerified": 66,
+    "metricSets": 12
+  },
+  "errors": [],
+  "review": {
+    "independentPolicyAssertions": 1982,
+    "result": "PASS",
+    "deviceTestsRun": false
+  },
+  "baseCommit": "db68f714971e1a8ad04276b63ca4613cac61f556",
+  "limitations": [
+    "No device/emulator/battery testing",
+    "V1 scientific auto-quarantine remains NO-GO",
+    "Development signatures are not production identity"
+  ],
+  "source": {
+    "before": {
+      "sha256": "b06acc29cecd09d2310ed66a74da7f4d61e11b11a428d489963b81d1fa5d2994",
+      "files": [
+        {
+          "path": "android/app/build.gradle",
+          "bytes": 2798,
+          "sha256": "7af53f7a1850339e21b706cc4f8ffd285cc444ecd396341b7924b33e7219de28"
+        },
+        {
+          "path": "android/app/proguard-rules.pro",
+          "bytes": 71,
+          "sha256": "bd6bf439b051f9fe3d86f80bf4260adc126770d3cddaf1b9f54e77b6dd5bc39e"
+        },
+        {
+          "path": "android/app/src/androidTest/java/id/gempur/app/PrivateMonitorStoreTest.java",
+          "bytes": 6974,
+          "sha256": "7967e8bbe4f1b88866916b68a8bd796af9d588708edcd5e332b38850944eeb2c"
+        },
+        {
+          "path": "android/app/src/androidTest/java/id/gempur/app/SmokeTest.java",
+          "bytes": 6001,
+          "sha256": "71f55e3201b1ed4fe205d389f700cb141b84434f1f5bbca8139a0d0bd2fb0a58"
+        },
+        {
+          "path": "android/app/src/debug/AndroidManifest.xml",
+          "bytes": 249,
+          "sha256": "ccea530438fa9e9a871738591a53cfcf53f48d9bb73584fbca71a0a9bfee8996"
+        },
+        {
+          "path": "android/app/src/debug/res/xml/network_security_debug.xml",
+          "bytes": 417,
+          "sha256": "a88c31855002fa7780ea82b41078d766ea124490e2282ce78ffda00988a170e8"
+        },
+        {
+          "path": "android/app/src/main/AndroidManifest.xml",
+          "bytes": 1806,
+          "sha256": "486df3eed59fcbbb0866157b46675a5d4b6736f707aedcd2cf2b273174bfb8b7"
+        },
+        {
+          "path": "android/app/src/main/assets/domains.txt",
+          "bytes": 531,
+          "sha256": "920aee6c3886af298b010b027585dcf7eafb13d785bff9f82da25e57a206bc42"
+        },
+        {
+          "path": "android/app/src/main/assets/rules-provenance.json",
+          "bytes": 900,
+          "sha256": "b5d9745f417e46a4dc73d8dcfc5d1f80176ce9b64fce08cc12c6804e82514220"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/CompanionClient.java",
+          "bytes": 4288,
+          "sha256": "a3eb2512ec231082431e011e2a13f7b3f2a3a293413e395537af420a799380be"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/LocalStore.java",
+          "bytes": 5492,
+          "sha256": "b15a8c40adce91b122481af0b84ef00c46efdd325cbc62108fd73df8e3c28221"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/MainActivity.java",
+          "bytes": 67501,
+          "sha256": "11d441d2da7aa397ce36f40533b9d32e752aa884041b0ea2929ab72a31876395"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateAutomationService.java",
+          "bytes": 15029,
+          "sha256": "bee9cc9bc2d30c61949b95f3cf59f700bbd899086dc91ff2f6e946741ed32df2"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateEventPolicy.java",
+          "bytes": 3219,
+          "sha256": "134c14e50d8362e05592602b0a09239906b691eb8692cf20cfbb8136ff725119"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateMonitoring.java",
+          "bytes": 12713,
+          "sha256": "41fce3c088771ece5d2b403b9ba364a030b0c3ab1afe101b6f109ba4c5ea0a19"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateMonitorStore.java",
+          "bytes": 17057,
+          "sha256": "8c75d215ef1071f4ba2e3777f497fbf7120670165f52f9c171d64fc405c7bcb6"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/ProtectionService.java",
+          "bytes": 15109,
+          "sha256": "4b2093e778d65563cf472fac0b62f8b9a4401669d98a68278eb41bd13fdb7325"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/RuleRepository.java",
+          "bytes": 12771,
+          "sha256": "78f6527ca0d9e69a6a0863eed7dae4b570bcd6308ff35dc18e9f5440311a5e57"
+        },
+        {
+          "path": "android/app/src/main/res/drawable/ic_shield.xml",
+          "bytes": 392,
+          "sha256": "ac9d10e100c3f70bf5fb7211a1c29dff57d73d11f7ba120e5a92805fd4ea8394"
+        },
+        {
+          "path": "android/app/src/main/res/values/strings.xml",
+          "bytes": 610,
+          "sha256": "e3ef34c3efa3b70255bb0781aa57f13783a5ac7f4865ffb7996ca8e438b9e606"
+        },
+        {
+          "path": "android/app/src/main/res/values/styles.xml",
+          "bytes": 547,
+          "sha256": "bfd8ba9aa1971d6924d0abbc04329bb403937c2b69207f0e5a085b6e242be370"
+        },
+        {
+          "path": "android/app/src/main/res/xml/data_extraction_rules.xml",
+          "bytes": 568,
+          "sha256": "c871abf237f1fd1e058c4db44ff437027f5d7bb1116693cbac1c600474a994c1"
+        },
+        {
+          "path": "android/app/src/main/res/xml/network_security_config.xml",
+          "bytes": 179,
+          "sha256": "7d36f7c3e8635187f3f225fd5ae4760b9865a95ad556c31b8ce72f138a1a3795"
+        },
+        {
+          "path": "android/app/src/ordinary/java/id/gempur/app/AppRiskRepository.java",
+          "bytes": 810,
+          "sha256": "b33da2b7376cde0242fe20fbfa777e689458eb600d0c3fa1931668f1697b4c91"
+        },
+        {
+          "path": "android/app/src/ordinary/java/id/gempur/app/DomainAiRepository.java",
+          "bytes": 1117,
+          "sha256": "9a244b8ea7303304695930cbc62a5d71a236ae51090ec06e31f5c1a47de1e79e"
+        },
+        {
+          "path": "android/app/src/privateDebug/AndroidManifest.xml",
+          "bytes": 1550,
+          "sha256": "babd3cee8369b246c4617bd1b126791906f13c44444c3b449dab7228a757fffc"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/domain-model.tsv",
+          "bytes": 627278,
+          "sha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/LICENSE-CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/manifest.json",
+          "bytes": 1256,
+          "sha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/MPL-2.0.txt",
+          "bytes": 16727,
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/NOTICE.txt",
+          "bytes": 697,
+          "sha256": "5e9a6720c9a48a20a35b7061b27d1294e6e7553bc1a9f040d6cd9c756ebaa47c"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/parity.tsv",
+          "bytes": 3807,
+          "sha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/Sinfonietta-MIT.txt",
+          "bytes": 1078,
+          "sha256": "b32ce488900c449c858b636ac18aab77ae483586508e3aa2e6a916d7a6ace1ae"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/AppRiskRepository.java",
+          "bytes": 8729,
+          "sha256": "8e4db3c3d2eb92a222bc647c1f5bf82104c7b1e0212258421dc103b733f26dd1"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/DomainAiRepository.java",
+          "bytes": 6438,
+          "sha256": "6c60afe003392a6132e3acafab1d6d6e0a4285cb2e572a82b06b44eec47b2a3a"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/PrivateAppGuardService.java",
+          "bytes": 1741,
+          "sha256": "815448be74f2872ca50d6aef113428bcb55589733cba778fcbe7ae33cc273414"
+        },
+        {
+          "path": "android/app/src/privateDebug/res/values/strings.xml",
+          "bytes": 322,
+          "sha256": "810dd5a8c45f30bf88eda2b10416159bac5f31293528d97884b7d72150206802"
+        },
+        {
+          "path": "android/app/src/privateDebug/res/xml/private_app_guard.xml",
+          "bytes": 388,
+          "sha256": "479231c49b8969ec61ddb1b83a0e2e24a22cb411c8cd9c8121c1dde68cdbf6ed"
+        },
+        {
+          "path": "android/app/src/test/java/id/gempur/app/CompanionClientTest.java",
+          "bytes": 1486,
+          "sha256": "bc1e2b17fae825af8b243e006f25af3281cc89d1796e6b2ced0ab2d134ee21d2"
+        },
+        {
+          "path": "android/app/src/test/java/id/gempur/app/PrivateEventPolicyTest.java",
+          "bytes": 3417,
+          "sha256": "61cc6a6b4517b9a3b3920f9b291aca89d0649f125b53b109747ac2bfd555c032"
+        },
+        {
+          "path": "android/build.gradle",
+          "bytes": 75,
+          "sha256": "7dc5184ad325c68710ddde2bf405db0dcdb220f1fe33edeec2a0cd502b8c5a93"
+        },
+        {
+          "path": "android/engine/build.gradle",
+          "bytes": 378,
+          "sha256": "df376e16417d7adac427354188ca07f7b20384a6ae756f3732101f3c28897fd5"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DetectionPolicy.java",
+          "bytes": 7198,
+          "sha256": "96b9b251f1da1faf8bc790834e73e5a4294c00ff480e74be8ac88cc23b33912f"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DnsCodec.java",
+          "bytes": 4467,
+          "sha256": "5d107a555fe8fcc044f9661b8417ac7746073b7bb1ea62d09d703357071f7fd6"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DomainRules.java",
+          "bytes": 4582,
+          "sha256": "7f01a373476cd1f3025103b4bf5920960fbf6387c77c1eedd2ad5d1f55add49e"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/Ipv4Udp.java",
+          "bytes": 3942,
+          "sha256": "56b5b282871dfb36ff345838bc799301a8014e4838d873a50224436a82243509"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/LexicalDomainModel.java",
+          "bytes": 7301,
+          "sha256": "fe4f15ce112e092ac05ca16d468883120eb6151bb2c358c1a885601cd534356a"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/TemporaryAllowance.java",
+          "bytes": 1171,
+          "sha256": "85498678dd2cecb4b766fe47cc923da98a0bd98c92f8c83ab53ddc9c7b98ba71"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/DetectionPolicyTest.java",
+          "bytes": 7767,
+          "sha256": "dd998c1a52250b231f7876e7289894f531220424c73340cf34daa8ca3d3ad4d1"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/EngineTest.java",
+          "bytes": 5738,
+          "sha256": "f6706d491429f4b4a6f4a6e5e4a549394b83b0a38d5b58bcc0a0294c86a9be08"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/LexicalDomainModelTest.java",
+          "bytes": 9431,
+          "sha256": "384814d5d3f91e03b5a4bed4a2e58333cd96172b041a606f0b836e205a60133f"
+        },
+        {
+          "path": "android/gradle.properties",
+          "bytes": 131,
+          "sha256": "62ce6df78ce8ff97c9e137a50f504f39aecb1401803ab5b756fa618659460a26"
+        },
+        {
+          "path": "android/gradle/wrapper/gradle-wrapper.jar",
+          "bytes": 43583,
+          "sha256": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046"
+        },
+        {
+          "path": "android/gradle/wrapper/gradle-wrapper.properties",
+          "bytes": 341,
+          "sha256": "50d0ce8eddfb08cf5fe269e624f53812e37830380cb78ae34ce357cde7d29ed0"
+        },
+        {
+          "path": "android/gradlew",
+          "bytes": 8762,
+          "sha256": "a3648413b47ef77af21d5ebc36c687c7d103aaef3e17f33de7d4f080a6f300a3"
+        },
+        {
+          "path": "android/gradlew.bat",
+          "bytes": 2966,
+          "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f"
+        },
+        {
+          "path": "android/settings.gradle",
+          "bytes": 279,
+          "sha256": "6364dc5f2258092a139b1d251e2bf28af17bd2f32bd6bb3c5cfd7e6e73183723"
+        },
+        {
+          "path": "ml/ATTRIBUTION.md",
+          "bytes": 5823,
+          "sha256": "468ea24bed38faa99fd5c115b8777b5457d7d0002b5b26b447c2199c96cb33f7"
+        },
+        {
+          "path": "ml/evaluation.json",
+          "bytes": 29834,
+          "sha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb"
+        },
+        {
+          "path": "ml/experiment.json",
+          "bytes": 3930,
+          "sha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1"
+        },
+        {
+          "path": "ml/frozen_selection.json",
+          "bytes": 2934,
+          "sha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff"
+        },
+        {
+          "path": "ml/licenses/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "ml/licenses/CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "ml/licenses/MPL-2.0.txt",
+          "bytes": 16727,
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        },
+        {
+          "path": "ml/licenses/Sinfonietta-MIT.txt",
+          "bytes": 1078,
+          "sha256": "b32ce488900c449c858b636ac18aab77ae483586508e3aa2e6a916d7a6ace1ae"
+        },
+        {
+          "path": "ml/sources.lock.json",
+          "bytes": 11439,
+          "sha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac"
+        },
+        {
+          "path": "ml/split_manifest.json",
+          "bytes": 4119,
+          "sha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.domains.txt",
+          "bytes": 8328,
+          "sha256": "45282cf5b8d613eece96e46a001308d50b7e769cf1bdbe8d40ef8ee7cc506432"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.manifest.json",
+          "bytes": 919,
+          "sha256": "5af57aed7ba13b1ed185b1c194fd4b7369eb16681683b20e0c1c194d5d64934c"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.rejected.json",
+          "bytes": 3536,
+          "sha256": "832bd6822d2fe0db2f28d3a720459bee2b6e823eb30439aef7063813636633bb"
+        },
+        {
+          "path": "rules/fixtures/benign-domains.txt",
+          "bytes": 227,
+          "sha256": "782e3ff993d04033476133ee21fbd99035a53cd66cd2744d8a3ee73876544264"
+        },
+        {
+          "path": "rules/licenses/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "rules/README.md",
+          "bytes": 7725,
+          "sha256": "d20515eca4935da1767e1252bfa96c521e2bea3a8c1b46d1245e96b4a582fe7e"
+        },
+        {
+          "path": "rules/review-template.json",
+          "bytes": 298,
+          "sha256": "43ce5a321bdf4a06c4c861e5b95070748053be755068ac644ee1745458d52a42"
+        },
+        {
+          "path": "rules/sources/arfshl-domains-2026-11-09.txt",
+          "bytes": 9054,
+          "sha256": "6b4745a33004e21c09cbb7dd87f43c76d4df1b77a52155bf02b4f7d6a8b7b70b"
+        },
+        {
+          "path": "server/.gitignore",
+          "bytes": 46,
+          "sha256": "be2c849fc83c708885cafd716eb4cbf97b384abc9167ab4aa71bfae39f2f5ec3"
+        },
+        {
+          "path": "server/app.mjs",
+          "bytes": 37789,
+          "sha256": "ecbcc0e970bb14fad1454f3f2e56a188894ffa6f47cefc693accdf3b1e4ff0c4"
+        },
+        {
+          "path": "server/index.mjs",
+          "bytes": 1435,
+          "sha256": "f5d47b55cd13d84253c9ca6a812080244270ef3b99a9685e233f2659e1c0c885"
+        },
+        {
+          "path": "server/package.json",
+          "bytes": 214,
+          "sha256": "edab5b296e8577bf5d1247868386500c7463a3ef15188b8c859cb1a4ac3178ab"
+        },
+        {
+          "path": "server/README.md",
+          "bytes": 15757,
+          "sha256": "bbfe8f9b3982a33ba235cd8daf7cf87946a0c63df2f53c6a4e2107c6013a7ae5"
+        },
+        {
+          "path": "server/test/api.test.mjs",
+          "bytes": 19327,
+          "sha256": "54e301993ba8fa3477a499571ca4fc66e52b4670cd4e7d28e6404cd6737e04d7"
+        },
+        {
+          "path": "server/test/private-monitoring.test.mjs",
+          "bytes": 21234,
+          "sha256": "b397084a18426342fe941f88b2b316df4547298badfdcdcba053b19bbeaaa78f"
+        },
+        {
+          "path": "tools/dashboard.test.mjs",
+          "bytes": 9835,
+          "sha256": "35156078fe5ecc51a7f1828b8910ece663e445fd9574daca5c290d800e7b1a2d"
+        },
+        {
+          "path": "tools/ml-artifact.test.mjs",
+          "bytes": 2499,
+          "sha256": "2731427fc5e01aafbab3abd126d08908876a9f8fd1032513cf5f139520f7c8b2"
+        },
+        {
+          "path": "tools/ml/download_sources.py",
+          "bytes": 8033,
+          "sha256": "61c12a83d7a8cb7187aa519aa7d2ab1be46bc7eeecc13206569ea713168266bd"
+        },
+        {
+          "path": "tools/ml/evaluation_core.py",
+          "bytes": 18777,
+          "sha256": "b2f288cb41898e3d527c7b3528eceaea871b66a331d56e436dd4906f6fbd99f2"
+        },
+        {
+          "path": "tools/ml/requirements.txt",
+          "bytes": 187,
+          "sha256": "772dc3c65bbcbc4ed2271025e0fe9606a7c325f7a3b79745fca023d41c43fef6"
+        },
+        {
+          "path": "tools/ml/test_evaluation.py",
+          "bytes": 8264,
+          "sha256": "5934c55191331ea86d1994262d97cf92a8a7862fa57432d87f5a806d5cabb114"
+        },
+        {
+          "path": "tools/ml/train_model.py",
+          "bytes": 21841,
+          "sha256": "7ea27c229e4043e4a15e2c01c673f19e6733ff143633aef452613ec79716843b"
+        },
+        {
+          "path": "tools/package-build.py",
+          "bytes": 6032,
+          "sha256": "d76ff301b82fb2b70872f71e24916c1d9143bc4a103685b5440f89290ecfb245"
+        },
+        {
+          "path": "tools/rules.mjs",
+          "bytes": 10407,
+          "sha256": "75c1219b71733a1d299cba234a3a094488f717691b9bb818db202f50e9ddeff1"
+        },
+        {
+          "path": "tools/rules.test.mjs",
+          "bytes": 2696,
+          "sha256": "159387a384a507e738c728abc8451e728f49856df128162ed06b95e4115daf36"
+        },
+        {
+          "path": "tools/verification-core.mjs",
+          "bytes": 36712,
+          "sha256": "9f2d77f692b43f9cb5e76dc4a04de8328d0da75e272267ba6e76ecc6148d7ce0"
+        },
+        {
+          "path": "tools/verification.test.mjs",
+          "bytes": 22020,
+          "sha256": "678b0575c25de90127cdf483c41d65728cb7263b63d512104bbfcda0a39490cb"
+        },
+        {
+          "path": "tools/verify.mjs",
+          "bytes": 11280,
+          "sha256": "ac2cf99dc19df468f95fbfeabc8a7ba379b5f8874cd187b20b0d8b446d0937b9"
+        },
+        {
+          "path": "web/app.js",
+          "bytes": 39139,
+          "sha256": "7f8e98de54cbe204e4bfee3ba961a91531d8578eb535d025164371235ea30526"
+        },
+        {
+          "path": "web/detection-inbox.mjs",
+          "bytes": 2394,
+          "sha256": "73e55420c0a0116b2a2287b25b4beab7250b86dce540efd5b96549122f425dd6"
+        },
+        {
+          "path": "web/index.html",
+          "bytes": 697,
+          "sha256": "7cf9e231e7bcf45d92453367d789a1d428f288122740c6fd31081028d6d8fd19"
+        },
+        {
+          "path": "web/privacy.html",
+          "bytes": 4693,
+          "sha256": "9df433821f372184ac65078530beecf6edfc67e23716290371b05a3e534855de"
+        },
+        {
+          "path": "web/styles.css",
+          "bytes": 11379,
+          "sha256": "acb137daa52e1bfa53679a3f0fcc14e3b9096c0b085f90cd576cf6de405646b7"
+        }
+      ]
+    },
+    "after": {
+      "sha256": "b06acc29cecd09d2310ed66a74da7f4d61e11b11a428d489963b81d1fa5d2994",
+      "files": [
+        {
+          "path": "android/app/build.gradle",
+          "bytes": 2798,
+          "sha256": "7af53f7a1850339e21b706cc4f8ffd285cc444ecd396341b7924b33e7219de28"
+        },
+        {
+          "path": "android/app/proguard-rules.pro",
+          "bytes": 71,
+          "sha256": "bd6bf439b051f9fe3d86f80bf4260adc126770d3cddaf1b9f54e77b6dd5bc39e"
+        },
+        {
+          "path": "android/app/src/androidTest/java/id/gempur/app/PrivateMonitorStoreTest.java",
+          "bytes": 6974,
+          "sha256": "7967e8bbe4f1b88866916b68a8bd796af9d588708edcd5e332b38850944eeb2c"
+        },
+        {
+          "path": "android/app/src/androidTest/java/id/gempur/app/SmokeTest.java",
+          "bytes": 6001,
+          "sha256": "71f55e3201b1ed4fe205d389f700cb141b84434f1f5bbca8139a0d0bd2fb0a58"
+        },
+        {
+          "path": "android/app/src/debug/AndroidManifest.xml",
+          "bytes": 249,
+          "sha256": "ccea530438fa9e9a871738591a53cfcf53f48d9bb73584fbca71a0a9bfee8996"
+        },
+        {
+          "path": "android/app/src/debug/res/xml/network_security_debug.xml",
+          "bytes": 417,
+          "sha256": "a88c31855002fa7780ea82b41078d766ea124490e2282ce78ffda00988a170e8"
+        },
+        {
+          "path": "android/app/src/main/AndroidManifest.xml",
+          "bytes": 1806,
+          "sha256": "486df3eed59fcbbb0866157b46675a5d4b6736f707aedcd2cf2b273174bfb8b7"
+        },
+        {
+          "path": "android/app/src/main/assets/domains.txt",
+          "bytes": 531,
+          "sha256": "920aee6c3886af298b010b027585dcf7eafb13d785bff9f82da25e57a206bc42"
+        },
+        {
+          "path": "android/app/src/main/assets/rules-provenance.json",
+          "bytes": 900,
+          "sha256": "b5d9745f417e46a4dc73d8dcfc5d1f80176ce9b64fce08cc12c6804e82514220"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/CompanionClient.java",
+          "bytes": 4288,
+          "sha256": "a3eb2512ec231082431e011e2a13f7b3f2a3a293413e395537af420a799380be"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/LocalStore.java",
+          "bytes": 5492,
+          "sha256": "b15a8c40adce91b122481af0b84ef00c46efdd325cbc62108fd73df8e3c28221"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/MainActivity.java",
+          "bytes": 67501,
+          "sha256": "11d441d2da7aa397ce36f40533b9d32e752aa884041b0ea2929ab72a31876395"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateAutomationService.java",
+          "bytes": 15029,
+          "sha256": "bee9cc9bc2d30c61949b95f3cf59f700bbd899086dc91ff2f6e946741ed32df2"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateEventPolicy.java",
+          "bytes": 3219,
+          "sha256": "134c14e50d8362e05592602b0a09239906b691eb8692cf20cfbb8136ff725119"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateMonitoring.java",
+          "bytes": 12713,
+          "sha256": "41fce3c088771ece5d2b403b9ba364a030b0c3ab1afe101b6f109ba4c5ea0a19"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/PrivateMonitorStore.java",
+          "bytes": 17057,
+          "sha256": "8c75d215ef1071f4ba2e3777f497fbf7120670165f52f9c171d64fc405c7bcb6"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/ProtectionService.java",
+          "bytes": 15109,
+          "sha256": "4b2093e778d65563cf472fac0b62f8b9a4401669d98a68278eb41bd13fdb7325"
+        },
+        {
+          "path": "android/app/src/main/java/id/gempur/app/RuleRepository.java",
+          "bytes": 12771,
+          "sha256": "78f6527ca0d9e69a6a0863eed7dae4b570bcd6308ff35dc18e9f5440311a5e57"
+        },
+        {
+          "path": "android/app/src/main/res/drawable/ic_shield.xml",
+          "bytes": 392,
+          "sha256": "ac9d10e100c3f70bf5fb7211a1c29dff57d73d11f7ba120e5a92805fd4ea8394"
+        },
+        {
+          "path": "android/app/src/main/res/values/strings.xml",
+          "bytes": 610,
+          "sha256": "e3ef34c3efa3b70255bb0781aa57f13783a5ac7f4865ffb7996ca8e438b9e606"
+        },
+        {
+          "path": "android/app/src/main/res/values/styles.xml",
+          "bytes": 547,
+          "sha256": "bfd8ba9aa1971d6924d0abbc04329bb403937c2b69207f0e5a085b6e242be370"
+        },
+        {
+          "path": "android/app/src/main/res/xml/data_extraction_rules.xml",
+          "bytes": 568,
+          "sha256": "c871abf237f1fd1e058c4db44ff437027f5d7bb1116693cbac1c600474a994c1"
+        },
+        {
+          "path": "android/app/src/main/res/xml/network_security_config.xml",
+          "bytes": 179,
+          "sha256": "7d36f7c3e8635187f3f225fd5ae4760b9865a95ad556c31b8ce72f138a1a3795"
+        },
+        {
+          "path": "android/app/src/ordinary/java/id/gempur/app/AppRiskRepository.java",
+          "bytes": 810,
+          "sha256": "b33da2b7376cde0242fe20fbfa777e689458eb600d0c3fa1931668f1697b4c91"
+        },
+        {
+          "path": "android/app/src/ordinary/java/id/gempur/app/DomainAiRepository.java",
+          "bytes": 1117,
+          "sha256": "9a244b8ea7303304695930cbc62a5d71a236ae51090ec06e31f5c1a47de1e79e"
+        },
+        {
+          "path": "android/app/src/privateDebug/AndroidManifest.xml",
+          "bytes": 1550,
+          "sha256": "babd3cee8369b246c4617bd1b126791906f13c44444c3b449dab7228a757fffc"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/domain-model.tsv",
+          "bytes": 627278,
+          "sha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/LICENSE-CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/manifest.json",
+          "bytes": 1256,
+          "sha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/MPL-2.0.txt",
+          "bytes": 16727,
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/NOTICE.txt",
+          "bytes": 697,
+          "sha256": "5e9a6720c9a48a20a35b7061b27d1294e6e7553bc1a9f040d6cd9c756ebaa47c"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/parity.tsv",
+          "bytes": 3807,
+          "sha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4"
+        },
+        {
+          "path": "android/app/src/privateDebug/assets/ml/Sinfonietta-MIT.txt",
+          "bytes": 1078,
+          "sha256": "b32ce488900c449c858b636ac18aab77ae483586508e3aa2e6a916d7a6ace1ae"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/AppRiskRepository.java",
+          "bytes": 8729,
+          "sha256": "8e4db3c3d2eb92a222bc647c1f5bf82104c7b1e0212258421dc103b733f26dd1"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/DomainAiRepository.java",
+          "bytes": 6438,
+          "sha256": "6c60afe003392a6132e3acafab1d6d6e0a4285cb2e572a82b06b44eec47b2a3a"
+        },
+        {
+          "path": "android/app/src/privateDebug/java/id/gempur/app/PrivateAppGuardService.java",
+          "bytes": 1741,
+          "sha256": "815448be74f2872ca50d6aef113428bcb55589733cba778fcbe7ae33cc273414"
+        },
+        {
+          "path": "android/app/src/privateDebug/res/values/strings.xml",
+          "bytes": 322,
+          "sha256": "810dd5a8c45f30bf88eda2b10416159bac5f31293528d97884b7d72150206802"
+        },
+        {
+          "path": "android/app/src/privateDebug/res/xml/private_app_guard.xml",
+          "bytes": 388,
+          "sha256": "479231c49b8969ec61ddb1b83a0e2e24a22cb411c8cd9c8121c1dde68cdbf6ed"
+        },
+        {
+          "path": "android/app/src/test/java/id/gempur/app/CompanionClientTest.java",
+          "bytes": 1486,
+          "sha256": "bc1e2b17fae825af8b243e006f25af3281cc89d1796e6b2ced0ab2d134ee21d2"
+        },
+        {
+          "path": "android/app/src/test/java/id/gempur/app/PrivateEventPolicyTest.java",
+          "bytes": 3417,
+          "sha256": "61cc6a6b4517b9a3b3920f9b291aca89d0649f125b53b109747ac2bfd555c032"
+        },
+        {
+          "path": "android/build.gradle",
+          "bytes": 75,
+          "sha256": "7dc5184ad325c68710ddde2bf405db0dcdb220f1fe33edeec2a0cd502b8c5a93"
+        },
+        {
+          "path": "android/engine/build.gradle",
+          "bytes": 378,
+          "sha256": "df376e16417d7adac427354188ca07f7b20384a6ae756f3732101f3c28897fd5"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DetectionPolicy.java",
+          "bytes": 7198,
+          "sha256": "96b9b251f1da1faf8bc790834e73e5a4294c00ff480e74be8ac88cc23b33912f"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DnsCodec.java",
+          "bytes": 4467,
+          "sha256": "5d107a555fe8fcc044f9661b8417ac7746073b7bb1ea62d09d703357071f7fd6"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/DomainRules.java",
+          "bytes": 4582,
+          "sha256": "7f01a373476cd1f3025103b4bf5920960fbf6387c77c1eedd2ad5d1f55add49e"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/Ipv4Udp.java",
+          "bytes": 3942,
+          "sha256": "56b5b282871dfb36ff345838bc799301a8014e4838d873a50224436a82243509"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/LexicalDomainModel.java",
+          "bytes": 7301,
+          "sha256": "fe4f15ce112e092ac05ca16d468883120eb6151bb2c358c1a885601cd534356a"
+        },
+        {
+          "path": "android/engine/src/main/java/id/gempur/engine/TemporaryAllowance.java",
+          "bytes": 1171,
+          "sha256": "85498678dd2cecb4b766fe47cc923da98a0bd98c92f8c83ab53ddc9c7b98ba71"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/DetectionPolicyTest.java",
+          "bytes": 7767,
+          "sha256": "dd998c1a52250b231f7876e7289894f531220424c73340cf34daa8ca3d3ad4d1"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/EngineTest.java",
+          "bytes": 5738,
+          "sha256": "f6706d491429f4b4a6f4a6e5e4a549394b83b0a38d5b58bcc0a0294c86a9be08"
+        },
+        {
+          "path": "android/engine/src/test/java/id/gempur/engine/LexicalDomainModelTest.java",
+          "bytes": 9431,
+          "sha256": "384814d5d3f91e03b5a4bed4a2e58333cd96172b041a606f0b836e205a60133f"
+        },
+        {
+          "path": "android/gradle.properties",
+          "bytes": 131,
+          "sha256": "62ce6df78ce8ff97c9e137a50f504f39aecb1401803ab5b756fa618659460a26"
+        },
+        {
+          "path": "android/gradle/wrapper/gradle-wrapper.jar",
+          "bytes": 43583,
+          "sha256": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046"
+        },
+        {
+          "path": "android/gradle/wrapper/gradle-wrapper.properties",
+          "bytes": 341,
+          "sha256": "50d0ce8eddfb08cf5fe269e624f53812e37830380cb78ae34ce357cde7d29ed0"
+        },
+        {
+          "path": "android/gradlew",
+          "bytes": 8762,
+          "sha256": "a3648413b47ef77af21d5ebc36c687c7d103aaef3e17f33de7d4f080a6f300a3"
+        },
+        {
+          "path": "android/gradlew.bat",
+          "bytes": 2966,
+          "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f"
+        },
+        {
+          "path": "android/settings.gradle",
+          "bytes": 279,
+          "sha256": "6364dc5f2258092a139b1d251e2bf28af17bd2f32bd6bb3c5cfd7e6e73183723"
+        },
+        {
+          "path": "ml/ATTRIBUTION.md",
+          "bytes": 5823,
+          "sha256": "468ea24bed38faa99fd5c115b8777b5457d7d0002b5b26b447c2199c96cb33f7"
+        },
+        {
+          "path": "ml/evaluation.json",
+          "bytes": 29834,
+          "sha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb"
+        },
+        {
+          "path": "ml/experiment.json",
+          "bytes": 3930,
+          "sha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1"
+        },
+        {
+          "path": "ml/frozen_selection.json",
+          "bytes": 2934,
+          "sha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff"
+        },
+        {
+          "path": "ml/licenses/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "ml/licenses/CC-BY-SA-4.0.txt",
+          "bytes": 20138,
+          "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+        },
+        {
+          "path": "ml/licenses/MPL-2.0.txt",
+          "bytes": 16727,
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        },
+        {
+          "path": "ml/licenses/Sinfonietta-MIT.txt",
+          "bytes": 1078,
+          "sha256": "b32ce488900c449c858b636ac18aab77ae483586508e3aa2e6a916d7a6ace1ae"
+        },
+        {
+          "path": "ml/sources.lock.json",
+          "bytes": 11439,
+          "sha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac"
+        },
+        {
+          "path": "ml/split_manifest.json",
+          "bytes": 4119,
+          "sha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.domains.txt",
+          "bytes": 8328,
+          "sha256": "45282cf5b8d613eece96e46a001308d50b7e769cf1bdbe8d40ef8ee7cc506432"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.manifest.json",
+          "bytes": 919,
+          "sha256": "5af57aed7ba13b1ed185b1c194fd4b7369eb16681683b20e0c1c194d5d64934c"
+        },
+        {
+          "path": "rules/candidates/indonesia-2026-11-09.rejected.json",
+          "bytes": 3536,
+          "sha256": "832bd6822d2fe0db2f28d3a720459bee2b6e823eb30439aef7063813636633bb"
+        },
+        {
+          "path": "rules/fixtures/benign-domains.txt",
+          "bytes": 227,
+          "sha256": "782e3ff993d04033476133ee21fbd99035a53cd66cd2744d8a3ee73876544264"
+        },
+        {
+          "path": "rules/licenses/arfshl-BSD-3-Clause.txt",
+          "bytes": 1467,
+          "sha256": "97dea3148d8bad05283695237e8a9213d8f605192db1a3721644a26dbaad82a2"
+        },
+        {
+          "path": "rules/README.md",
+          "bytes": 7725,
+          "sha256": "d20515eca4935da1767e1252bfa96c521e2bea3a8c1b46d1245e96b4a582fe7e"
+        },
+        {
+          "path": "rules/review-template.json",
+          "bytes": 298,
+          "sha256": "43ce5a321bdf4a06c4c861e5b95070748053be755068ac644ee1745458d52a42"
+        },
+        {
+          "path": "rules/sources/arfshl-domains-2026-11-09.txt",
+          "bytes": 9054,
+          "sha256": "6b4745a33004e21c09cbb7dd87f43c76d4df1b77a52155bf02b4f7d6a8b7b70b"
+        },
+        {
+          "path": "server/.gitignore",
+          "bytes": 46,
+          "sha256": "be2c849fc83c708885cafd716eb4cbf97b384abc9167ab4aa71bfae39f2f5ec3"
+        },
+        {
+          "path": "server/app.mjs",
+          "bytes": 37789,
+          "sha256": "ecbcc0e970bb14fad1454f3f2e56a188894ffa6f47cefc693accdf3b1e4ff0c4"
+        },
+        {
+          "path": "server/index.mjs",
+          "bytes": 1435,
+          "sha256": "f5d47b55cd13d84253c9ca6a812080244270ef3b99a9685e233f2659e1c0c885"
+        },
+        {
+          "path": "server/package.json",
+          "bytes": 214,
+          "sha256": "edab5b296e8577bf5d1247868386500c7463a3ef15188b8c859cb1a4ac3178ab"
+        },
+        {
+          "path": "server/README.md",
+          "bytes": 15757,
+          "sha256": "bbfe8f9b3982a33ba235cd8daf7cf87946a0c63df2f53c6a4e2107c6013a7ae5"
+        },
+        {
+          "path": "server/test/api.test.mjs",
+          "bytes": 19327,
+          "sha256": "54e301993ba8fa3477a499571ca4fc66e52b4670cd4e7d28e6404cd6737e04d7"
+        },
+        {
+          "path": "server/test/private-monitoring.test.mjs",
+          "bytes": 21234,
+          "sha256": "b397084a18426342fe941f88b2b316df4547298badfdcdcba053b19bbeaaa78f"
+        },
+        {
+          "path": "tools/dashboard.test.mjs",
+          "bytes": 9835,
+          "sha256": "35156078fe5ecc51a7f1828b8910ece663e445fd9574daca5c290d800e7b1a2d"
+        },
+        {
+          "path": "tools/ml-artifact.test.mjs",
+          "bytes": 2499,
+          "sha256": "2731427fc5e01aafbab3abd126d08908876a9f8fd1032513cf5f139520f7c8b2"
+        },
+        {
+          "path": "tools/ml/download_sources.py",
+          "bytes": 8033,
+          "sha256": "61c12a83d7a8cb7187aa519aa7d2ab1be46bc7eeecc13206569ea713168266bd"
+        },
+        {
+          "path": "tools/ml/evaluation_core.py",
+          "bytes": 18777,
+          "sha256": "b2f288cb41898e3d527c7b3528eceaea871b66a331d56e436dd4906f6fbd99f2"
+        },
+        {
+          "path": "tools/ml/requirements.txt",
+          "bytes": 187,
+          "sha256": "772dc3c65bbcbc4ed2271025e0fe9606a7c325f7a3b79745fca023d41c43fef6"
+        },
+        {
+          "path": "tools/ml/test_evaluation.py",
+          "bytes": 8264,
+          "sha256": "5934c55191331ea86d1994262d97cf92a8a7862fa57432d87f5a806d5cabb114"
+        },
+        {
+          "path": "tools/ml/train_model.py",
+          "bytes": 21841,
+          "sha256": "7ea27c229e4043e4a15e2c01c673f19e6733ff143633aef452613ec79716843b"
+        },
+        {
+          "path": "tools/package-build.py",
+          "bytes": 6032,
+          "sha256": "d76ff301b82fb2b70872f71e24916c1d9143bc4a103685b5440f89290ecfb245"
+        },
+        {
+          "path": "tools/rules.mjs",
+          "bytes": 10407,
+          "sha256": "75c1219b71733a1d299cba234a3a094488f717691b9bb818db202f50e9ddeff1"
+        },
+        {
+          "path": "tools/rules.test.mjs",
+          "bytes": 2696,
+          "sha256": "159387a384a507e738c728abc8451e728f49856df128162ed06b95e4115daf36"
+        },
+        {
+          "path": "tools/verification-core.mjs",
+          "bytes": 36712,
+          "sha256": "9f2d77f692b43f9cb5e76dc4a04de8328d0da75e272267ba6e76ecc6148d7ce0"
+        },
+        {
+          "path": "tools/verification.test.mjs",
+          "bytes": 22020,
+          "sha256": "678b0575c25de90127cdf483c41d65728cb7263b63d512104bbfcda0a39490cb"
+        },
+        {
+          "path": "tools/verify.mjs",
+          "bytes": 11280,
+          "sha256": "ac2cf99dc19df468f95fbfeabc8a7ba379b5f8874cd187b20b0d8b446d0937b9"
+        },
+        {
+          "path": "web/app.js",
+          "bytes": 39139,
+          "sha256": "7f8e98de54cbe204e4bfee3ba961a91531d8578eb535d025164371235ea30526"
+        },
+        {
+          "path": "web/detection-inbox.mjs",
+          "bytes": 2394,
+          "sha256": "73e55420c0a0116b2a2287b25b4beab7250b86dce540efd5b96549122f425dd6"
+        },
+        {
+          "path": "web/index.html",
+          "bytes": 697,
+          "sha256": "7cf9e231e7bcf45d92453367d789a1d428f288122740c6fd31081028d6d8fd19"
+        },
+        {
+          "path": "web/privacy.html",
+          "bytes": 4693,
+          "sha256": "9df433821f372184ac65078530beecf6edfc67e23716290371b05a3e534855de"
+        },
+        {
+          "path": "web/styles.css",
+          "bytes": 11379,
+          "sha256": "acb137daa52e1bfa53679a3f0fcc14e3b9096c0b085f90cd576cf6de405646b7"
+        }
+      ]
+    },
+    "unchanged": true
+  },
+  "privateLint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "distribution": {
+    "ordinaryMonitoringDisabled": true,
+    "privateMonitoringEnabled": true,
+    "ordinaryManifestIsolated": true,
+    "privateManifestDeclared": true,
+    "targetedAppVisibility": true,
+    "applicationIds": {
+      "release": "id.gempur.app",
+      "debug": "id.gempur.app.debug",
+      "private": "id.gempur.app.private.debug"
+    }
+  },
+  "mlPackaging": {
+    "ordinaryAssetsAbsent": true,
+    "privateAssetsBound": true,
+    "files": {
+      "domain-model.tsv": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+      "manifest.json": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8",
+      "parity.tsv": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+      "NOTICE.txt": "5e9a6720c9a48a20a35b7061b27d1294e6e7553bc1a9f040d6cd9c756ebaa47c",
+      "LICENSE-CC-BY-SA-4.0.txt": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+    }
+  }
+}

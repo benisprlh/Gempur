@@ -149,7 +149,7 @@ public final class ProtectionService extends VpnService {
                 if (!DetectionPolicy.isDiagnosticDomain(query.domain)) countBlock();
                 send(packet, DnsCodec.nxdomain(packet.payload)); return;
             }
-            if ("ml_model".equals(decision.reason) && "suspected".equals(decision.verdict)) {
+            if ("suspected".equals(decision.verdict)) {
                 PrivateMonitoring.record(this, "domain", query.domain, decision.reason, decision.verdict, "flagged");
             }
             if (packet.payload.length > 4096) { send(packet, DnsCodec.servfail(packet.payload)); return; }

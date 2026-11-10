@@ -52,7 +52,7 @@ public final class AppRiskRepository {
                 if (info.packageName == null || !seen.add(info.packageName)) continue;
                 try {
                     DetectionPolicy.Decision decision = evaluate(context, info, pm, excluded);
-                    if (decision.blocked) {
+                    if ("suspected".equals(decision.verdict)) {
                         findings.put(new JSONObject().put("target", info.packageName).put("label", label(info, pm))
                                 .put("reason", decision.reason).put("verdict", decision.verdict).put("action", "flagged"));
                     }

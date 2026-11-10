@@ -4,7 +4,7 @@ Tanggal dasar: **9 November 2026, WIB**. Status: **kandidat alpha untuk uji APK 
 
 ## Tujuan rilis pertama
 
-Gempur membantu pemilik Android membatasi akses ke domain judi yang dikenali melalui filtering DNS lokal, mencatat check-in secara sukarela, dan meminta dukungan orang tepercaya. Baseline debug/release tetap tanpa monitoring dewasa otomatis. Kandidat `privateDebug` terpisah menguji dugaan nama lokal, interupsi paket opsional, serta metadata temuan yang dibagikan otomatis setelah consent terpisah. Tidak ada klaim seluruh judol terdeteksi, transaksi diketahui, isi aplikasi dibaca, atau kecanduan disembuhkan.
+Gempur membantu pemilik Android membatasi akses ke domain judi yang dikenali melalui filtering DNS lokal, mencatat check-in secara sukarela, dan meminta dukungan orang tepercaya. Baseline debug/release tetap tanpa monitoring dewasa otomatis. Kandidat `privateDebug` terpisah menguji dugaan nama lokal, peninjauan dugaan nama paket opsional, serta metadata temuan yang dibagikan otomatis setelah consent terpisah. Tidak ada klaim seluruh judol terdeteksi, transaksi diketahui, isi aplikasi dibaca, atau kecanduan disembuhkan.
 
 Mesin awal merupakan **DNS-only VPN**, bukan full-tunnel firewall. Jalur DoH/Secure DNS, DoT, direct IP, TCP DNS tertentu, aplikasi dengan resolver sendiri, VPN lain, dan perangkat lain dapat berada di luar cakupan. Always-on/lockdown tidak didukung pada mesin awal; jangan mengaktifkannya sebagai cara meningkatkan proteksi tanpa pengembangan dan pengujian baru.
 
@@ -21,7 +21,7 @@ Mesin awal merupakan **DNS-only VPN**, bukan full-tunnel firewall. Jalur DoH/Sec
 
 Riwayat perencanaan awal menetapkan alpha 9–12 November, QA 12–19 November, closed test mulai 20 November, evaluasi/review paling awal 4 Desember dan soft launch 11–18 Desember 2026. **Tanggal publik tersebut tidak menjadi komitmen aktif setelah pilihan pilot privat**; jadwalkan ulang berdasarkan bukti dan keputusan distribusi. Jangan mempersingkat kewajiban tester atau menjanjikan approval Google. Untuk akun yang tidak tercakup syarat personal baru, pengujian kualitas tetap diperlukan.
 
-Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md). Polling sekitar 30 detik bukan notifikasi push terjamin; app guard hanya HOME berbasis paket, bukan suspend atau firewall. Daftar domain aktif belum diperluas oleh pilot ini.
+Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md). Polling sekitar 30 detik bukan notifikasi push terjamin; deteksi aplikasi hanya menandai dugaan nama paket, bukan suspend atau firewall. Daftar domain aktif belum diperluas oleh pilot ini.
 
 ## Kebijakan rilis
 

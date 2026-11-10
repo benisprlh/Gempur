@@ -4,8 +4,8 @@ Owner chose a private APK trial for automatic detection/sharing. This supersedes
 
 ## Scope and consent
 
-- Local known-domain filtering already works automatically. Private trial may offer explicitly opt-in name-based **suspected** quarantine, separate from known-rule classification. Unknown stays unknown; no claims to read encrypted content.
-- Private app-name/package analysis is heuristic, not proof of gambling. Only deterministic strongly suspicious combinations may be quarantined after explicit local opt-in; critical/system apps must never be interrupted. No screen text/content, screenshots, chats, SMS, OTP, contacts or location.
+- Local known-domain filtering already works automatically. Private trial may offer explicitly opt-in name-based **suspected** advisory review, separate from known-rule classification. Unknown stays unknown; no claims to read encrypted content.
+- Private app-name/package analysis is heuristic, not proof of gambling. Name-only findings are flagged for review and never interrupt an app or disconnect DNS; critical/system apps stay excluded. No screen text/content, screenshots, chats, SMS, OTP, contacts or location.
 - Automatic sharing is a second opt-in, bound to a confirmed pairing and separate automation grant version. Only detection target (domain/package), reason/verdict/action, timestamp bucket and coalesced count leave the device. No full URLs, query/path, general history, inventory upload or foreground-app stream. A matched connection is not evidence of intentional gambling.
 - Stop/revoke remains available to the participant. No hidden operation or uninstall prevention. Local protection works when the backend is offline.
 
@@ -44,7 +44,7 @@ Stopping stores a durable pending server-off marker, preserving pairing, origin,
 
 Private service uploads scoped queued events and, for companion-role accounts, polls a confirmed active pairing every30s. Companion notifications are generic on the lock screen, permission-aware, visible user-started foreground polling—not FCM/Web Push and not guaranteed instant/background delivery. Persist dedup IDs; do not label a poll as delivery/read. Tapping opens the authenticated app; no tokens in links. Backoff offline; cancel on revoke/logout/off. Foreground service is declared only for privateDebug.
 
-Detection engine owner exposes `DetectionPolicy.Decision {boolean blocked; String reason,verdict;}` for local domain and app decisions, plus `RuleRepository.evaluate(Context,String)` for DNS integration. Ordinary build behavior must stay equivalent to existing rules. Private local opt-in controls speculative name quarantine. Existing exact temporary allowance applies before heuristic decisions and stays exact/short-lived. App interrupt uses only window package events and explicit Accessibility opt-in; no broad content retrieval. App scanning stays local; only individually detected targets can be shared.
+Detection engine owner exposes `DetectionPolicy.Decision {boolean blocked; String reason,verdict;}` for local domain and app decisions, plus `RuleRepository.evaluate(Context,String)` for DNS integration. Ordinary build behavior must stay equivalent to existing rules. Private local opt-in controls advisory name review. Existing exact temporary allowance applies before heuristic decisions and stays exact/short-lived. App observation uses only window package events and explicit Accessibility opt-in; no broad content retrieval. App scanning stays local; only individually detected targets can be shared.
 
 ## Acceptance
 

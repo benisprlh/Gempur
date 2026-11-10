@@ -1,5 +1,7 @@
 # Gempur
 
+Kandidat perbaikan **0.3.2-alpha.1** (10 November): dugaan nama menjadi advisory tanpa memutus koneksi atau HOME. Full gate121 tes/review PASS; [bukti dan batas](docs/development/2026-11-10.md). Belum rilis stabil/Play.
+
 **Lawan Judol. Lindungi Keluarga.**
 
 Gempur adalah aplikasi Android untuk membantu orang dewasa membatasi akses judol di perangkatnya sendiri dan meminta dukungan orang tepercaya. Versi dasar memakai proteksi lokal dan berbagi yang dipicu peserta. Pemilik memilih **uji APK privat** untuk mencoba deteksi tambahan dan berbagi otomatis dengan persetujuan terpisah.
@@ -18,7 +20,7 @@ Kandidat **0.3.0-alpha.1** menambahkan AI domain lokal eksperimental untuk penin
 Build `privateDebug` berlabel **Gempur Privat**, dengan application ID `id.gempur.app.private.debug`, terpisah dari debug/release biasa. Build biasa tidak dapat mengaktifkan monitoring dewasa otomatis hanya karena server mengizinkannya.
 
 - Deteksi lokal opsional membedakan aturan dikenal, aturan pribadi, dugaan pola nama, dan target yang belum diketahui. AI domain lokal memiliki pilihan terpisah, default mati; regresi logistik char-ngram mempelajari pola hostname dari kategori publik dan memberi sinyal `suspected/flagged` untuk ditinjau, tanpa blokir otomatis. Skor belum dikalibrasi sebagai peluang; model tidak memeriksa isi website/aplikasi. Lihat [model card dan hasil evaluasi](docs/LOCAL_AI_MODEL_CARD.md).
-- Karantina nama hanya menyasar kombinasi indikasi kuat yang masih dapat salah. Pemindaian memakai query MAIN/LAUNCHER untuk subset aplikasi launcher yang terlihat, bukan seluruh/headless apps; tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Penjaga aplikasi opsional memakai event nama paket Accessibility untuk kembali ke Beranda Android; bukan suspend aplikasi atau firewall seluruh koneksi.
+- Dugaan nama hanya ditandai untuk peninjauan; tidak memblokir koneksi atau menutup aplikasi. Pemindaian memakai query MAIN/LAUNCHER untuk subset aplikasi launcher yang terlihat, bukan seluruh/headless apps; tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Penjaga aplikasi opsional memakai event nama paket Accessibility untuk mencatat dugaan tanpa HOME; bukan suspend aplikasi atau firewall seluruh koneksi.
 - Berbagi otomatis harus diaktifkan terpisah oleh peserta untuk pasangan terkonfirmasi dan cakupan domain/aplikasi yang dipilih. Hanya metadata temuan dikirim, bukan seluruh histori atau inventaris aplikasi.
 - HP pendamping Android dapat memeriksa server sekitar setiap 30 detik lewat layanan dengan notifikasi terlihat. Ini polling, bukan FCM/Web Push, pengiriman instan, atau jaminan 24/7.
 - Koreksi salah blok memerlukan tinjauan pendamping, masa tunggu 10 menit dan penerapan lokal peserta; izin tepat satu domain/paket berakhir maksimal 30 menit setelah masa tunggu.
