@@ -60,7 +60,7 @@ def package(evidence_path, destination):
         "baterai, seluruh browser, atau persetujuan Play. DNS-only masih dapat dilewati DoH/DoT, IP langsung, "
         "TCP DNS, VPN lain, serta perangkat lain. Daftar awal belum mencakup seluruh judol Indonesia.\n\n"
         "APK privat tidak membuktikan kelayakan Play/Play Protect. Deteksi nama adalah dugaan yang bisa salah. "
-        "Pemblokiran aplikasi adalah interupsi lewat Accessibility setelah diaktifkan peserta, bukan suspensi sistem "
+        "Deteksi dugaan aplikasi hanya advisory lewat nama paket Accessibility, tanpa HOME, suspensi sistem "
         "atau pembacaan isi aplikasi. Peserta tetap dapat menghentikan fitur.\n\n"
         "Berbagi otomatis OFF setelah instalasi dan memerlukan persetujuan terpisah dengan pairing terkonfirmasi. "
         "Notifikasi pendamping memakai layanan polling yang dimulai pengguna dengan notifikasi terlihat, "

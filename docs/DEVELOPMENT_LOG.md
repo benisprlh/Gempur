@@ -1,5 +1,10 @@
 # Development Log
 
+## 10 November 2026 — mengurangi salah intervensi
+
+Kandidat0.3.2 mengubah nama-only suspected menjadi advisory tanpa HOME/NXDOMAIN, mempertahankan aturan eksplisit dan consent. Model V1 tetap beku; bukan peningkatan akurasi. [Laporan dan gate aktual](development/2026-11-10.md).
+
+
 ## 9 November 2026 — AI lokal domain 0.3 dan evaluasi yang dibekukan
 
 AI lokal ditambahkan sebagai classifier karakter n-gram/logistic regression dengan 24.000 fitur dan bobot 627.278 byte, hanya di privateDebug dan default mati. Inferensi tidak memakai API/cloud. Sinyal hanya domain/ml_model/suspected/flagged; tidak memblokir otomatis atau mengklaim menilai isi website/aplikasi. UI menjelaskan skor belum dikalibrasi, pilihan AI terpisah, preview lokal tidak membuka situs, dan backend 0.3 perlu mendukung sinyal AI sebelum sharing domain AI.

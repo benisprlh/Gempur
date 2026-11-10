@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2-alpha.1 — kandidat 10 November 2026
+
+- Dugaan nama domain/aplikasi ditandai untuk ditinjau, tanpa blokir koneksi atau HOME.
+- Konteks berita, edukasi, bantuan dan pemulihan menekan dugaan heuristik; aturan eksplisit tetap berlaku.
+- Validasi/release gate: [laporan harian](docs/development/2026-11-10.md). Model V1 tetap beku.
+
+
 ## 0.3.0-alpha.1 — eksperimen AI domain lokal, 2026-11-09
 
 - Model char-ngram regresi logistik yang dilatih dari kategori domain publik dan berjalan offline di APK privat, dengan pilihan AI terpisah yang default mati.

@@ -369,16 +369,16 @@ public final class MainActivity extends Activity {
         LinearLayout local=card();boolean enabled=PrivateMonitoring.localEnabled(this);
         label(local,enabled?"Deteksi lokal tambahan aktif":"Deteksi tambahan belum aktif",21,INK,true);
         if(!ProtectionService.isRunning())label(local,"Filter DNS belum aktif. Aktifkan proteksi pada Beranda agar permintaan domain pada jalur yang didukung dapat diperiksa.",13,ORANGE,true);
-        label(local,"Aturan domain dikenal tetap otomatis diblokir lewat filter DNS. Opsi ini menambahkan pencatatan lokal dan karantina pola nama kuat yang masih berstatus diduga. Bisa salah blok; situs baru tanpa pola tetap belum diketahui.",14,MUTED,false);
+        label(local,"Aturan domain dikenal tetap otomatis diblokir lewat filter DNS. Opsi ini menambahkan pencatatan lokal atas dugaan nama untuk ditinjau, tanpa memutus koneksi atau menutup aplikasi. Dugaan dapat salah; situs baru tanpa pola tetap belum diketahui.",14,MUTED,false);
         if(enabled)button(local,"Hentikan deteksi dan berbagi privat",()->disableAutomaticSharing(true),false);
         else button(local,"Pilih deteksi tambahan lokal",()->{
             if(!privateNotificationsReady())return;
-            confirm("Aktifkan deteksi lokal tambahan?","Nama domain dan nama/paket aplikasi dianalisis di HP ini. Kombinasi nama berindikasi kuat dapat dibatasi sementara sebagai dugaan. Bukan pemeriksaan isi website atau aplikasi. Aplikasi sistem, Gempur, launcher, telepon, SMS, pengaturan, dan pemasang paket dikecualikan. Aplikasi penting lain masih perlu diuji. Tidak ada pengiriman ke pendamping sebelum persetujuan berbagi terpisah. Kamu bisa menghentikannya kapan saja.",()->{
+            confirm("Aktifkan deteksi lokal tambahan?","Nama domain dan nama/paket aplikasi dianalisis di HP ini. Dugaan nama hanya ditandai untuk ditinjau; koneksi dan aplikasi tidak dibatasi oleh dugaan tersebut. Bukan pemeriksaan isi website atau aplikasi. Aplikasi sistem, Gempur, launcher, telepon, SMS, pengaturan, dan pemasang paket dikecualikan. Aplikasi penting lain masih perlu diuji. Tidak ada pengiriman ke pendamping sebelum persetujuan berbagi terpisah. Kamu bisa menghentikannya kapan saja.",()->{
                 try{PrivateMonitoring.setLocalEnabled(this,true);PrivateMonitoring.start(this);render();page.postDelayed(this::render,700);}catch(Exception e){PrivateMonitoring.setLocalEnabled(this,false);info("Belum aktif",e.getMessage());}
             });
         },true);
         button(local,"Pengaturan aksesibilitas untuk aplikasi",()->{
-            confirm("Izin penghalang aplikasi opsional","Layanan Gempur hanya melihat nama paket saat jendela berganti. Dengan deteksi lokal aktif, target yang dicurigai diarahkan kembali ke Beranda Android. Tidak membaca teks layar, screenshot, atau pesan. Ini bukan suspend aplikasi atau firewall seluruh trafik dan bisa dimatikan di Android kapan saja.",()->startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+            confirm("Izin deteksi aplikasi opsional","Layanan Gempur hanya melihat nama paket saat jendela berganti. Dengan deteksi lokal aktif, dugaan nama dicatat untuk ditinjau tanpa menutup aplikasi. Tidak membaca teks layar, screenshot, atau pesan. Ini bukan suspend aplikasi atau firewall seluruh trafik dan bisa dimatikan di Android kapan saja.",()->startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
         },false);
         button(local,"Pindai indikasi aplikasi secara lokal",()->{
             if(!PrivateMonitoring.localEnabled(this)){info("Deteksi belum aktif","Pilih deteksi lokal tambahan terlebih dahulu.");return;}

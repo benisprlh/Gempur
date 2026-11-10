@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/** Local, explainable decisions. A name heuristic is suspicion, never a verified category. */
+/** Local, explainable decisions. Name-only suspicion is advisory, never an enforcement rule. */
 public final class DetectionPolicy {
     private static final String GAME = "(?:slot|slots|casino|poker|judi|togel|baccarat|roulette)";
     private static final String PROMOTION = "(?:gacor|maxwin|jackpot|deposit|withdraw|taruhan|betting)";
@@ -17,7 +17,8 @@ public final class DetectionPolicy {
     private static final Pattern COMPOUND = Pattern.compile("(?:" + GAME + PROMOTION + "|" + PROMOTION + GAME + ")(?:online|vip|app)?");
     private static final Set<String> CONTEXT = new HashSet<>(java.util.Arrays.asList(
             "education", "educational", "edukasi", "belajar", "learn", "learning", "tutorial",
-            "research", "penelitian", "news", "berita", "analysis", "analisis", "museum", "simulator"));
+            "research", "penelitian", "news", "berita", "analysis", "analisis", "museum", "simulator",
+            "anti", "stop", "cegah", "pemulihan", "rehab", "recovery", "support", "help", "bantuan", "konseling"));
     private static final String[] HEURISTIC_EXEMPT_SUFFIXES = {"go.id", "ac.id", "sch.id", "gov", "edu",
             "bca.co.id", "bankmandiri.co.id", "bni.co.id", "bri.co.id"};
     private DetectionPolicy() {}
@@ -40,7 +41,7 @@ public final class DetectionPolicy {
         try { domain = DomainRules.normalize(input); } catch (IllegalArgumentException invalid) { return false; }
         if (isDiagnosticDomain(domain) || heuristicExemptDomain(domain)) return false;
         for (String word : domain.split("[^a-z]+")) {
-            if (CONTEXT.contains(word) || word.matches("anti|stop|cegah|pemulihan|rehab|recovery|support|help|bantuan|konseling")) return false;
+            if (CONTEXT.contains(word)) return false;
         }
         return true;
     }
@@ -66,7 +67,7 @@ public final class DetectionPolicy {
         }
         if (DomainRules.fromLines(safe(known)).isBlocked(input)) return new Decision(true, "known_rule", "known");
         if (DomainRules.fromLines(safe(personal)).isBlocked(input)) return new Decision(true, "personal_rule", "personal");
-        if (heuristicEnabled && normalized != null && !heuristicExemptDomain(normalized) && suspiciousName(normalized)) return new Decision(true, "name_heuristic", "suspected");
+        if (heuristicEnabled && normalized != null && !heuristicExemptDomain(normalized) && suspiciousName(normalized)) return new Decision(false, "name_heuristic", "suspected");
         return unknown();
     }
 
@@ -94,10 +95,18 @@ public final class DetectionPolicy {
         if (excluded) return new Decision(false, "critical_app", "unknown");
         try { normalizePackage(packageName); } catch (IllegalArgumentException invalid) { return unknown(); }
         if (exactAllowed) return new Decision(false, "temporary_allowance", "allowed");
+        if (hasContext(packageName) || hasContext(label)) return unknown();
         if (heuristicEnabled && (suspiciousName(packageName) || suspiciousName(label))) {
-            return new Decision(true, "name_heuristic", "suspected");
+            return new Decision(false, "name_heuristic", "suspected");
         }
         return unknown();
+    }
+
+    private static boolean hasContext(String input) {
+        if (input == null || input.length() > 512) return false;
+        String text = Normalizer.normalize(input, Normalizer.Form.NFKD).toLowerCase(Locale.ROOT).replaceAll("\\p{M}+", "");
+        for (String word : text.split("[^a-z]+")) if (CONTEXT.contains(word)) return true;
+        return false;
     }
 
     /** Requires a gaming term plus a distinct promotion/payment term; isolated words do not qualify. */

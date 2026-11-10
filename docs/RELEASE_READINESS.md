@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat10 November0.3.2: perbaikan advisory tanpa HOME; full gate121 tes/review PASS; QA HP tetap PENDING. [Status aktual](development/2026-11-10.md). Riwayat PASS di bawah bukan bukti kandidat baru.
+
 Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluruh fitur sudah selesai.** Implementasi dan hasil aktual harus ditambahkan bersama commit/source fingerprint serta evidence run oleh pengembang setelah pengujian.
 
 Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi seluruh bukti; `PASS` bukti penerimaan tersedia; `BLOCKED` dependency menghalangi; `DEFERRED` di luar alpha dengan batas jelas.
@@ -31,7 +33,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Isolasi privateDebug dan server default off | PASS otomatis | BuildConfig/manifest biasa dan privat diperiksa, source scanner terpisah, server default-off diuji; uji perangkat tetap terpisah |
 | Consent lokal dan sharing terpisah | CODE | Default/upgrade mati, scope/grant versi, perubahan pairing, revokasi saat request tertunda |
 | Deteksi dikenal/pribadi/dugaan/belum diketahui | CODE | Benign controls, critical-app exclusions, tidak menganggap nama sebagai verifikasi isi |
-| App guard opsional package-only/HOME | CODE | Subset launcher terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian; uji HP, stale event, izin mati; bukan suspend/firewall/uninstall blocking |
+| Deteksi aplikasi opsional package-only/advisory | CODE | Subset launcher terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian; uji HP, stale event, izin mati; bukan suspend/firewall/uninstall blocking |
 | Antrean dan sharing metadata minimal | CODE | Enkripsi, dedup, TTL/batas, diagnostik dikecualikan, tidak ada URL/inventaris/foreground stream |
 | Polling notifikasi native pendamping | CODE | Izin/kanal, lock screen, offline/backoff, OEM kill, restart; bukan FCM/Web Push/24-7 |
 | Koreksi tepat domain/paket | CODE | Cooldown 10 menit, TTL 30 menit, permit satu kali, peserta apply lokal, expiry/replay/revoke |
@@ -60,7 +62,7 @@ Verifikasi kandidat privat `20261109T044031466Z-7b1096` full PASS, `mergeEligibl
 | FR-14 | Revokasi | CODE | Pengiriman berhenti lokal, queued payload dibuang, server grant dicabut |
 | FR-15 | Ekspor/hapus akun | CODE | Hapus data terkait, sesi/grant, konfirmasi; URL eksternal nyata |
 | FR-16 | Laporan domain terlewat | CODE | Usulan tidak otomatis menjadi daftar global; pratinjau tanpa path/query |
-| FR-18/19 | Blok jaringan/interupsi aplikasi | DEFERRED untuk baseline | Tidak ada firewall aplikasi; kandidat privat hanya interupsi paket/HOME opsional, lihat tabel privat |
+| FR-18/19 | Blok jaringan/interupsi aplikasi | DEFERRED untuk baseline | Tidak ada firewall aplikasi; kandidat privat hanya peninjauan nama paket opsional, lihat tabel privat |
 | FR-20 | Telemetri otomatis aktivitas dewasa | DEFERRED untuk baseline | Kandidat privat terpisah memiliki opt-in metadata temuan; bukan monitoring seluruh aktivitas atau izin Play |
 
 ## Build dan kualitas — bukti baseline 0.1

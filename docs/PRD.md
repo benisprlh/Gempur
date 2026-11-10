@@ -21,8 +21,8 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | Requirement privat | Perilaku dan batas penerimaan |
 | --- | --- |
 | P-FR-01 | Consent deteksi lokal dan consent berbagi otomatis terpisah, default mati. Peserta memilih scope domain/aplikasi untuk pasangan yang telah dikonfirmasi; perubahan grant memiliki versi sendiri. |
-| P-FR-02 | Pisahkan known/personal/suspected/unknown. Aturan domain dikenal tetap otomatis; pola nama yang kuat hanya dugaan dan dapat dikarantina setelah opt-in. AI domain tambahan mengikuti adendum 0.3 di bawah, tanpa pembacaan isi HTTPS atau jaminan semua target dikenali. |
-| P-FR-03 | Analisis nama/paket aplikasi bersifat lokal, terbatas pada subset launcher yang terlihat melalui query MAIN/LAUNCHER; headless/seluruh inventaris tidak tercakup dan tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Accessibility opsional hanya menerima event paket dan mencoba HOME; bukan suspend aplikasi, firewall, pembacaan teks layar, atau pencegahan uninstall. Aplikasi sistem/fungsi penting dikecualikan. |
+| P-FR-02 | Pisahkan known/personal/suspected/unknown. Aturan domain dikenal tetap otomatis; pola nama hanya dugaan yang ditandai tanpa blokir setelah opt-in. AI domain tambahan mengikuti adendum 0.3 di bawah, tanpa pembacaan isi HTTPS atau jaminan semua target dikenali. |
+| P-FR-03 | Analisis nama/paket aplikasi bersifat lokal, terbatas pada subset launcher yang terlihat melalui query MAIN/LAUNCHER; headless/seluruh inventaris tidak tercakup dan tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Accessibility opsional hanya menerima event paket dan menandai dugaan untuk ditinjau tanpa HOME; bukan suspend aplikasi, firewall, pembacaan teks layar, atau pencegahan uninstall. Aplikasi sistem/fungsi penting dikecualikan. |
 | P-FR-04 | Unggah hanya temuan sesuai scope: target domain/paket, alasan/verdict, tindakan, waktu bucket dan count gabungan. Tidak mengunggah URL lengkap, general browsing history, inventaris aplikasi, atau stream foreground. Fixture diagnostik dikecualikan. |
 | P-FR-05 | Antrean lokal terenkripsi terbatas, TTL 24 jam, penggabungan target per 5 menit dan deduplikasi ID. Server menahan maksimal 500 temuan/pasangan selama 7 hari, dengan batas batch/rate dan versi grant. Tidak ada klaim pengiriman seluruh kejadian. |
 | P-FR-06 | Native pendamping memakai layanan foreground yang dimulai pengguna dan polling sekitar 30 detik. Notifikasi umum pada lock screen; detail di app. Bukan FCM/Web Push, status live, jaminan 24/7, atau bukti manusia membaca. |
@@ -149,7 +149,7 @@ Contoh user story:
 | Validasi awal | Prototipe filtering lokal, izin Android, konflik VPN, dan evaluasi distribusi | Perangkat nyata tersedia; daftar uji dan data flow disepakati |
 | MVP dasar | Blok domain lokal, rencana dukungan, pairing, check-in, ringkasan yang dikirim peserta, koreksi blok | Validasi filtering dan model berbagi telah selesai |
 | Peningkatan bersyarat | Blok jaringan aplikasi pilihan dan interupsi saat aplikasi dibuka | Mekanisme terbukti di perangkat target dan penggunaan API diterima |
-| Uji privat terpisah | Temuan otomatis minimal, interupsi nama paket, polling pendamping, koreksi typed | Pilihan pemilik; consent terpisah; validasi full build serta dua HP sebelum pilot nyata |
+| Uji privat terpisah | Temuan otomatis minimal, peninjauan nama paket, polling pendamping, koreksi typed | Pilihan pemilik; consent terpisah; validasi full build serta dua HP sebelum pilot nyata |
 
 **Ketentuan:** jika fitur bersyarat belum lolos, dokumentasi rilis dan UI tidak boleh menampilkannya sebagai kemampuan aktif. Jalur sideload atau label parental control tidak dipakai untuk menghindari evaluasi penggunaan dewasa.
 
@@ -216,7 +216,7 @@ P0 wajib sebelum pilot MVP. P1 bersyarat atau setelah fondasi stabil. Setiap bat
 | FR-16 | P0 | Laporan domain terlewat | Peserta dapat mengirim domain secara sengaja setelah pratinjau; domain masuk antrean verifikasi sebelum daftar global berubah. |
 | FR-17 | P0 | Rencana dukungan | Peserta menyimpan tindakan pengalihan dan kontak pilihan secara manual; tidak perlu membaca seluruh buku kontak. |
 | FR-18 | P1 bersyarat | Blok jaringan aplikasi | Uji membuktikan koneksi aplikasi pilihan dibatasi; UI menyebut pembatasan jaringan, bukan mencegah aplikasi terbuka. |
-| FR-19 | P1 bersyarat | Interupsi aplikasi | Kandidat privat memakai event paket dan HOME; tanpa membaca teks layar. Bukan kemampuan release dasar atau suspend aplikasi. Lihat P-FR-03. |
+| FR-19 | P1 bersyarat | Interupsi aplikasi | Kandidat privat hanya menandai dugaan dari event paket tanpa HOME; tanpa membaca teks layar. Bukan kemampuan release dasar atau suspend aplikasi. Lihat P-FR-03. |
 | FR-20 | Uji privat | Temuan otomatis minimal | Hanya privateDebug dan private server yang diopt-in; consent/grant terpisah; status bukan seluruh aktivitas atau bukti niat. Lihat P-FR-01–09. |
 
 Usulan parameter awal adalah konfigurasi pilot, bukan terapi yang telah dibuktikan.

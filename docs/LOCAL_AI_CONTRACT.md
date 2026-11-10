@@ -45,7 +45,7 @@ static JSONObject status(Context context);
 
 Ordinary stub alwaysdisabled/abstain. Private requires PRIVATE_BUILD, AIoptin and actual PrivateMonitoring.localEnabled. Cache immutable model and bounded per-host scores. No downloads/remote updates. Root owns UI and consent copy.
 
-`RuleRepository.evaluate` may emit a nonblocking suspected/ml_model decision only for an otherwise unknown domain with an active model review signal. Preserve exact allowances and critical/educational suppressions. Existing heuristic behavior remains separately described. ProtectionService must record flagged ML signals even though DNS continues, behind existing PrivateMonitoring consent gate. Never call it a blocked request.
+`RuleRepository.evaluate` may emit a nonblocking suspected/ml_model decision only for an otherwise unknown domain with an active model review signal. Preserve exact allowances and critical/educational suppressions. Name heuristics are also advisory under the 10 November 2026 safety patch; known/personal/diagnostic rules retain blocking priority. Historical V1 evaluation remains frozen and is not recomputed to match a changed policy. ProtectionService must record flagged ML signals even though DNS continues, behind existing PrivateMonitoring consent gate. Never call it a blocked request.
 
 PrivateEventPolicy/server accept ml_model only for domain+suspected+flagged; never app,known or blocked. Do not add full URLs/content/inventory/AIscore to outbound events. Model version/score remain local metadata shown through local AIstatus/modelcard; no external AI traffic.
 

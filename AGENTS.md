@@ -14,6 +14,7 @@ Gempur helps consenting adults reduce access to online gambling. Preserve that p
 
 - Local self-exclusion and participant-initiated sharing are the ordinary distribution baseline. The owner explicitly selected a separately compiled private APK trial on 9 November 2026 for opt-in automatic detection/sharing; follow `docs/PRIVATE_AUTOMATION_CONTRACT.md` and keep it disabled in ordinary debug/release. Do not add covert monitoring, camera/mic/location/chat/SMS/OTP access, anti-uninstall tricks, or remote screen control. Private distribution does not establish Play eligibility or universal detection.
 - DNS blocking is limited to supported DNS paths and known domains. Never claim full-tunnel filtering, prevention of every gambling app launch, all-browser coverage, or 100% effectiveness without new evidence and a product decision.
+- Name-only guesses are advisory: never block DNS or send an app HOME solely from an unverified name. Preserve explicit rules and exact allowances.
 - A blocked network request is not proof of intentional gambling. An absent report is not proof of bypass or relapse.
 - Never add gambling access links, affiliate promotions, wagers, or a global 'approve gambling' button. Correct false positives narrowly.
 - Keep local protection usable without the companion backend. Consent revocation and deletion must not require the companion's permission.
