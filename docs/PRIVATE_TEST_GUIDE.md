@@ -57,7 +57,7 @@ AI default mati, termasuk setelah upgrade. Ia mempelajari pola nama domain dari 
 3. Jika berbagi otomatis sudah aktif, backend harus 0.3 dan `GET /api/health` menyatakan `localDomainAiSignals:true`. Perbarui backend terlebih dahulu; UI menolak aktivasi/sharing yang tidak kompatibel. Untuk uji lokal tanpa backend, hentikan berbagi otomatis dan sinkronkan pencabutan, lalu pilih AI lokal.
 4. Pilih **Periksa domain tanpa membuka situs**. Masukkan nama domain saja. Pemeriksaan ini tidak membuka situs, tidak membuat temuan baru dan tidak mengirim laporan. Hasil abstain/di bawah ambang bukan pernyataan aman.
 5. Baca [model card](LOCAL_AI_MODEL_CARD.md) untuk sumber, split, metrik dan keterbatasannya. Hasil AI `ml_model/suspected/flagged` hanya meminta tinjauan; DNS diteruskan. Aturan dikenal/pribadi/heuristik lama dapat tetap membatasi target secara terpisah.
-6. **Matikan analisis AI baru** menghentikan penilaian baru. Temuan yang telah masuk antrean tetap mengikuti izin sebelumnya. Gunakan **Hentikan berbagi otomatis** dan sinkronkan penghentian untuk menghentikan pengiriman; informasi yang sudah dibaca penerima tidak dapat ditarik kembali.
+6. **Matikan analisis AI baru** menghentikan penilaian baru. Temuan yang menunggu penyimpanan diperiksa ulang dan dilepas jika pilihan AI berubah. Temuan yang sudah tersimpan dalam antrean pengiriman tetap mengikuti grant sebelumnya. Gunakan **Hentikan berbagi otomatis** dan sinkronkan penghentian untuk menghentikan pengiriman; informasi yang sudah dibaca penerima tidak dapat ditarik kembali.
 
 Tidak ada jaminan input yang sengaja dipilih akan menghasilkan flag. Jangan menggunakan contoh sintetis atau domain bank yang lolos sebagai bukti akurasi dunia nyata. Model/data rusak membuat analisis tidak tersedia, bukan menghapus catatan atau menganggap target aman.
 
@@ -82,6 +82,12 @@ Untuk salah blok:
 - **Pendamping → Berhenti berbagi/Akhiri pasangan** mencabut pairing. **Aturan → Hapus akun server** menghapus akun dan data terkait pada database aktif; catatan lokal tetap disimpan. Pengelola menangani backup/WAL sesuai kebijakan retensi. Salinan yang telah dibaca/disimpan penerima tidak dapat ditarik kembali.
 
 Antrean lokal dibatasi 100 temuan dan 24 jam; temuan sejenis digabung per 5 menit. Server membatasi 500 temuan/pasangan, retensi 7 hari dan menolak upload saat batas penuh. Tidak ada jaminan semua alert terkirim. Jangan menyimpulkan peserta berjudi dari koneksi, atau menyimpulkan tidak berjudi ketika laporan kosong/terlambat.
+
+## Uji antrean DNS pada perangkat uji
+
+Gunakan domain benign yang dikendalikan penguji dan resolusi DNS yang diketahui melewati filter. Bandingkan waktu respons DNS sebelum dan selama burst permintaan dengan setelan jaringan yang sama. Catat perangkat, jaringan, jumlah kueri, p50/p95, timeout, dan jumlah temuan yang tiba. Antrean penulis hanya menampung 32 temuan menunggu, sehingga volume laporan dapat turun ketika penyimpanan lambat.
+
+Saat ada temuan tertunda, hentikan berbagi. Sinkronkan penghentian dan konfirmasi grant baru pada pasangan uji. Periksa bahwa laporan lama tidak dikaitkan dengan grant baru dan permintaan baru mengikuti scope yang dipilih. Ulangi dengan pencabutan izin VPN dan catat bahwa pekerjaan yang masih menunggu dibuang. Gunakan emulator terisolasi untuk fixture yang mereset data.
 
 ## Sumber dan gate berikutnya
 

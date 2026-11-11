@@ -1,5 +1,8 @@
 # Release Readiness
 
+Kandidat 11 November 0.3.3 memisahkan penulisan temuan privat dari respons DNS. Uji HP untuk latensi, baterai, perpindahan jaringan, dan notifikasi tetap diperlukan. [Status pengujian](development/2026-11-11.md).
+
+
 Kandidat10 November0.3.2: perbaikan advisory tanpa HOME; full gate121 tes/review PASS; QA HP tetap PENDING. [Status aktual](development/2026-11-10.md). Riwayat PASS di bawah bukan bukti kandidat baru.
 
 Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluruh fitur sudah selesai.** Implementasi dan hasil aktual harus ditambahkan bersama commit/source fingerprint serta evidence run oleh pengembang setelah pengujian.

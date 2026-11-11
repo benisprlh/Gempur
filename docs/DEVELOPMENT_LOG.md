@@ -1,5 +1,10 @@
 # Development Log
 
+## 11 November 2026 — antrean penulisan temuan DNS
+
+Kandidat 0.3.3 menjawab DNS sebelum menyimpan temuan privat dan menolak temuan tertunda ketika izin berubah. [Laporan dan bukti](development/2026-11-11.md).
+
+
 ## 10 November 2026 — mengurangi salah intervensi
 
 Kandidat0.3.2 mengubah nama-only suspected menjadi advisory tanpa HOME/NXDOMAIN, mempertahankan aturan eksplisit dan consent. Model V1 tetap beku; bukan peningkatan akurasi. [Laporan dan gate aktual](development/2026-11-10.md).

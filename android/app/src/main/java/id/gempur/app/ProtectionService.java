@@ -47,6 +47,7 @@ public final class ProtectionService extends VpnService {
     private FileOutputStream output;
     private Thread reader;
     private ThreadPoolExecutor workers;
+    private DnsReportQueue reportQueue;
     private ConnectivityManager.NetworkCallback networkCallback;
     private final AtomicBoolean stopping = new AtomicBoolean(false);
 
@@ -97,8 +98,10 @@ public final class ProtectionService extends VpnService {
             stopping.set(false);
             workers = new ThreadPoolExecutor(2, 4, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(64),
                     new ThreadPoolExecutor.AbortPolicy());
+            DnsReportQueue reports = BuildConfig.PRIVATE_BUILD ? new DnsReportQueue() : null;
+            reportQueue = reports;
             RUNNING.set(true); state("active_dns_only", "");
-            reader = new Thread(this::readLoop, "gempur-dns-reader"); reader.start();
+            reader = new Thread(() -> readLoop(reports), "gempur-dns-reader"); reader.start();
             observeNetworks();
         } catch (Exception failed) {
             stopProtection("error", "Proteksi DNS gagal dimulai. Periksa izin VPN dan koneksi.");
@@ -117,7 +120,7 @@ public final class ProtectionService extends VpnService {
                 .addAction(new Notification.Action.Builder(null, "Hentikan", stop).build()).build();
     }
 
-    private void readLoop() {
+    private void readLoop(DnsReportQueue reports) {
         byte[] buffer = new byte[65535];
         try {
             while (RUNNING.get() && !Thread.currentThread().isInterrupted()) {
@@ -125,12 +128,15 @@ public final class ProtectionService extends VpnService {
                 if (length < 0) break;
                 if (length == 0) continue;
                 final Ipv4Udp.Packet packet;
+                final String domain;
                 try {
                     packet = Ipv4Udp.parse(buffer, length);
                     if (packet.destinationPort != 53 || !Arrays.equals(packet.destination, DNS_BYTES)) continue;
-                    DnsCodec.parseQuery(packet.payload);
+                    domain = DnsCodec.parseQuery(packet.payload).domain;
                 } catch (IllegalArgumentException unsupported) { continue; }
-                try { workers.execute(() -> resolve(packet)); }
+                PrivateMonitoring.Observation observation = reports == null || DetectionPolicy.isDiagnosticDomain(domain)
+                        ? null : PrivateMonitoring.observe(this);
+                try { workers.execute(() -> resolve(packet, domain, reports, observation)); }
                 catch (java.util.concurrent.RejectedExecutionException busy) { send(packet, DnsCodec.servfail(packet.payload)); }
             }
             if (!stopping.get()) stopProtection("unverified", "Layanan proteksi berhenti; periksa dan aktifkan kembali.");
@@ -139,18 +145,15 @@ public final class ProtectionService extends VpnService {
         }
     }
 
-    private void resolve(Ipv4Udp.Packet packet) {
+    private void resolve(Ipv4Udp.Packet packet, String domain, DnsReportQueue reports,
+            PrivateMonitoring.Observation observation) {
         if (!RUNNING.get()) return;
+        DetectionPolicy.Decision decision = null;
         try {
-            DnsCodec.Query query = DnsCodec.parseQuery(packet.payload);
-            DetectionPolicy.Decision decision = RuleRepository.evaluate(this, query.domain);
+            decision = RuleRepository.evaluate(this, domain, observation);
             if (decision.blocked) {
-                PrivateMonitoring.record(this, "domain", query.domain, decision.reason, decision.verdict, "blocked");
-                if (!DetectionPolicy.isDiagnosticDomain(query.domain)) countBlock();
-                send(packet, DnsCodec.nxdomain(packet.payload)); return;
-            }
-            if ("suspected".equals(decision.verdict)) {
-                PrivateMonitoring.record(this, "domain", query.domain, decision.reason, decision.verdict, "flagged");
+                send(packet, DnsCodec.nxdomain(packet.payload));
+                return;
             }
             if (packet.payload.length > 4096) { send(packet, DnsCodec.servfail(packet.payload)); return; }
             for (Resolver resolver : resolvers()) {
@@ -168,7 +171,17 @@ public final class ProtectionService extends VpnService {
                 } catch (Exception unavailable) { /* Try the next system resolver, never upload diagnostics containing a domain. */ }
             }
             send(packet, DnsCodec.servfail(packet.payload));
-        } catch (Exception failed) { send(packet, DnsCodec.servfail(packet.payload)); }
+        } catch (Exception failed) {
+            send(packet, DnsCodec.servfail(packet.payload));
+        } finally {
+            if (decision != null && decision.blocked && !DetectionPolicy.isDiagnosticDomain(domain)) countBlock();
+            if (reports != null && observation != null && decision != null
+                    && (decision.blocked || "suspected".equals(decision.verdict))) {
+                DetectionPolicy.Decision finding = decision;
+                reports.offer(() -> PrivateMonitoring.recordObserved(this, "domain", domain, finding.reason,
+                        finding.verdict, finding.blocked ? "blocked" : "flagged", observation));
+            }
+        }
     }
 
     private List<Resolver> resolvers() {
@@ -246,6 +259,7 @@ public final class ProtectionService extends VpnService {
             networkCallback = null;
         }
         if (workers != null) workers.shutdownNow();
+        if (reportQueue != null) reportQueue.close();
         try { if (tunnel != null) tunnel.close(); } catch (Exception ignored) {}
         try { if (input != null) input.close(); } catch (Exception ignored) {}
         synchronized (writeLock) { try { if (output != null) output.close(); } catch (Exception ignored) {} output = null; }

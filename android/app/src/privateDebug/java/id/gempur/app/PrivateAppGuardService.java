@@ -11,21 +11,22 @@ public final class PrivateAppGuardService extends AccessibilityService {
     private long lastObservationElapsed;
 
     @Override public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (!BuildConfig.PRIVATE_BUILD || !PrivateMonitoring.localEnabled(this) || event == null
+        if (!BuildConfig.PRIVATE_BUILD || event == null
                 || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
         long age = SystemClock.uptimeMillis() - event.getEventTime();
         if (age < 0 || age > 2000) return; // Ignore stale foreground observations.
         CharSequence source = event.getPackageName();
         if (source == null) return;
         String target = source.toString();
+        PrivateMonitoring.Observation observation = PrivateMonitoring.observe(this);
+        if (observation == null) return;
         DetectionPolicy.Decision decision = AppRiskRepository.evaluate(this, target);
         if (!"suspected".equals(decision.verdict)) return;
         long now = SystemClock.elapsedRealtime();
         if (target.equals(lastTarget) && now >= lastObservationElapsed && now - lastObservationElapsed < 2000) return;
-        if (!PrivateMonitoring.localEnabled(this)) return;
         lastTarget = target; lastObservationElapsed = now;
         // Name-only evidence is advisory and never changes the foreground application.
-        PrivateMonitoring.record(this, "app", target, decision.reason, decision.verdict, "flagged");
+        PrivateMonitoring.recordObserved(this, "app", target, decision.reason, decision.verdict, "flagged", observation);
     }
 
     @Override public void onInterrupt() { lastTarget = ""; lastObservationElapsed = 0; }

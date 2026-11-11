@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3-alpha.1 — kandidat 11 November 2026
+
+- Pindahkan penulisan temuan privat dari jalur respons DNS ke antrean terbatas. Periksa kembali persetujuan sebelum menyimpan temuan tertunda.
+- [Laporan pengujian](docs/development/2026-11-11.md).
+
+
 ## 0.3.2-alpha.1 — kandidat 10 November 2026
 
 - Dugaan nama domain/aplikasi ditandai untuk ditinjau, tanpa blokir koneksi atau HOME.
