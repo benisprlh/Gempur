@@ -9,12 +9,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BooleanSupplier;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -23,13 +27,30 @@ import javax.crypto.spec.GCMParameterSpec;
 /** Separate private-trial vault. Every transaction reloads under one process-wide lock. */
 final class PrivateMonitorStore {
     private static final Object LOCK = new Object();
+    private static final ConcurrentHashMap<String, ObservationEpoch> OBSERVATION_EPOCHS = new ConcurrentHashMap<>();
     private static final String KEY_ALIAS = "gempur.private.monitor.v1";
     private static final long SEEN_TTL = 7L * 24 * 60 * 60 * 1000;
     private final AtomicFile file;
+    private final String vaultPath;
     interface Transaction<T> { T apply(JSONObject value) throws Exception; }
+
+    static final class ObservationEpoch {
+        private final long value;
+        private ObservationEpoch(long value) { this.value = value; }
+    }
 
     PrivateMonitorStore(Context context) {
         file = new AtomicFile(new File(context.getNoBackupFilesDir(), "private-monitor.v1"));
+        vaultPath = file.getBaseFile().getPath();
+    }
+
+    // The reader never waits on the vault or decrypts it. The private service's first poll primes this cache.
+    ObservationEpoch observationEpoch() { return OBSERVATION_EPOCHS.get(vaultPath); }
+
+    private void rememberEpoch(JSONObject value) {
+        long epoch = value.optLong("epoch", 0);
+        ObservationEpoch cached = observationEpoch();
+        if (cached == null || cached.value != epoch) OBSERVATION_EPOCHS.put(vaultPath, new ObservationEpoch(epoch));
     }
 
     private <T> T transaction(boolean save, Transaction<T> action) throws Exception {
@@ -38,6 +59,7 @@ final class PrivateMonitorStore {
             boolean pruned = prune(value, System.currentTimeMillis());
             T result = action.apply(value);
             if (save || pruned) write(value);
+            rememberEpoch(value);
             return result;
         }
     }
@@ -125,32 +147,53 @@ final class PrivateMonitorStore {
         return false;
     }
 
-    boolean record(String kind, String target, String reason, String verdict, String action) throws Exception {
+    boolean recordObserved(String kind, String target, String reason, String verdict, String action,
+            long observedAt, ObservationEpoch expected, BooleanSupplier stillConsented) throws Exception {
+        if (expected == null || observationEpoch() != expected) return false;
         String normalized = PrivateEventPolicy.target(kind, target); PrivateEventPolicy.validate(kind, reason, verdict, action);
-        final long now = System.currentTimeMillis(), bucket = PrivateEventPolicy.bucket(now);
-        return transaction(true, value -> {
-            JSONArray events = value.optJSONArray("events"); if (events == null) events = new JSONArray();
-            JSONObject grant = value.optJSONObject("sharing");
-            for (int i = events.length() - 1; i >= 0; i--) {
-                JSONObject old = events.getJSONObject(i);
-                boolean bindingMatches = hasScope(grant, kind) ? sameGrant(old.optJSONObject("grant"), grant) : old.optJSONObject("grant") == null;
-                if (old.optLong("bucket") == bucket && kind.equals(old.optString("kind")) && normalized.equals(old.optString("target"))
-                        && reason.equals(old.optString("reason")) && verdict.equals(old.optString("verdict")) && action.equals(old.optString("action")) && bindingMatches) {
-                    // A frozen upload is immutable across retries. Later burst counts are local only.
-                    old.put("count", Math.min(1000, old.optInt("count", 1) + 1));
-                    return false;
-                }
+        long bucket = PrivateEventPolicy.bucket(observedAt);
+        synchronized (LOCK) {
+            long now = System.currentTimeMillis();
+            if (observationEpoch() != expected || !PrivateEventPolicy.fresh(observedAt, now)
+                    || !PrivateEventPolicy.fresh(bucket, now)) return false;
+            JSONObject value = load();
+            if (value.optLong("epoch", 0) != expected.value) {
+                rememberEpoch(value);
+                return false;
             }
-            JSONObject event = new JSONObject().put("eventId", UUID.randomUUID().toString()).put("kind", kind).put("target", normalized)
-                    .put("reason", reason).put("verdict", verdict).put("action", action).put("occurredAt", Instant.ofEpochMilli(bucket).toString())
-                    .put("createdAtMs", now).put("bucket", bucket).put("count", 1).put("pending", false).put("serverAccepted", false);
-            if (hasScope(grant, kind)) event.put("grant", copy(grant)).put("pending", true);
-            events.put(event);
-            while (events.length() > PrivateEventPolicy.MAX_EVENTS) {
-                events.remove(0); value.put("overflowCount", value.optLong("overflowCount", 0) + 1);
+            prune(value, now);
+            boolean created = addEvent(value, kind, normalized, reason, verdict, action, observedAt, bucket);
+            if (!stillConsented.getAsBoolean()) return false;
+            write(value);
+            return created;
+        }
+    }
+
+    private static boolean addEvent(JSONObject value, String kind, String target, String reason, String verdict,
+            String action, long observedAt, long bucket) throws Exception {
+        JSONArray events = value.getJSONArray("events");
+        JSONObject grant = value.optJSONObject("sharing");
+        boolean scoped = hasScope(grant, kind);
+        for (int i = events.length() - 1; i >= 0; i--) {
+            JSONObject old = events.getJSONObject(i);
+            JSONObject binding = old.optJSONObject("grant");
+            boolean bindingMatches = scoped ? sameGrant(binding, grant) : binding == null;
+            if (old.optLong("bucket") == bucket && kind.equals(old.optString("kind")) && target.equals(old.optString("target"))
+                    && reason.equals(old.optString("reason")) && verdict.equals(old.optString("verdict")) && action.equals(old.optString("action")) && bindingMatches) {
+                // A frozen upload is immutable across retries. Later burst counts are local only.
+                old.put("count", Math.min(1000, old.optInt("count", 1) + 1));
+                return false;
             }
-            value.put("events", events); return true;
-        });
+        }
+        JSONObject event = new JSONObject().put("eventId", UUID.randomUUID().toString()).put("kind", kind).put("target", target)
+                .put("reason", reason).put("verdict", verdict).put("action", action).put("occurredAt", Instant.ofEpochMilli(bucket).toString())
+                .put("createdAtMs", observedAt).put("bucket", bucket).put("count", 1).put("pending", false).put("serverAccepted", false);
+        if (scoped) event.put("grant", copy(grant)).put("pending", true);
+        events.put(event);
+        while (events.length() > PrivateEventPolicy.MAX_EVENTS) {
+            events.remove(0); value.put("overflowCount", value.optLong("overflowCount", 0) + 1);
+        }
+        return true;
     }
 
     JSONArray batch(JSONObject grant) throws Exception {
@@ -223,6 +266,7 @@ final class PrivateMonitorStore {
             JSONObject pending = old.optJSONObject("pendingServerOff");
             if (pending != null) cleared.put("pendingServerOff", pending);
             write(cleared);
+            rememberEpoch(cleared);
         }
     }
 
@@ -241,6 +285,13 @@ final class PrivateMonitorStore {
         return changed || kept.length() != originalSeen;
     }
     private JSONObject load() throws Exception {
+        try { return readVault(); }
+        catch (Exception failure) {
+            OBSERVATION_EPOCHS.remove(vaultPath);
+            throw failure;
+        }
+    }
+    private JSONObject readVault() throws Exception {
         if (!file.getBaseFile().exists() && !new File(file.getBaseFile().getPath() + ".bak").exists()) return new JSONObject();
         byte[] raw = file.readFully(); if (raw.length > 512 * 1024) throw new IllegalStateException("Private vault too large");
         JSONObject envelope = new JSONObject(new String(raw, StandardCharsets.UTF_8));
@@ -250,13 +301,31 @@ final class PrivateMonitorStore {
         return new JSONObject(new String(cipher.doFinal(Base64.decode(envelope.getString("data"), Base64.NO_WRAP)), StandardCharsets.UTF_8));
     }
     private void write(JSONObject value) throws Exception {
+        try { writeVault(value); }
+        catch (Exception failure) {
+            OBSERVATION_EPOCHS.remove(vaultPath);
+            throw failure;
+        }
+    }
+    private void writeVault(JSONObject value) throws Exception {
         byte[] plaintext = value.toString().getBytes(StandardCharsets.UTF_8);
         if (plaintext.length > 350 * 1024) throw new IllegalStateException("Private vault capacity exceeded");
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding"); cipher.init(Cipher.ENCRYPT_MODE, key());
         JSONObject envelope = new JSONObject().put("version", 1).put("iv", Base64.encodeToString(cipher.getIV(), Base64.NO_WRAP))
                 .put("data", Base64.encodeToString(cipher.doFinal(plaintext), Base64.NO_WRAP));
+        byte[] encoded = envelope.toString().getBytes(StandardCharsets.UTF_8);
+        ObservationEpoch cached = observationEpoch();
+        boolean epochChanged = cached == null || cached.value != value.optLong("epoch", 0);
         FileOutputStream out = null;
-        try { out = file.startWrite(); out.write(envelope.toString().getBytes(StandardCharsets.UTF_8)); file.finishWrite(out); }
+        try {
+            out = file.startWrite();
+            out.write(encoded);
+            // AtomicFile logs sync/rename failures internally. Verify consent transitions before caching them.
+            if (epochChanged) out.getFD().sync();
+            file.finishWrite(out);
+            out = null;
+            if (epochChanged && !Arrays.equals(encoded, file.readFully())) throw new IOException("Private consent was not persisted");
+        }
         catch (Exception failure) { if (out != null) file.failWrite(out); throw failure; }
     }
     private static SecretKey key() throws Exception {

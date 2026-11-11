@@ -17,14 +17,61 @@ public final class PrivateMonitoring {
     static final String ALERT_CHANNEL = "gempur_private_alerts";
     static final int STATUS_NOTIFICATION = 301, LOCAL_NOTIFICATION = 302, COMPANION_NOTIFICATION = 303;
     static final Object NOTIFICATION_LOCK = new Object();
+    private static final Object LOCAL_CONSENT_LOCK = new Object();
+    // A stopped service or failed local-off save cannot reuse an earlier in-memory opt-in.
+    private static volatile Object localObservationConsent;
     private PrivateMonitoring() {}
 
-    public static void record(Context context, String kind, String target, String reason, String verdict, String action) {
-        if (!BuildConfig.PRIVATE_BUILD || !localEnabled(context)) return;
+    static final class Observation {
+        private final long observedAt;
+        private final PrivateMonitorStore.ObservationEpoch epoch;
+        private final Object localConsent;
+        private final Object aiConsent;
+
+        private Observation(long observedAt, PrivateMonitorStore.ObservationEpoch epoch, Object localConsent, Object aiConsent) {
+            this.observedAt = observedAt;
+            this.epoch = epoch;
+            this.localConsent = localConsent;
+            this.aiConsent = aiConsent;
+        }
+
+        boolean allowsAi() { return aiConsent != null; }
+
+        private boolean stillConsented(Context context, boolean ai) {
+            return localConsent == localObservationConsent && localEnabled(context)
+                    && localConsent == localObservationConsent
+                    && (!ai || (aiConsent != null && aiConsent == DomainAiRepository.observationConsent(context)));
+        }
+    }
+
+    static Observation observe(Context context) {
+        if (!BuildConfig.PRIVATE_BUILD || !isRunning()) return null;
         try {
-            boolean created = new PrivateMonitorStore(context).record(kind, target, reason, verdict, action);
+            Object local = localObservationConsent;
+            if (local == null) return null;
+            PrivateMonitorStore store = new PrivateMonitorStore(context);
+            PrivateMonitorStore.ObservationEpoch epoch = store.observationEpoch();
+            if (epoch == null) return null;
+            Object ai = DomainAiRepository.observationConsent(context);
+            long observedAt = System.currentTimeMillis();
+            if (!localEnabled(context) || local != localObservationConsent || store.observationEpoch() != epoch) return null;
+            return new Observation(observedAt, epoch, local, ai);
+        } catch (RuntimeException unavailable) {
+            // Observation failure must not interrupt DNS forwarding.
+            return null;
+        }
+    }
+
+    static void recordObserved(Context context, String kind, String target, String reason, String verdict, String action,
+            Observation observation) {
+        if (!BuildConfig.PRIVATE_BUILD || observation == null) return;
+        boolean ai = "ml_model".equals(reason);
+        try {
+            PrivateMonitorStore store = new PrivateMonitorStore(context);
+            boolean created = store.recordObserved(kind, target, reason, verdict, action, observation.observedAt,
+                    observation.epoch, () -> observation.stillConsented(context, ai));
             synchronized (NOTIFICATION_LOCK) {
-                if (created && localEnabled(context)) {
+                if (created && store.observationEpoch() == observation.epoch && observation.stillConsented(context, ai)) {
                     NotificationManager manager = context.getSystemService(NotificationManager.class);
                     manager.notify(LOCAL_NOTIFICATION, alert(context, "Deteksi lokal perlu ditinjau", "Buka Gempur untuk melihat alasan. Ini bukan bukti seseorang berjudi.").setOnlyAlertOnce(true).build());
                 }
@@ -43,7 +90,7 @@ public final class PrivateMonitoring {
     /** Stops local private automation immediately. UI separately synchronizes remote grant revocation. */
     public static void stop(Context context) {
         if (!BuildConfig.PRIVATE_BUILD) return;
-        boolean flagsSaved = prefs(context).edit().putBoolean("local_enabled", false).putBoolean("companion_watching", false).commit();
+        boolean flagsSaved = saveLocalOff(context, true);
         disableSharing(context);
         context.stopService(new Intent(context, PrivateAutomationService.class));
         cancelAlerts(context);
@@ -51,13 +98,31 @@ public final class PrivateMonitoring {
     }
     public static boolean isRunning() { return BuildConfig.PRIVATE_BUILD && PrivateAutomationService.isRunning(); }
     public static boolean localEnabled(Context context) {
-        return BuildConfig.PRIVATE_BUILD && isRunning() && prefs(context).getBoolean("local_enabled", false) && notificationsVisible(context);
+        return BuildConfig.PRIVATE_BUILD && localObservationConsent != null && isRunning()
+                && prefs(context).getBoolean("local_enabled", false) && notificationsVisible(context);
     }
     public static void setLocalEnabled(Context context, boolean enabled) {
         requirePrivate();
-        if (enabled && !notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi Gempur privat sebelum mengaktifkan deteksi.");
-        if (!prefs(context).edit().putBoolean("local_enabled", enabled).commit()) throw new IllegalStateException("Pilihan deteksi belum tersimpan.");
-        if (!enabled) disableSharing(context);
+        if (!enabled) {
+            boolean flagsSaved = saveLocalOff(context, false);
+            disableSharing(context);
+            if (!flagsSaved) throw new IllegalStateException("Pilihan deteksi belum tersimpan.");
+            return;
+        }
+        synchronized (LOCAL_CONSENT_LOCK) {
+            if (!notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi Gempur privat sebelum mengaktifkan deteksi.");
+            localObservationConsent = null;
+            if (!prefs(context).edit().putBoolean("local_enabled", true).commit()) throw new IllegalStateException("Pilihan deteksi belum tersimpan.");
+            localObservationConsent = new Object();
+        }
+    }
+    private static boolean saveLocalOff(Context context, boolean stopCompanion) {
+        synchronized (LOCAL_CONSENT_LOCK) {
+            localObservationConsent = null;
+            SharedPreferences.Editor edit = prefs(context).edit().putBoolean("local_enabled", false);
+            if (stopCompanion) edit.putBoolean("companion_watching", false);
+            return edit.commit();
+        }
     }
     public static boolean companionWatching(Context context) { return BuildConfig.PRIVATE_BUILD && prefs(context).getBoolean("companion_watching", false); }
     public static void setCompanionWatching(Context context, boolean enabled) {
@@ -96,7 +161,7 @@ public final class PrivateMonitoring {
         try { new PrivateMonitorStore(context).disable(); }
         catch (Exception failure) {
             // Fail closed even if a corrupt vault prevents queue mutation.
-            boolean flagsSaved = prefs(context).edit().putBoolean("local_enabled", false).putBoolean("companion_watching", false).commit();
+            boolean flagsSaved = saveLocalOff(context, true);
             state(context, "storage_error", flagsSaved ? "Penyimpanan privat perlu diperiksa; pengiriman dihentikan." : "Penyimpanan dan pilihan privat gagal ditulis. Hentikan layanan dan periksa penyimpanan HP.");
         }
         clearAllowances(context);
@@ -161,7 +226,7 @@ public final class PrivateMonitoring {
     }
     static void serviceStopped(Context context) {
         if (!BuildConfig.PRIVATE_BUILD) return;
-        boolean flagsSaved = prefs(context).edit().putBoolean("local_enabled", false).putBoolean("companion_watching", false).commit();
+        boolean flagsSaved = saveLocalOff(context, true);
         disableSharing(context);
         cancelAlerts(context);
         if (!flagsSaved) state(context, "storage_error", "Layanan berhenti, tetapi pilihan belum tersimpan. Periksa penyimpanan HP.");

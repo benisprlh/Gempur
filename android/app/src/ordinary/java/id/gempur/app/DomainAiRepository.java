@@ -8,6 +8,7 @@ import org.json.JSONObject;
 public final class DomainAiRepository {
     private DomainAiRepository() {}
     public static boolean enabled(Context context) { return false; }
+    static Object observationConsent(Context context) { return null; }
     public static void setEnabled(Context context, boolean enabled) {
         if (enabled) throw new IllegalStateException("AI lokal hanya tersedia pada APK privat.");
     }

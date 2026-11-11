@@ -26,7 +26,8 @@ Owner chose a private APK trial for automatic detection/sharing. This supersedes
 `PrivateMonitoring` is the shared facade (Android service/storage owner):
 
 ```java
-static void record(Context c,String kind,String target,String reason,String verdict,String action);
+static Observation observe(Context c); // in-memory snapshot captured before classification
+static void recordObserved(Context c,String kind,String target,String reason,String verdict,String action,Observation observation);
 static void start(Context c); // user action only; starts visible private foreground service
 static void stop(Context c);
 static boolean localEnabled(Context c);
@@ -45,6 +46,10 @@ Stopping stores a durable pending server-off marker, preserving pairing, origin,
 Private service uploads scoped queued events and, for companion-role accounts, polls a confirmed active pairing every30s. Companion notifications are generic on the lock screen, permission-aware, visible user-started foreground polling—not FCM/Web Push and not guaranteed instant/background delivery. Persist dedup IDs; do not label a poll as delivery/read. Tapping opens the authenticated app; no tokens in links. Backoff offline; cancel on revoke/logout/off. Foreground service is declared only for privateDebug.
 
 Detection engine owner exposes `DetectionPolicy.Decision {boolean blocked; String reason,verdict;}` for local domain and app decisions, plus `RuleRepository.evaluate(Context,String)` for DNS integration. Ordinary build behavior must stay equivalent to existing rules. Private local opt-in controls advisory name review. Existing exact temporary allowance applies before heuristic decisions and stays exact/short-lived. App observation uses only window package events and explicit Accessibility opt-in; no broad content retrieval. App scanning stays local; only individually detected targets can be shared.
+
+### Antrean penulisan temuan DNS
+
+Saat menerima kueri, APK privat mengambil epoch izin berbagi, pilihan deteksi lokal dan AI, serta waktu pengamatan. Respons DNS dikirim sebelum temuan diteruskan ke antrean penulis. Penulis tunggal memiliki kapasitas 32 temuan menunggu. Ketika penuh atau dihentikan, antrean menolak temuan baru tanpa menunggu kapasitas. Berhenti VPN membuang pekerjaan yang masih menunggu. Penulisan yang sudah berjalan dapat selesai setelah pemeriksaan izin. Penulis memeriksa izin lokal dan epoch yang tersimpan sebelum merekam, sehingga kueri lama tidak dikaitkan dengan grant baru. Waktu pengamatan dipakai untuk TTL dan bucket. Jika epoch belum tersedia atau persetujuan berubah, temuan dibuang. Riwayat dan notifikasi dari jalur ini dapat kurang lengkap saat antrean penuh. Jalur DNS masih tunduk pada batas resolver, timeout, dan kapasitas worker yang sudah ada.
 
 ## Acceptance
 

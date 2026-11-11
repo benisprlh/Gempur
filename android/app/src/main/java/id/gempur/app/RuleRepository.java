@@ -44,10 +44,18 @@ public final class RuleRepository {
     public static DetectionPolicy.Decision evaluate(Context context, String domain) {
         // Read the private store before taking the rules lock; stop/revoke may clear rules after updating consent.
         boolean heuristicEnabled = BuildConfig.PRIVATE_BUILD && PrivateMonitoring.localEnabled(context);
+        return evaluate(context, domain, heuristicEnabled, heuristicEnabled);
+    }
+
+    static DetectionPolicy.Decision evaluate(Context context, String domain, PrivateMonitoring.Observation observation) {
+        return evaluate(context, domain, observation != null, observation != null && observation.allowsAi());
+    }
+
+    private static DetectionPolicy.Decision evaluate(Context context, String domain, boolean heuristicEnabled, boolean aiEnabled) {
         final DetectionPolicy.Decision decision;
         synchronized (RuleRepository.class) { decision = DetectionPolicy.evaluateDomain(domain, trusted(context), list(context), activeExceptions(context), heuristicEnabled); }
         // Known/personal rules and exact temporary permissions keep precedence. Model I/O does not hold the rules lock.
-        if (heuristicEnabled && "unknown".equals(decision.verdict) && DetectionPolicy.canReviewDomain(domain)
+        if (aiEnabled && "unknown".equals(decision.verdict) && DetectionPolicy.canReviewDomain(domain)
                 && DomainAiRepository.predict(context, domain).flagged) return DetectionPolicy.mlFlagged();
         return decision;
     }

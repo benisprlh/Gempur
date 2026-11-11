@@ -20,20 +20,29 @@ public final class DomainAiRepository {
     private static final int MAX_CACHE = 512;
     private static boolean loadAttempted;
     private static LexicalDomainModel model;
+    private static volatile Object selectionEpoch = new Object();
+    private static volatile boolean selectionChanging;
     private static final Map<String, LexicalDomainModel.Prediction> cache = new LinkedHashMap<String, LexicalDomainModel.Prediction>(32, 0.75f, true) {
         @Override protected boolean removeEldestEntry(Map.Entry<String, LexicalDomainModel.Prediction> eldest) { return size() > MAX_CACHE; }
     };
     private DomainAiRepository() {}
 
     public static boolean enabled(Context context) {
-        return BuildConfig.PRIVATE_BUILD && selected(context) && PrivateMonitoring.localEnabled(context);
+        return observationConsent(context) != null && PrivateMonitoring.localEnabled(context);
     }
     private static boolean selected(Context context) { return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("enabled", false); }
-    public static void setEnabled(Context context, boolean enabled) {
+    static Object observationConsent(Context context) {
+        Object epoch = selectionEpoch;
+        return !selectionChanging && selected(context) && !selectionChanging && epoch == selectionEpoch ? epoch : null;
+    }
+    public static synchronized void setEnabled(Context context, boolean enabled) {
         if (!BuildConfig.PRIVATE_BUILD) throw new IllegalStateException("AI lokal hanya tersedia pada APK privat.");
         if (enabled && !PrivateMonitoring.localEnabled(context)) throw new IllegalStateException("Aktifkan deteksi lokal yang terlihat terlebih dahulu.");
         if (enabled && loadModel(context) == null) throw new IllegalStateException("Model lokal tidak tersedia atau tidak valid. AI belum diaktifkan.");
+        selectionChanging = true;
         if (!context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("enabled", enabled).commit()) throw new IllegalStateException("Pilihan AI belum tersimpan.");
+        selectionEpoch = new Object();
+        selectionChanging = false;
         if (!enabled) synchronized (LOCK) { cache.clear(); }
     }
     public static LexicalDomainModel.Prediction predict(Context context, String input) {

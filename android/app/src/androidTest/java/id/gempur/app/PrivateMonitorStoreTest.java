@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -38,22 +39,57 @@ public final class PrivateMonitorStoreTest {
     private void enable(String pair, int version) throws Exception {
         assertTrue(store.enable(store.epoch(), pair, 1, version, new JSONArray().put("domain"), "https://private-fixture.org", DEVICE));
     }
+    private static void record(PrivateMonitorStore targetStore, String target) throws Exception {
+        targetStore.recordObserved("domain", target, "known_rule", "known", "blocked",
+                System.currentTimeMillis(), targetStore.observationEpoch(), () -> true);
+    }
+    @Test public void queuedObservationCannotBindToLaterGrantOrSurviveClear() throws Exception {
+        long observedAt = System.currentTimeMillis();
+        PrivateMonitorStore.ObservationEpoch beforeGrant = store.observationEpoch();
+        enable(PAIR_A, 1);
+        assertFalse(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt, beforeGrant, () -> true));
+        assertEquals(0, store.events().length());
+        PrivateMonitorStore.ObservationEpoch beforeClear = store.observationEpoch();
+        store.clear();
+        assertFalse(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt, beforeClear, () -> true));
+        assertEquals(0, store.events().length());
+        assertEquals(PAIR_A, store.pendingServerOff().getString("pairingId"));
+    }
+    @Test public void observationTimeAndLocalConsentSurviveAsynchronousDelay() throws Exception {
+        PrivateMonitorStore.ObservationEpoch epoch = store.observationEpoch();
+        long observedAt = PrivateEventPolicy.bucket(System.currentTimeMillis()) - PrivateEventPolicy.BUCKET_MS + 1_000;
+        assertFalse(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt, epoch, () -> false));
+        assertFalse(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt - PrivateEventPolicy.TTL_MS, epoch, () -> true));
+        assertEquals(0, store.events().length());
+        assertTrue(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt, epoch, () -> true));
+        assertSame(epoch, new PrivateMonitorStore(context).observationEpoch());
+        assertFalse(store.recordObserved("domain", "fixture-risk.org", "known_rule", "known", "blocked",
+                observedAt, epoch, () -> true));
+        JSONObject event = store.events().getJSONObject(0);
+        assertEquals(Instant.ofEpochMilli(PrivateEventPolicy.bucket(observedAt)).toString(), event.getString("occurredAt"));
+        assertEquals(2, event.getInt("count"));
+    }
     @Test public void sharingDefaultsOffAndOldLocalEventsAreNotUploaded() throws Exception {
         assertFalse(store.sharing().optBoolean("enabled"));
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
         enable(PAIR_A, 1);
         assertEquals(0, store.batch(store.sharing()).length());
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
         assertEquals(1, store.batch(store.sharing()).length());
         assertEquals(2, store.events().length());
     }
     @Test public void retriesFreezePayloadWhileLocalBurstCountCanGrow() throws Exception {
         enable(PAIR_A, 1); JSONObject grant = store.sharing();
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
+        record(store, "fixture-risk.org");
         JSONObject first = store.batch(grant).getJSONObject(0);
         assertEquals(2, first.getInt("count"));
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
         JSONObject retry = store.batch(grant).getJSONObject(0);
         assertEquals(first.toString(), retry.toString());
         assertEquals(3, store.events().getJSONObject(0).getInt("count"));
@@ -64,7 +100,7 @@ public final class PrivateMonitorStoreTest {
         long staleEpoch = store.epoch(); store.disable();
         assertFalse(store.enable(staleEpoch, PAIR_A, 1, 1, new JSONArray().put("domain"), "https://private-fixture.org", DEVICE));
         enable(PAIR_A, 1);
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
         JSONObject oldGrant = store.sharing(); String oldId = store.batch(oldGrant).getJSONObject(0).getString("eventId");
         store.disable();
         JSONObject pending = store.pendingServerOff();
@@ -74,7 +110,7 @@ public final class PrivateMonitorStoreTest {
         enable(PAIR_B, 2);
         assertEquals(0, store.batch(store.sharing()).length());
         store.accepted(oldGrant, new JSONArray().put(oldId));
-        store.record("domain", "fixture-risk.org", "known_rule", "known", "blocked");
+        record(store, "fixture-risk.org");
         JSONObject fresh = store.batch(store.sharing()).getJSONObject(0);
         assertNotEquals(oldId, fresh.getString("eventId"));
     }
@@ -87,7 +123,7 @@ public final class PrivateMonitorStoreTest {
             for (int i = 0; i < threads.length; i++) {
                 final int index = i;
                 threads[i] = new Thread(() -> {
-                    try { start.await(); new PrivateMonitorStore(context).record("domain", "fixture" + index + ".risk-domain.org", "known_rule", "known", "blocked"); }
+                    try { start.await(); record(new PrivateMonitorStore(context), "fixture" + index + ".risk-domain.org"); }
                     catch (Exception error) { failure.compareAndSet(null, error); }
                 }); threads[i].start();
             }
