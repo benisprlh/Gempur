@@ -1,5 +1,10 @@
 # Development Log
 
+## 12 November 2026 — ketahanan notifikasi pendamping
+
+Kandidat 0.3.4 mengelompokkan temuan pendamping dan memisahkan permintaan peserta. [Laporan dan bukti](development/2026-11-12.md).
+
+
 ## 11 November 2026 — antrean penulisan temuan DNS
 
 Kandidat 0.3.3 menjawab DNS sebelum menyimpan temuan privat dan menolak temuan tertunda ketika izin berubah. [Laporan dan bukti](development/2026-11-11.md).
