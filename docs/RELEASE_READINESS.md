@@ -1,5 +1,8 @@
 # Release Readiness
 
+Kandidat 12 November 0.3.4 membatasi ringkasan temuan pendamping dan memberi kartu terpisah untuk bantuan/koreksi. Uji perangkat perlu mengukur burst, layar terkunci, dan waktu muncul kartu. [Status pengujian](development/2026-11-12.md).
+
+
 Kandidat 11 November 0.3.3 memisahkan penulisan temuan privat dari respons DNS. Uji HP untuk latensi, baterai, perpindahan jaringan, dan notifikasi tetap diperlukan. [Status pengujian](development/2026-11-11.md).
 
 

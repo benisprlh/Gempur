@@ -15,7 +15,8 @@ public final class PrivateMonitoring {
     static final String PREFS = "gempur-private-monitor-state";
     static final String STATUS_CHANNEL = "gempur_private_status";
     static final String ALERT_CHANNEL = "gempur_private_alerts";
-    static final int STATUS_NOTIFICATION = 301, LOCAL_NOTIFICATION = 302, COMPANION_NOTIFICATION = 303;
+    static final int STATUS_NOTIFICATION = 301, LOCAL_NOTIFICATION = 302, COMPANION_NOTIFICATION = 303,
+            COMPANION_REQUEST_NOTIFICATION = 304;
     static final Object NOTIFICATION_LOCK = new Object();
     private static final Object LOCAL_CONSENT_LOCK = new Object();
     // A stopped service or failed local-off save cannot reuse an earlier in-memory opt-in.
@@ -221,7 +222,11 @@ public final class PrivateMonitoring {
     static void cancelAlerts(Context context) {
         synchronized (NOTIFICATION_LOCK) {
             NotificationManager manager = context.getSystemService(NotificationManager.class);
-            if (manager != null) { manager.cancel(LOCAL_NOTIFICATION); manager.cancel(COMPANION_NOTIFICATION); }
+            if (manager != null) {
+                manager.cancel(LOCAL_NOTIFICATION);
+                manager.cancel(COMPANION_NOTIFICATION);
+                manager.cancel(COMPANION_REQUEST_NOTIFICATION);
+            }
         }
     }
     static void serviceStopped(Context context) {

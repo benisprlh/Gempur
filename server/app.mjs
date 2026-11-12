@@ -192,7 +192,7 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
         res.writeHead(200, { 'Content-Type':types[file.split('.').pop()], 'Content-Length':content.length, 'Cache-Control':'no-store', 'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'", 'Referrer-Policy':'no-referrer', 'X-Content-Type-Options':'nosniff', 'Permissions-Policy':'camera=(), microphone=(), geolocation=()' });
         res.end(req.method === 'HEAD' ? undefined : content); return;
       }
-      if (path === '/api/health' && req.method === 'GET') return send(res,200,{ status:'ok', version:'0.3.3-alpha.1', mode:privateMonitoringEnabled?'private-opt-in-detection':'voluntary-sharing',privateMonitoringEnabled,localDomainAiSignals:true });
+      if (path === '/api/health' && req.method === 'GET') return send(res,200,{ status:'ok', version:'0.3.4-alpha.1', mode:privateMonitoringEnabled?'private-opt-in-detection':'voluntary-sharing',privateMonitoringEnabled,localDomainAiSignals:true });
       if (path === '/api/devices' && req.method === 'POST') {
         throttle(`register:${ip}`,20,60*MINUTE);
         const payload = await body(req,false); shape(payload,['role','name']);

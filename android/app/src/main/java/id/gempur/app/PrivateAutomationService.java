@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.time.Instant;
@@ -21,6 +22,7 @@ public final class PrivateAutomationService extends Service {
     public static final String ACTION_STOP = "id.gempur.app.PRIVATE_AUTOMATION_STOP";
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     private ScheduledExecutorService worker;
+    private final DetectionAlertCooldown detectionAlerts = new DetectionAlertCooldown();
     private long nextAttemptAt = 0;
     private int failures = 0;
     public static boolean isRunning() { return RUNNING.get(); }
@@ -161,30 +163,42 @@ public final class PrivateAutomationService extends Service {
         if (!watchStillCurrent(account)) return;
         PrivateMonitorStore store = new PrivateMonitorStore(this);
         Set<String> notified = store.notified(pairId);
-        JSONArray newIds = new JSONArray();
+        JSONArray detectionIds = new JSONArray();
+        JSONArray requestIds = new JSONArray();
         JSONArray detections = inbox.optJSONArray("detections");
         long cutoff = System.currentTimeMillis() - PrivateEventPolicy.TTL_MS;
         if (detections != null) for (int i = 0; i < detections.length(); i++) {
             JSONObject event = detections.getJSONObject(i); String id = event.optString("id");
             long occurred; try { occurred = Instant.parse(event.getString("occurredAt")).toEpochMilli(); } catch (Exception invalid) { continue; }
-            if (id.matches("detection_[a-f0-9]{32}") && !notified.contains(id) && event.isNull("readAt") && occurred >= cutoff && occurred <= System.currentTimeMillis() + 60_000) newIds.put(id);
+            if (id.matches("detection_[a-f0-9]{32}") && event.isNull("readAt") && occurred >= cutoff
+                    && occurred <= System.currentTimeMillis() + 60_000 && notified.add(id)) detectionIds.put(id);
         }
         JSONArray exceptions = dashboard.optJSONArray("exceptions");
         if (exceptions != null) for (int i = 0; i < exceptions.length(); i++) {
             JSONObject exception = exceptions.getJSONObject(i); String id = exception.optString("id");
-            if (id.matches("exception_[a-f0-9]{32}") && "pending".equals(exception.optString("state")) && !notified.contains(id)) newIds.put(id);
+            if (id.matches("exception_[a-f0-9]{32}") && "pending".equals(exception.optString("state"))
+                    && notified.add(id)) requestIds.put(id);
         }
         JSONArray supports = dashboard.optJSONArray("supports");
         if (supports != null) for (int i = 0; i < supports.length(); i++) {
             JSONObject support = supports.getJSONObject(i); String id = support.optString("id");
-            if (id.matches("support_[a-f0-9]{32}") && "received".equals(support.optString("status")) && !notified.contains(id)) newIds.put(id);
+            if (id.matches("support_[a-f0-9]{32}") && "received".equals(support.optString("status"))
+                    && notified.add(id)) requestIds.put(id);
         }
         synchronized (PrivateMonitoring.NOTIFICATION_LOCK) {
-            if (newIds.length() > 0 && watchStillCurrent(account)) {
+            if (requestIds.length() > 0 && watchStillCurrent(account)) {
+                getSystemService(NotificationManager.class).notify(PrivateMonitoring.COMPANION_REQUEST_NOTIFICATION,
+                        PrivateMonitoring.alert(this, "Ada permintaan peserta", "Buka Gempur untuk meninjau permintaan.").build());
+                store.markNotified(pairId, requestIds);
+            }
+            if (detectionIds.length() > 0 && detectionAlerts.canPost(SystemClock.elapsedRealtime())
+                    && watchStillCurrent(account)) {
                 getSystemService(NotificationManager.class).notify(PrivateMonitoring.COMPANION_NOTIFICATION,
-                        PrivateMonitoring.alert(this, "Ada pembaruan untuk ditinjau", "Buka Gempur untuk melihat deteksi atau permintaan peserta. Belum ditandai dibaca.").build());
-                // This records an OS notification request, never a delivery or read acknowledgement.
-                store.markNotified(pairId, newIds);
+                        PrivateMonitoring.alert(this, "Ada temuan untuk ditinjau", "Buka Gempur untuk melihat temuan.")
+                                .setOnlyAlertOnce(true).build());
+                detectionAlerts.posted(SystemClock.elapsedRealtime());
+                // Record only IDs submitted to Android. Deferred IDs remain eligible on later polls.
+                store.markNotified(pairId, detectionIds);
             }
         }
         PrivateMonitoring.state(this, "companion_polling", "Pendamping diperiksa berkala sekitar 30 detik saat layanan terlihat. Notifikasi dapat tertunda.");

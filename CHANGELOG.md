@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4-alpha.1 — kandidat 12 November 2026
+
+- Ringkas temuan pendamping dengan jeda 60 detik. Tampilkan permintaan bantuan dan koreksi pada kartu terpisah.
+- [Laporan pengujian](docs/development/2026-11-12.md).
+
+
 ## 0.3.3-alpha.1 — kandidat 11 November 2026
 
 - Pindahkan penulisan temuan privat dari jalur respons DNS ke antrean terbatas. Periksa kembali persetujuan sebelum menyimpan temuan tertunda.

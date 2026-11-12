@@ -89,6 +89,12 @@ Gunakan domain benign yang dikendalikan penguji dan resolusi DNS yang diketahui 
 
 Saat ada temuan tertunda, hentikan berbagi. Sinkronkan penghentian dan konfirmasi grant baru pada pasangan uji. Periksa bahwa laporan lama tidak dikaitkan dengan grant baru dan permintaan baru mengikuti scope yang dipilih. Ulangi dengan pencabutan izin VPN dan catat bahwa pekerjaan yang masih menunggu dibuang. Gunakan emulator terisolasi untuk fixture yang mereset data.
 
+## Uji burst notifikasi pendamping
+
+Dengan akun uji yang sudah setuju, buat beberapa temuan dari domain benign milik penguji. Pantau dua polling yang berjarak kurang dari 60 detik. Harapkan satu ringkasan temuan. Selama jeda itu kirim satu permintaan bantuan dan satu koreksi. Periksa bahwa kartu permintaan terpisah muncul pada polling berikutnya. Temuan yang masih baru dan masuk hasil polling dapat menghasilkan ringkasan pada polling setelah jeda berakhir.
+
+Ulangi saat layar terkunci dan setelah kartu ditutup. Periksa isi kartu publik, status baca, serta pembatalan kedua kartu saat layanan dihentikan. Catat waktu pengiriman, polling, dan kemunculan kartu secara terpisah. Jeda dihitung sejak aplikasi meminta Android menampilkan ringkasan dan dimulai ulang saat layanan baru dibuat.
+
 ## Sumber dan gate berikutnya
 
 Ditinjau 9 November 2026: [kebijakan monitoring Google](https://support.google.com/googleplay/android-developer/answer/9888380?hl=en) dan [isMonitoringTool](https://support.google.com/googleplay/android-developer/answer/12955211?hl=en) membatasi monitoring orang lain; consent dewasa atau APK privat tidak otomatis membuktikan penerimaan Play/pengecualian Play Protect. [Accessibility policy](https://support.google.com/googleplay/android-developer/answer/10964491?hl=en) membedakan aturan deterministik dan agen keputusan otonom; label parental tidak boleh dipakai untuk kasus dewasa.

@@ -20,6 +20,7 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 - Prioritas pertama sekarang adalah pilot APK privat yang dipilih pemilik: uji dua HP dengan HTTPS, consent terpisah, pairing, notifikasi, revokasi, dan koreksi salah blok. Baca [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md) serta [kontrak implementasi](PRIVATE_AUTOMATION_CONTRACT.md).
 - Pertahankan isolasi build: `privateDebug` saja yang dapat berbagi temuan otomatis; debug/release biasa tetap manual. Server privat default mati, dan grant lama tetap mati setelah upgrade.
 - Uji pemisahan known/personal/suspected/unknown dan benign controls. Bedakan heuristik nama dari model AI domain lokal; keduanya tetap dugaan dan bukan bukti niat berjudi. Model domain tidak memvalidasi aplikasi; scan aplikasi dibatasi pada launcher yang terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian, dan bukan inventaris yang boleh diunggah.
+- Dalam lab dua HP, uji ringkasan burst temuan dengan cooldown 60 detik dan cek bahwa bantuan/koreksi tetap mendapat kartu terpisah. Catat temuan yang tertunda dan waktu kartu muncul.
 - Catat polling foreground sekitar 30 detik sebagai polling, bukan FCM/push instan. Prioritaskan bukti layar terkunci, izin notifikasi, Android/OEM menghentikan layanan, jaringan putus, dan baterai sebelum klaim keandalan.
 - Menutup gap coverage DoH/DoT/TCP DNS/IPv6 dan menilai mekanisme filtering lebih kuat.
 - Memverifikasi subset daftar Indonesia, false positives, sumber dan lisensinya.
