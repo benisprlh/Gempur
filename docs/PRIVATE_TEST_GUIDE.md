@@ -8,6 +8,8 @@ Pasang artifact **privateDebug** yang tercatat dalam evidence build valid pada k
 
 Debug/release biasa tetap tanpa berbagi temuan otomatis dan tanpa aset model. Server yang mengizinkan private monitoring tidak dapat mengaktifkan fitur ini di build biasa. [Bukti kandidat AI 0.3](evidence/2026-11-09-local-ai-build.json) mencatat 120 eksekusi tes, kedua lint 0 issue, 69 vektor parity dan 13 tes protokol Python terpisah. Unit test tidak membuktikan akurasi model atau notifikasi dua HP; baca [model card](LOCAL_AI_MODEL_CARD.md) untuk benchmark serta kegagalan generalisasinya.
 
+Jika HP sudah memiliki Gempur Privat, periksa APK lama dan kandidat dengan [pemeriksaan upgrade offline](SIGNING.md#pemeriksaan-sebelum-upgrade-privat) sebelum memasang. Gunakan APK lama yang benar-benar terpasang sebagai pembanding. Jika sertifikat berbeda, pertahankan instalasi lama dan siapkan build dengan identitas signing aslinya.
+
 ## Sambungkan server uji
 
 Pilih salah satu cara berikut. Tidak ada server Gempur bawaan yang telah dihosting.

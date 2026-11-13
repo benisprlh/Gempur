@@ -1,5 +1,8 @@
 # Release Readiness
 
+Pemeriksaan upgrade privat tersedia sejak 13 November. Untuk HP yang sudah memiliki APK privat, gunakan APK aktual sebagai pembanding. [Hasil perbandingan kandidat dan status QA](development/2026-11-13.md).
+
+
 Kandidat 12 November 0.3.4 membatasi ringkasan temuan pendamping dan memberi kartu terpisah untuk bantuan/koreksi. Uji perangkat perlu mengukur burst, layar terkunci, dan waktu muncul kartu. [Status pengujian](development/2026-11-12.md).
 
 

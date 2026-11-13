@@ -1,5 +1,11 @@
 # Changelog
 
+## Perangkat uji · 13 November 2026
+
+- Tambah pemeriksaan offline untuk membandingkan signature, application ID privat dan versionCode sebelum upgrade.
+- [Laporan pengujian](docs/development/2026-11-13.md).
+
+
 ## 0.3.4-alpha.1 — kandidat 12 November 2026
 
 - Ringkas temuan pendamping dengan jeda 60 detik. Tampilkan permintaan bantuan dan koreksi pada kartu terpisah.
