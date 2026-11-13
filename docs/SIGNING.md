@@ -8,6 +8,18 @@ Query aplikasi pada varian privat dibatasi pada intent `MAIN/LAUNCHER`; tidak ad
 
 Build development tanpa konfigurasi signing menghasilkan AAB unsigned. Agar kandidat dapat diunggah ke Play, pemilik harus menetapkan upload key yang disimpan aman dan mengatur Play App Signing. Jangan membuat kunci produksi sementara yang hilang pada akhir sesi.
 
+## Pemeriksaan sebelum upgrade privat
+
+Simpan salinan APK yang benar-benar dipasang pada HP uji. Siapkan JDK 17 dan Android SDK Build Tools 35.0.0, lalu gunakan pemeriksaan offline berikut dengan kandidat yang tercatat di evidence build.
+
+```sh
+node tools/check-private-upgrade.mjs ./private-lama.apk ./private-kandidat.apk
+```
+
+Perintah memverifikasi signature kedua APK, memeriksa application ID privat, dan mencatat SHA-256 APK serta sertifikat publik. Exit `0` berarti kedua APK memiliki satu sertifikat yang sama dan versionCode kandidat lebih tinggi. Exit `1` melaporkan perbedaan sertifikat atau versionCode yang kurang. Exit `2` berarti APK atau toolchain gagal diperiksa. Pemeriksaan ini tidak menjalankan ADB atau memasang APK. Rotasi kunci dan migrasi data perlu validasi terpisah.
+
+Jika sertifikat berbeda, buat kandidat upgrade menggunakan identitas signing privat asli di lingkungan pemilik kunci, lalu jalankan ulang pemeriksaan. Pertahankan instalasi dan data di HP. Setelah hasil cocok, validasi upgrade pada perangkat uji dan periksa catatan, aturan pribadi, serta status consent.
+
 ## Signing lokal terpisah
 
 Verifier `node tools/verify.mjs` sengaja membangun artifact development tanpa menggunakan variable signing produksi. Jalankan signing hanya setelah verifikasi penuh dan review selesai, dengan environment yang diprovisikan secara terotorisasi melalui secret manager atau proses pemilik kunci.

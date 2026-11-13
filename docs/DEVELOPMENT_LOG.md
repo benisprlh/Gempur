@@ -1,5 +1,10 @@
 # Development Log
 
+## 13 November 2026 — pemeriksaan sebelum upgrade privat
+
+Pemeriksaan offline menguji kecocokan sertifikat APK lama dengan kandidat. [Laporan dan bukti](development/2026-11-13.md).
+
+
 ## 12 November 2026 — ketahanan notifikasi pendamping
 
 Kandidat 0.3.4 mengelompokkan temuan pendamping dan memisahkan permintaan peserta. [Laporan dan bukti](development/2026-11-12.md).

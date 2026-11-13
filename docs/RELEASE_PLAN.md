@@ -13,7 +13,7 @@ Mesin awal merupakan **DNS-only VPN**, bukan full-tunnel firewall. Jalur DoH/Sec
 | Tahap | Waktu bersyarat | Hasil yang dituju | Syarat sebelum lanjut |
 | --- | --- | --- | --- |
 | Kandidat privat 0.2 | Setelah source final diverifikasi | APK biasa dan privat terpisah, unit/integration tests, lint, checksum, review | Full PASS pada kandidat; release manifest tidak memuat fitur/izin privat |
-| Lab dua HP | Setelah APK dan dua HP uji tersedia | Pairing, dua consent, scope, notifikasi polling, salah blok, off/revoke/delete | Peserta/pendamping memahami uji; gunakan USB/ADB lokal atau backend HTTPS sendiri; lihat panduan |
+| Lab dua HP | Setelah APK dan dua HP uji tersedia | Pairing, dua consent, scope, notifikasi polling, salah blok, off/revoke/delete | Peserta/pendamping memahami uji. Untuk HP dengan instalasi lama, sertifikat dan versionCode lolos pemeriksaan. Gunakan USB/ADB lokal atau backend HTTPS sendiri. |
 | Pilot penggunaan terbatas | Usulan 14 hari sejak lab lulus | Catatan false positive/negative, fungsi penting, jaringan, baterai dan lifecycle OEM | Tidak ada bug kritis consent/akses bantuan; server/operator dan retensi siap |
 | Evaluasi distribusi publik | Setelah bukti pilot cukup | Tetapkan fitur mana yang layak dipertahankan pada produk publik | Review produk/kebijakan; tidak menganggap privat sama dengan memenuhi Play |
 | Internal/closed test Play | Belum dijadwalkan ulang | Signed AAB yang sesuai jalur Play, tester dan disclosure akurat | Akun, signing, URL dan fitur yang diizinkan siap; bila berlaku ≥12 tester ≥14 hari terus opt-in |

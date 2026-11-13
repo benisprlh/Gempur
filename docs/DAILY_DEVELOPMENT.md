@@ -24,7 +24,7 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 - Catat polling foreground sekitar 30 detik sebagai polling, bukan FCM/push instan. Prioritaskan bukti layar terkunci, izin notifikasi, Android/OEM menghentikan layanan, jaringan putus, dan baterai sebelum klaim keandalan.
 - Menutup gap coverage DoH/DoT/TCP DNS/IPv6 dan menilai mekanisme filtering lebih kuat.
 - Memverifikasi subset daftar Indonesia, false positives, sumber dan lisensinya.
-- Memperkuat pengujian jaringan, migrasi/pemulihan data, identitas signing dan keamanan distribusi daftar.
+- Memperkuat pengujian jaringan, migrasi/pemulihan data, identitas signing dan keamanan distribusi daftar. Untuk upgrade privat, bandingkan APK aktual dengan `tools/check-private-upgrade.mjs`, lalu verifikasi data dan consent di HP uji.
 - Validasi OEM/perangkat nyata, baterai, akses fungsi penting dan lifecycle.
 - Menyiapkan privacy/deletion URL, akun Play, deklarasi, dan proses closed testing.
 - Meningkatkan dukungan pengguna, accessibility dan operasi backend sebelum rilis stabil.
