@@ -50,3 +50,5 @@ Baca [kontrak AI](LOCAL_AI_CONTRACT.md), [model card](LOCAL_AI_MODEL_CARD.md) da
 Verifier memerlukan Node.js 24, JDK 17, Android SDK 36/build-tools 35.0.0 dan akses dependency pada build pertama. Gunakan Gradle wrapper, atau `GEMPUR_GRADLE` yang menunjuk instalasi Gradle 8.11.1 yang telah diverifikasi. Jika environment tidak tersedia, hasil tetap PARTIAL/FAIL sesuai fakta; jangan mengarang build berhasil atau menyebut runner selalu aktif. Lihat [LOCAL_BUILD.md](LOCAL_BUILD.md).
 
 Pemulihan billing GitHub bukan dependency pengembangan. Tidak ada pendaftaran layanan CI, pembayaran, atau upload Play otomatis yang dilakukan oleh jalur ini.
+
+- Untuk lab USB, mulai backend dengan `node tools/private-lab.mjs` dari root repo agar database baru terpisah dari data operasional. Catat hasil uji dua HP secara terpisah dari hasil health di host.

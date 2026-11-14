@@ -1,5 +1,10 @@
 # Development Log
 
+## 14 November 2026 — backend terisolasi untuk lab USB
+
+Launcher lab menyediakan database baru dan listener loopback untuk akun uji. [Laporan dan bukti](development/2026-11-14.md).
+
+
 ## 13 November 2026 — pemeriksaan sebelum upgrade privat
 
 Pemeriksaan offline menguji kecocokan sertifikat APK lama dengan kandidat. [Laporan dan bukti](development/2026-11-13.md).
