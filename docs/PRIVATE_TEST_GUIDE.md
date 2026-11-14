@@ -17,9 +17,10 @@ Pilih salah satu cara berikut. Tidak ada server Gempur bawaan yang telah dihosti
 **Laboratorium USB/ADB opsional:** hanya untuk dua HP uji yang dihubungkan ke komputer pemilik. Pasang Node.js 24 dan Android platform-tools. Pemilik HP harus mengizinkan USB debugging serta mempercayai komputer tersebut secara sengaja. Dari folder repository:
 
 ```sh
-cd server
-GEMPUR_PRIVATE_MONITORING=true npm start
+node tools/private-lab.mjs
 ```
+
+Launcher mengikat server ke `127.0.0.1:8080` dan membuat database baru di direktori sementara yang dicetak saat mulai. Gunakan akun uji. Server mempertahankan direktori saat dihentikan supaya operator dapat memeriksa atau menghapusnya secara sadar. Jika port sudah dipakai, periksa layanan tersebut atau pilih port lain melalui argumen angka dan sesuaikan kedua sisi ADB reverse dan endpoint aplikasi.
 
 Di terminal lain, lihat serial kedua HP dengan `adb devices`, lalu untuk masing-masing perangkat:
 

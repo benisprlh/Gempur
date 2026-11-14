@@ -1,5 +1,8 @@
 # Release Readiness
 
+Lab USB kini memiliki launcher backend loopback dengan database baru. Verifikasi host dan hasil QA perangkat dicatat terpisah. [Status 14 November](development/2026-11-14.md).
+
+
 Pemeriksaan upgrade privat tersedia sejak 13 November. Untuk HP yang sudah memiliki APK privat, gunakan APK aktual sebagai pembanding. [Hasil perbandingan kandidat dan status QA](development/2026-11-13.md).
 
 

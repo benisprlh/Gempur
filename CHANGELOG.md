@@ -1,5 +1,11 @@
 # Changelog
 
+## Perangkat uji · 14 November 2026
+
+- Tambah launcher lab USB yang mengikat backend privat ke loopback dan menyediakan database uji terpisah.
+- [Laporan pengujian](docs/development/2026-11-14.md).
+
+
 ## Perangkat uji · 13 November 2026
 
 - Tambah pemeriksaan offline untuk membandingkan signature, application ID privat dan versionCode sebelum upgrade.

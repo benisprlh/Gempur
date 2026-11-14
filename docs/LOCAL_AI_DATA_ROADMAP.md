@@ -21,6 +21,12 @@ Eksperimen `domain-ml-2026-11-09-v1`, model, ambang, split dan hasil pertama tet
 
 Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akurasi 99–100% paper Amikom bukan hasil Gempur: split 80:20/K-fold tidak membuktikan pemisahan keluarga atau waktu; confusion matrix CNN juga masih memiliki kesalahan.
 
+## Pemeriksaan 14 November 2026
+
+- Halaman penerbit Amikom masih menyatakan data unduhan belum tersedia. Akses ke data, lisensi dataset, serta bukti anotasi independen masih diperlukan. [Artikel](https://hostjournals.com/bulletincsr/article/view/586)
+- Dataset COMNETS UNSRI menjelaskan pengukuran lalu lintas dari tiga sesi. Berkas dibatasi akses. Metadata tidak mendokumentasikan kontrol negatif dan label keluarga hostname yang dibutuhkan evaluasi Gempur. Tidak ada impor. [Rekaman dataset](https://zenodo.org/records/15233150)
+- Kasus normalisasi Wikimedia Commons setelah verifikasi manual memberi kandidat kontrol historis untuk evaluasi salah blokir. Kasus tersebut perlu ditinjau pada cakupan hostname dan waktu yang relevan sebelum dimasukkan ke evaluasi. [Komdigi](https://portal.komdigi.go.id/kanal-publik/berita-kini/10095)
+
 ## Protokol kandidat berikutnya
 
 1. Verifikasi lisensi dataset, pin bytes/commit/hash dan provenance setiap sumber. UT1, Sinfonietta dan arfshl sudah digunakan/dicadangkan; agregator seperti Hagezi yang menggabungkannya bukan holdout independen.

@@ -30,6 +30,7 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | P-FR-08 | Off/revoke/logout/delete menghentikan pengiriman terkait. Hapus riwayat deteksi lokal menghentikan tambahan privat dan membersihkan inbox HP, tetap menyimpan penanda penghentian server yang belum sinkron. Penghentian layanan/notifikasi bukan bukti revokasi server; re-enable ditahan sampai sinkronisasi grant yang sesuai. Saat offline, penghentian lokal segera dan revokasi server menyusul; salinan yang telah dilihat tidak dapat ditarik kembali. |
 | P-FR-09 | Rilis pilot memerlukan full build/lint varian biasa dan privat, review independen, isolasi manifest release, serta bukti dua HP. Daftar aktif tetap 10 seed domain dan fixture; 480 kandidat Indonesia belum otomatis aktif. |
 | P-FR-10 | Pemeriksaan offline upgrade privat memverifikasi application ID, signature, sertifikat yang sama dan versionCode meningkat. QA perangkat memeriksa data dan consent setelah upgrade. |
+| P-FR-11 | Lab USB memakai server loopback dengan database akun uji tersendiri. Uji host memeriksa health, isolasi database dan konflik port. Uji perangkat memeriksa ADB reverse dan pairing dua HP. |
 
 Skenario dan langkah setup berada pada [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md); detail antarmuka pada [kontrak privat](PRIVATE_AUTOMATION_CONTRACT.md). Bagian berikut tetap menjelaskan baseline dan kebutuhan jangka panjang; keberadaan kode tidak menandakan seluruh acceptance telah lulus.
 
