@@ -20,4 +20,26 @@ public class CompanionClientTest {
             try{CompanionClient.validateEndpoint(url,true);fail("Remote cleartext accepted");}catch(IllegalArgumentException expected){}
         }
     }
+
+    @Test public void stopRequiresAnExplicitDisabledGrantWithANewerVersionAndNoScopes() {
+        assertTrue(CompanionClient.confirmsAutomationOff(false, 8, 0, 7));
+        assertTrue(CompanionClient.confirmsAutomationOff(false, 9L, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(true, 8, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 7, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 6, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 8, 1, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(null, 8, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff("false", 8, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, null, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, "8", 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 8.0, 0, 7));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 1L + Integer.MAX_VALUE, 0, 7));
+    }
+
+    @Test public void legacyStopWithoutAVersionStillRequiresAValidDisabledGrant() {
+        assertTrue(CompanionClient.confirmsAutomationOff(false, 0, 0, -1));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, -1, 0, -1));
+        assertFalse(CompanionClient.confirmsAutomationOff(false, 0, 0, -2));
+        assertFalse(CompanionClient.confirmsAutomationOff(null, null, 0, -1));
+    }
 }

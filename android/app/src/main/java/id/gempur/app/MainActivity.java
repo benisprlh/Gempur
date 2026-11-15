@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -273,7 +275,24 @@ public final class MainActivity extends Activity {
         String id=store.get("pendingRevocation");if(id.isEmpty())return;
         JSONObject pending=pendingPrivateOff();
         final JSONObject account;try{account=store.remoteContext();}catch(Exception e){info("Akun belum terbaca",e.getMessage());return;}
-        remote(()->api.requestPinned("DELETE","/api/pairings/"+id,null,account),r->{try{acknowledgePrivateEnd(pending,account,id);if(!sameRemoteAccount(account)){info("Akses lama dicabut","Profil lokal telah berubah; data profil baru tidak diubah.");return;}if(id.equals(store.get("pendingRevocation")))store.put("pendingRevocation","");store.put("pendingPairingId","");if(id.equals(store.get("pendingAutomationOffPairing")))store.put("pendingAutomationOffPairing","");render();info("Akses dicabut","Server telah menerima pencabutan. Informasi yang sudah dilihat atau disalin penerima tidak dapat ditarik kembali.");}catch(Exception e){info("Penyimpanan gagal",e.getMessage());}});
+        remote(() -> api.requestPinned("DELETE", "/api/pairings/" + id, null, account), response -> {
+            try {
+                if (!Boolean.TRUE.equals(response.opt("revoked"))) throw new Exception("Server belum mengonfirmasi pencabutan pasangan.");
+                acknowledgePrivateEnd(pending, account, id);
+                if (!sameRemoteAccount(account)) {
+                    info("Akses lama dicabut","Profil lokal telah berubah; data profil baru tidak diubah.");
+                    return;
+                }
+                if (id.equals(store.get("pendingRevocation"))) store.put("pendingRevocation","");
+                store.put("pendingPairingId","");
+                if (id.equals(account.optString("pendingAutomationOffPairing"))
+                        && id.equals(store.get("pendingAutomationOffPairing"))) store.put("pendingAutomationOffPairing","");
+                render();
+                info("Akses dicabut","Server telah menerima pencabutan. Informasi yang sudah dilihat atau disalin penerima tidak dapat ditarik kembali.");
+            } catch (Exception e) {
+                info("Penyimpanan gagal",e.getMessage());
+            }
+        });
     }
     private void requestCorrection(){
         prompt("Situs normal salah terblokir?","contoh.org","",target->remote(
@@ -303,9 +322,45 @@ public final class MainActivity extends Activity {
         label(p,"Tanpa lokasi, SMS, chat, isi rekening, atau pemantauan layar. Catatan terenkripsi di perangkat. Snapshot dan permintaan bantuan dikirim hanya setelah kamu memilihnya.",14,MUTED,false);
         button(p,"Hapus akun server",()->{
             if(store.get("token").isEmpty()){info("Tidak ada akun server","Mode lokal tidak membuat akun.");return;}
-            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",()->{try{stopPrivateLocally();JSONObject pending=pendingPrivateOff();JSONObject account=store.remoteContext();remote(()->api.requestPinned("DELETE","/api/me",null,account),r->{try{acknowledgePrivateEnd(pending,account,"");if(!sameRemoteAccount(account)){info("Akun lama dihapus","Profil lokal telah berubah; profil baru tidak diubah.");return;}store.clearRemote();store.put("role","");store.put("endpoint","");store.put("pendingPairingId","");store.put("exceptionId","");store.put("pendingAutomationOffPairing","");RuleRepository.clearTemporaryAllowances(this);render();}catch(Exception e){info("Gagal",e.getMessage());}});}catch(Exception e){info("Akun belum terbaca",e.getMessage());}});
+            confirm("Hapus akun dan data server?","Tindakan ini memutus pendampingan. Catatan lokal tetap disimpan.",this::deleteRemoteAccount);
         },false);
         button(p,"Tentang proteksi & batasnya",()->info("Gempur "+BuildConfig.VERSION_NAME,"Filter DNS lokal dengan daftar domain terbatas. DoH/DoT, IP langsung, profil lain, VPN lain, dan perangkat lain dapat melewati batas ini. Tidak mendukung always-on/lockdown.\n\nGempur bukan terapi atau layanan darurat. Bantuan profesional dapat berjalan bersama pendampingan keluarga.\n\nSource dan perkembangan: github.com/benisprlh/Gempur"),false);
+    }
+    private void deleteRemoteAccount(){
+        final JSONObject pending, account;
+        try {
+            stopPrivateLocally();
+            pending = pendingPrivateOff();
+            account = store.remoteContext();
+        } catch (Exception e) {
+            info("Akun belum terbaca",e.getMessage());
+            return;
+        }
+        remote(() -> api.requestPinned("DELETE", "/api/me", null, account), response -> {
+            try {
+                if (!Boolean.TRUE.equals(response.opt("deleted"))) throw new Exception("Server belum mengonfirmasi penghapusan akun.");
+                boolean acknowledged = acknowledgePrivateEnd(pending, account, "");
+                if (!sameRemoteAccount(account)) {
+                    info("Akun lama dihapus","Profil lokal telah berubah; profil baru tidak diubah.");
+                    return;
+                }
+                String legacyPair = account.optString("pendingAutomationOffPairing");
+                boolean matchesDeletedAccount = legacyPair.equals(account.optString("pairingId"))
+                        || (acknowledged && legacyPair.equals(pending.optString("pairingId")));
+                if (!legacyPair.isEmpty() && matchesDeletedAccount && legacyPair.equals(store.get("pendingAutomationOffPairing"))) {
+                    store.put("pendingAutomationOffPairing","");
+                }
+                store.clearRemote();
+                store.put("role","");
+                store.put("endpoint","");
+                store.put("pendingPairingId","");
+                store.put("exceptionId","");
+                RuleRepository.clearTemporaryAllowances(this);
+                render();
+            } catch (Exception e) {
+                info("Gagal",e.getMessage());
+            }
+        });
     }
     private void inspectCorrection(){
         String id=store.get("exceptionId");if(id.isEmpty()){info("Belum ada koreksi","Ajukan dari tab Pendamping.");return;}
@@ -354,8 +409,11 @@ public final class MainActivity extends Activity {
     }
     private JSONObject pendingPrivateOff(){try{return PrivateMonitoring.pendingServerOff(this);}catch(Exception unreadable){return new JSONObject();}}
     private boolean sameRemoteAccount(JSONObject expected) throws Exception {JSONObject current=store.remoteContext();return current.optString("endpoint").equals(expected.optString("endpoint"))&&current.optString("deviceId").equals(expected.optString("deviceId"))&&current.optString("token").equals(expected.optString("token"));}
-    private void acknowledgePrivateEnd(JSONObject pending,JSONObject account,String pairing){
-        if(BuildConfig.PRIVATE_BUILD&&pending.optString("endpoint").equals(account.optString("endpoint"))&&pending.optString("deviceId").equals(account.optString("deviceId"))&&(pairing.isEmpty()||pairing.equals(pending.optString("pairingId"))))PrivateMonitoring.acknowledgeServerOff(this,pending);
+    private boolean acknowledgePrivateEnd(JSONObject pending, JSONObject account, String pairing){
+        return BuildConfig.PRIVATE_BUILD && pending.optString("endpoint").equals(account.optString("endpoint"))
+                && pending.optString("deviceId").equals(account.optString("deviceId"))
+                && (pairing.isEmpty() || pairing.equals(pending.optString("pairingId")))
+                && PrivateMonitoring.acknowledgeServerOff(this, pending);
     }
     private boolean privateNotificationsReady(){
         if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},83);info("Izin notifikasi diperlukan","Izinkan notifikasi agar layanan privat selalu terlihat. Setelah itu pilih fitur ini kembali.");return false;}
@@ -484,15 +542,79 @@ public final class MainActivity extends Activity {
         privateRemoteDetections=new JSONArray();render();if(!pairing.isEmpty())syncAutomationOff();
     }
     private void syncAutomationOff(){
-        final JSONObject pending,account;final String pairing;
-        try{pending=PrivateMonitoring.pendingServerOff(this);account=store.remoteContext();pairing=pending.optString("pairingId").isEmpty()?account.optString("pendingAutomationOffPairing"):pending.getString("pairingId");
-            if(pairing.isEmpty())return;
-            if(!pending.optString("pairingId").isEmpty()&&(!pending.optString("endpoint").equals(account.optString("endpoint"))||!pending.optString("deviceId").equals(account.optString("deviceId")))){info("Izin terkait profil sebelumnya","Koneksi server/profil berbeda. Jangan kirim credential profil baru ke server lama; periksa pencabutan dengan pengelola server sebelumnya.");return;}
-        }catch(Exception e){info("Status penghentian belum terbaca","Data tidak dihapus otomatis. Hentikan layanan dan periksa penyimpanan.");return;}
-        remote(()->{try{return api.requestPinned("PUT","/api/pairings/"+pairing+"/automation",new JSONObject().put("enabled",false).put("scopes",new JSONArray()),account);}catch(CompanionClient.ApiException e){
-            if(e.status==404||e.status==409){JSONObject current=api.requestPinned("GET","/api/me",null,account);JSONArray pairs=current.getJSONArray("pairings");boolean active=false;for(int i=0;i<pairs.length();i++){JSONObject p=pairs.getJSONObject(i);if(pairing.equals(p.optString("id"))&&"active".equals(p.optString("status")))active=true;}if(!active&&account.optString("deviceId").equals(current.getJSONObject("device").getString("id")))return new JSONObject().put("inactive",true);}
-            throw e;
-        }},r->{try{PrivateMonitoring.acknowledgeServerOff(this,pending);if(pairing.equals(store.get("pendingAutomationOffPairing")))store.put("pendingAutomationOffPairing","");render();info("Penghentian diterima","Izin otomatis server dinonaktifkan atau pasangan telah terbukti tidak aktif. Salinan yang telah diterima pihak lain tidak bisa ditarik kembali.");}catch(Exception e){info("Belum tersimpan",e.getMessage());}});
+        final JSONObject pending, account;
+        final String pairing;
+        final boolean durableStop;
+        final int stoppedVersion;
+        try {
+            pending = PrivateMonitoring.pendingServerOff(this);
+            account = store.remoteContext();
+            durableStop = pending.has("pairingId");
+            pairing = durableStop ? pending.getString("pairingId") : account.optString("pendingAutomationOffPairing");
+            if (pairing.isEmpty()) return;
+            if (account.getString("deviceId").isEmpty()) throw new Exception("Profil server belum tersedia.");
+            if (durableStop && (!pending.getString("endpoint").equals(account.optString("endpoint"))
+                    || !pending.getString("deviceId").equals(account.optString("deviceId")))) {
+                info("Izin terkait profil sebelumnya","Koneksi server atau profil berbeda. Periksa pencabutan dengan pengelola server sebelumnya.");
+                return;
+            }
+            stoppedVersion = durableStop ? pending.getInt("automationVersion") : -1;
+        } catch (Exception e) {
+            info("Status penghentian belum terbaca","Data tidak dihapus otomatis. Hentikan layanan dan periksa penyimpanan.");
+            return;
+        }
+
+        remote(() -> {
+            try {
+                JSONObject response = api.requestPinned("PUT", "/api/pairings/" + pairing + "/automation",
+                        new JSONObject().put("enabled", false).put("scopes", new JSONArray()), account);
+                JSONObject automation = response.getJSONObject("automation");
+                if (!CompanionClient.confirmsAutomationOff(automation.opt("enabled"), automation.opt("version"),
+                        automation.getJSONArray("scopes").length(), stoppedVersion)) {
+                    throw new Exception("Server belum mengonfirmasi izin berbagi nonaktif dengan versi yang sesuai.");
+                }
+                return response;
+            } catch (CompanionClient.ApiException e) {
+                if (e.status != 404 && e.status != 409) throw e;
+                JSONObject current = api.requestPinned("GET", "/api/me", null, account);
+                if (!account.getString("deviceId").equals(current.getJSONObject("device").get("id"))) throw e;
+                JSONArray pairs = current.getJSONArray("pairings");
+                Set<String> ids = new HashSet<>();
+                boolean foundRevokedPair = false;
+                for (int i = 0; i < pairs.length(); i++) {
+                    JSONObject pair = pairs.getJSONObject(i);
+                    Object id = pair.opt("id");
+                    Object status = pair.opt("status");
+                    if (!(id instanceof String) || ((String) id).isEmpty() || !ids.add((String) id)
+                            || !("active".equals(status) || "revoked".equals(status) || "expired".equals(status)
+                            || "invited".equals(status) || "claimed".equals(status))) throw e;
+                    if (pairing.equals(id)) {
+                        if (!"revoked".equals(status)) throw e;
+                        foundRevokedPair = true;
+                    }
+                }
+                if (!durableStop && !foundRevokedPair) throw e;
+                return current;
+            }
+        }, response -> {
+            try {
+                if (!sameRemoteAccount(account) || (durableStop
+                        ? !PrivateMonitoring.acknowledgeServerOff(this, pending)
+                        : PrivateMonitoring.pendingServerOff(this).has("pairingId"))) {
+                    render();
+                    info("Penghentian masih tertunda","Profil atau status penghentian berubah. Periksa dan sinkronkan lagi.");
+                    return;
+                }
+                if (pairing.equals(account.optString("pendingAutomationOffPairing"))
+                        && pairing.equals(store.get("pendingAutomationOffPairing"))) {
+                    store.put("pendingAutomationOffPairing","");
+                }
+                render();
+                info("Penghentian diterima","Izin otomatis server dinonaktifkan atau pasangan sudah tidak aktif. Salinan yang telah diterima pihak lain tidak bisa ditarik kembali.");
+            } catch (Exception e) {
+                info("Belum tersimpan",e.getMessage());
+            }
+        });
     }
     private void privateCompanionSetup(){
         label(page,"HP pendamping · privat",27,INK,true);LinearLayout c=card();label(c,"Pasangkan dua HP secara terbuka. Peserta harus mengonfirmasi identitas dan memberi persetujuan berbagi otomatis terpisah.",14,MUTED,false);

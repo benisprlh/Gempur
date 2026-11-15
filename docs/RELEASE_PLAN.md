@@ -25,6 +25,8 @@ Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di
 
 Per 15 November, uji host menutup skenario pencabutan yang sudah diterima server lalu backend dibuka kembali. Tanggal mulai pilot tetap mengikuti lab dua HP, termasuk pencabutan dari HP saat jaringan terputus dan sinkronisasi setelah tersambung kembali. [Laporan uji](development/2026-11-15.md).
 
+Pakai kandidat 0.3.5 untuk memeriksa konfirmasi penghentian dan pesan sinkronisasi pada dua HP. Periksa identitas signing dengan APK terpasang sebelum upgrade. [Skenario pencabutan](PRIVATE_TEST_GUIDE.md#berhenti-dan-menghapus).
+
 ## Kebijakan rilis
 
 - Versi `0.x` digunakan untuk pengembangan/pilot. `1.0.0` baru ketika gate rilis terpenuhi.

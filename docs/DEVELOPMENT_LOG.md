@@ -4,6 +4,8 @@
 
 Tes HTTP dengan SQLite di host membuktikan pencabutan izin tetap berlaku setelah penutupan normal dan pembukaan database yang sama. [Laporan dan bukti](development/2026-11-15.md).
 
+Tindak lanjut memperketat konfirmasi pencabutan di Android. Klien menyimpan penanda ketika respons kosong, versi izin kedaluwarsa atau konfirmasi berasal dari profil yang berbeda. [Perubahan dan bukti kandidat 0.3.5](development/2026-11-15.md#validasi-konfirmasi-pencabutan-di-android).
+
 ## 14 November 2026 — backend terisolasi untuk lab USB
 
 Launcher lab menyediakan database baru dan listener loopback untuk akun uji. [Laporan dan bukti](development/2026-11-14.md).
