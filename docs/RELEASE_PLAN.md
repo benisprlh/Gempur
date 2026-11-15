@@ -23,6 +23,8 @@ Riwayat perencanaan awal menetapkan alpha 9–12 November, QA 12–19 November, 
 
 Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md). Polling sekitar 30 detik bukan notifikasi push terjamin; deteksi aplikasi hanya menandai dugaan nama paket, bukan suspend atau firewall. Daftar domain aktif belum diperluas oleh pilot ini.
 
+Per 15 November, uji host menutup skenario pencabutan yang sudah diterima server lalu backend dibuka kembali. Tanggal mulai pilot tetap mengikuti lab dua HP, termasuk pencabutan dari HP saat jaringan terputus dan sinkronisasi setelah tersambung kembali. [Laporan uji](development/2026-11-15.md).
+
 ## Kebijakan rilis
 
 - Versi `0.x` digunakan untuk pengembangan/pilot. `1.0.0` baru ketika gate rilis terpenuhi.

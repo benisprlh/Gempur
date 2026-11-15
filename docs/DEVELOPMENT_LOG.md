@@ -1,5 +1,9 @@
 # Development Log
 
+## 15 November 2026 — revokasi setelah restart backend
+
+Tes HTTP dengan SQLite di host membuktikan pencabutan izin tetap berlaku setelah penutupan normal dan pembukaan database yang sama. [Laporan dan bukti](development/2026-11-15.md).
+
 ## 14 November 2026 — backend terisolasi untuk lab USB
 
 Launcher lab menyediakan database baru dan listener loopback untuk akun uji. [Laporan dan bukti](development/2026-11-14.md).
