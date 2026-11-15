@@ -25,6 +25,14 @@ public final class CompanionClient {
             return u.getScheme()+"://"+u.getRawAuthority();
         }catch(Exception e){throw new IllegalArgumentException("Gunakan alamat HTTPS server tanpa path atau token.");}
     }
+    static boolean confirmsAutomationOff(Object enabled, Object version, int scopeCount, int stoppedVersion) {
+        if (!Boolean.FALSE.equals(enabled) || scopeCount != 0 || stoppedVersion < -1
+                || !(version instanceof Integer || version instanceof Long)) {
+            return false;
+        }
+        long returnedVersion = ((Number) version).longValue();
+        return returnedVersion > stoppedVersion && returnedVersion <= Integer.MAX_VALUE;
+    }
     public synchronized JSONObject request(String method,String path,JSONObject payload) throws Exception{
         return requestPinned(method,path,payload,null);
     }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5-alpha.1 — kandidat 15 November 2026
+
+- Pertahankan penanda penghentian berbagi saat konfirmasi server kosong, masih aktif, atau membawa versi izin lama. Cocokkan penanda yang tersimpan sebelum menampilkan penghentian diterima.
+- [Laporan pengujian](docs/development/2026-11-15.md#validasi-konfirmasi-pencabutan-di-android).
+
 ## Pengujian backend · 15 November 2026
 
 - Tambah tes integrasi SQLite untuk memastikan pencabutan berbagi bertahan setelah backend dibuka kembali dan laporan dengan versi izin lama tetap ditolak.

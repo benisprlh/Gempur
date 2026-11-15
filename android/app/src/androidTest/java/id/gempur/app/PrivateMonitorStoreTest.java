@@ -137,12 +137,13 @@ public final class PrivateMonitorStoreTest {
     }
     @Test public void lateStopAcknowledgementCannotEraseNewerPendingStop() throws Exception {
         enable(PAIR_A, 1); store.disable(); JSONObject first = store.pendingServerOff();
-        store.acknowledgeServerOff(first); enable(PAIR_A, 2); store.disable();
+        assertTrue(store.acknowledgeServerOff(first)); enable(PAIR_A, 2); store.disable();
         JSONObject second = store.pendingServerOff(); assertNotEquals(first.getString("revocationId"), second.getString("revocationId"));
-        store.acknowledgeServerOff(first);
+        assertFalse(store.acknowledgeServerOff(first));
         assertEquals(second.getString("revocationId"), store.pendingServerOff().getString("revocationId"));
         store.clear(); store.disable();
         assertEquals(second.getString("revocationId"), store.pendingServerOff().getString("revocationId"));
-        store.acknowledgeServerOff(second); assertTrue(store.pendingServerOff().optString("pairingId").isEmpty());
+        assertTrue(store.acknowledgeServerOff(second));
+        assertTrue(store.pendingServerOff().optString("pairingId").isEmpty());
     }
 }

@@ -114,8 +114,8 @@ final class PrivateMonitorStore {
             return pending == null ? new JSONObject() : new JSONObject(pending.toString());
         });
     }
-    void acknowledgeServerOff(JSONObject expected) throws Exception {
-        transaction(true, value -> {
+    boolean acknowledgeServerOff(JSONObject expected) throws Exception {
+        return transaction(true, value -> {
             JSONObject pending = value.optJSONObject("pendingServerOff");
             if (pending != null && expected != null && !expected.optString("revocationId").isEmpty()
                     && pending.optString("revocationId").equals(expected.optString("revocationId"))
@@ -124,8 +124,9 @@ final class PrivateMonitorStore {
                     && pending.optString("deviceId").equals(expected.optString("deviceId"))
                     && pending.optInt("automationVersion") == expected.optInt("automationVersion")) {
                 value.remove("pendingServerOff"); value.put("epoch", value.optLong("epoch", 0) + 1);
+                return true;
             }
-            return null;
+            return false;
         });
     }
     private static void clearBindings(JSONObject value) throws Exception {

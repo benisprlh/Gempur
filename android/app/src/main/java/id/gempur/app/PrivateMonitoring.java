@@ -172,9 +172,9 @@ public final class PrivateMonitoring {
         try { return new PrivateMonitorStore(context).pendingServerOff(); }
         catch (Exception failure) { throw unavailable(failure); }
     }
-    public static void acknowledgeServerOff(Context context, JSONObject expectedPending) {
-        if (!BuildConfig.PRIVATE_BUILD) return;
-        try { new PrivateMonitorStore(context).acknowledgeServerOff(expectedPending); }
+    public static boolean acknowledgeServerOff(Context context, JSONObject expectedPending) {
+        if (!BuildConfig.PRIVATE_BUILD) return false;
+        try { return new PrivateMonitorStore(context).acknowledgeServerOff(expectedPending); }
         catch (Exception failure) { throw unavailable(failure); }
     }
     public static JSONArray events(Context context) {

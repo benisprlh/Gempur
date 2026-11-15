@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat 0.3.5 menambahkan pemeriksaan konfirmasi server sebelum menghapus penanda penghentian berbagi di Android. Lab dua HP masih diperlukan untuk membuktikan pengalaman peserta saat offline lalu tersambung kembali. [Pengujian kandidat](development/2026-11-15.md#validasi-konfirmasi-pencabutan-di-android).
+
 Tes host pada 15 November memverifikasi status pencabutan izin dan penolakan laporan lama setelah restart backend teratur. Uji offline dan sinkronisasi pencabutan dari HP masih menunggu perangkat. [Hasil pengujian](development/2026-11-15.md).
 
 Lab USB kini memiliki launcher backend loopback dengan database baru. Verifikasi host dan hasil QA perangkat dicatat terpisah. [Status 14 November](development/2026-11-14.md).
@@ -47,6 +49,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Isolasi privateDebug dan server default off | PASS otomatis | BuildConfig/manifest biasa dan privat diperiksa, source scanner terpisah, server default-off diuji; uji perangkat tetap terpisah |
 | Consent lokal dan sharing terpisah | CODE | Default/upgrade mati, scope/grant versi, perubahan pairing, revokasi saat request tertunda |
 | Revokasi berbagi saat backend dibuka kembali | PASS host | API dengan SQLite pada disk. Status nonaktif tersimpan, inbox kosong dan versi izin lama ditolak sebelum dan setelah izin baru diberikan. |
+| Konfirmasi penghentian berbagi di Android | PASS unit, HP PENDING | Respons kosong/coercion, status aktif, scope tersisa, versi lama ditolak. Cocokkan status sinkronisasi dan inbox setelah HP offline kembali online. |
 | Deteksi dikenal/pribadi/dugaan/belum diketahui | CODE | Benign controls, critical-app exclusions, tidak menganggap nama sebagai verifikasi isi |
 | Deteksi aplikasi opsional package-only/advisory | CODE | Subset launcher terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian; uji HP, stale event, izin mati; bukan suspend/firewall/uninstall blocking |
 | Antrean dan sharing metadata minimal | CODE | Enkripsi, dedup, TTL/batas, diagnostik dikecualikan, tidak ada URL/inventaris/foreground stream |
