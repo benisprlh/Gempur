@@ -6,7 +6,7 @@ Jalur ini menjalankan pengujian serta build di environment yang dipakai pengemba
 
 | Komponen | Versi/kebutuhan |
 | --- | --- |
-| Node.js | 24.x; backend memakai SQLite bawaan Node |
+| Node.js | Gunakan patch 24.x yang masih menerima pembaruan keamanan. Verifier 15 November 2026 memakai 24.22.3, yang memperbarui SQLite dan komponen jaringan. [Advisory Node.js](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases/) |
 | JDK | 17; tetapkan `JAVA_HOME` ke instalasi JDK penuh |
 | Android SDK | Platform android-36, build-tools 35.0.0, platform-tools |
 | Gradle | Wrapper 8.11.1 di `android/gradlew`; checksum distribusi dipin |

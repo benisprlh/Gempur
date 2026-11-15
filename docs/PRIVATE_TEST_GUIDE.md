@@ -79,6 +79,8 @@ Untuk salah blok:
 
 ## Berhenti dan menghapus
 
+Tes integrasi host memeriksa bahwa revokasi yang sudah diterima server tetap berlaku saat backend dibuka kembali dengan database SQLite yang sama. Pada lab dua HP, uji juga pencabutan dari HP peserta saat offline, lalu sambungkan lagi dan periksa status sinkronisasi serta inbox pendamping. [Skenario host](development/2026-11-15.md).
+
 - **Hentikan berbagi otomatis** menghentikan antrean pengiriman lokal; selesaikan **Sinkronkan penghentian** bila offline. Deteksi lokal dapat tetap dipakai tanpa berbagi. Menghentikan layanan/notifikasi tidak membuktikan grant server sudah dicabut; banner tersimpan menunjukkan penghentian yang belum sinkron dan mencegah pengaktifan ulang sebelum sinkronisasi yang sesuai selesai.
 - **Hentikan deteksi dan berbagi privat** mematikan tambahan privat di HP peserta. Proteksi DNS dasar dapat dihentikan terpisah dari Beranda. Accessibility dan notifikasi tetap dapat dimatikan melalui Android; tidak ada anti-uninstall.
 - **Hapus riwayat deteksi lokal** pada tab Deteksi menghentikan layanan privat dan membersihkan inbox HP itu. Catatan check-in tetap ada; penanda pencabutan server yang belum sinkron dipertahankan. Ini tidak menggantikan penghapusan akun/server.

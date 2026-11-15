@@ -1,5 +1,10 @@
 # Changelog
 
+## Pengujian backend · 15 November 2026
+
+- Tambah tes integrasi SQLite untuk memastikan pencabutan berbagi bertahan setelah backend dibuka kembali dan laporan dengan versi izin lama tetap ditolak.
+- [Laporan pengujian](docs/development/2026-11-15.md).
+
 ## Perangkat uji · 14 November 2026
 
 - Tambah launcher lab USB yang mengikat backend privat ke loopback dan menyediakan database uji terpisah.

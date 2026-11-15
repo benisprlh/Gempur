@@ -6,7 +6,7 @@ Tanggal pemeriksaan sumber: 9 November 2026. Ini lembar kerja pengisian, **bukan
 
 Pemilik memilih pilot `privateDebug` terpisah, berlabel Gempur Privat (`id.gempur.app.private.debug`). Kandidat tersebut bukan artifact upload Play. Baseline debug/release tetap tanpa monitoring dewasa otomatis; jangan menyatakan isolasi hanya dari UI—periksa manifest, BuildConfig dan perilaku binary.
 
-PrivateDebug memakai query terbatas MAIN/LAUNCHER, Accessibility package-event/HOME, serta foreground service untuk sharing/polling. Pemindaian hanya mencakup subset aplikasi launcher yang terlihat, bukan headless/seluruh inventaris. Tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Jangan menyalin service privat ke release biasa. Pilot privat tidak membuktikan kelayakan Play atau pengecualian Play Protect; [panduan privat](../docs/PRIVATE_TEST_GUIDE.md) menjelaskan batas aktual. Prioritaskan QA pilot sebelum menjadwalkan ulang rilis publik.
+PrivateDebug memakai query terbatas MAIN/LAUNCHER, Accessibility untuk peristiwa nama paket, serta foreground service untuk sharing/polling. Deteksi memberi tanda dugaan untuk subset aplikasi launcher yang terlihat. Dugaan nama tidak memicu tindakan HOME. Tidak ada QUERY_ALL_PACKAGES pada varian mana pun. Jangan menyalin service privat ke release biasa. Pilot privat tidak membuktikan kelayakan Play atau pengecualian Play Protect; [panduan privat](../docs/PRIVATE_TEST_GUIDE.md) menjelaskan batas aktual. Prioritaskan QA pilot sebelum menjadwalkan ulang rilis publik.
 
 ## Identitas dan artifact
 
@@ -38,7 +38,7 @@ Data sharing yang dipicu peserta mungkin diperlakukan berbeda pada form Data saf
 - Rekam demo singkat alur membuka app, membaca disclosure, mengizinkan VPN, melihat status/notifikasi, menguji domain aman, dan menghentikan proteksi.
 - Cocokkan foreground-service type dan permission manifest; untuk specialUse, isi alasan penggunaan yang spesifik dan benar.
 - Jangan mengklaim remote VPN terenkripsi atau seluruh trafik terlindungi bila yang dibangun DNS-only lokal.
-- Seluruh varian tidak meminta QUERY_ALL_PACKAGES. Release dasar juga tidak meminta Accessibility; privateDebug memakai service package-event/HOME yang terlihat dan dapat dimatikan. Device admin/anti-uninstall tetap tidak digunakan.
+- Seluruh varian tidak meminta QUERY_ALL_PACKAGES. Release dasar juga tidak meminta Accessibility; privateDebug memakai layanan Accessibility yang terlihat dan dapat dimatikan untuk deteksi nama paket. Device admin/anti-uninstall tetap tidak digunakan.
 
 ## Monitoring orang dewasa
 

@@ -13,7 +13,20 @@ async function fixture(t,options={}) {
   const app=createApp({now:()=>clock,privateMonitoringEnabled:true,...options});
   const server=createServer(app.handler);
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  t.after(async()=>{await new Promise(resolve=>server.close(resolve));app.close();});
+  let closing;
+  function close() {
+    closing ??= new Promise((resolve,reject)=>server.close(error=>{
+      try {
+        app.close();
+        if (error) reject(error);
+        else resolve();
+      } catch (failure) {
+        reject(failure);
+      }
+    }));
+    return closing;
+  }
+  t.after(close);
   const base=`http://127.0.0.1:${server.address().port}`;
   async function call(path,{method='GET',token,body}={}) {
     const response=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});
@@ -48,8 +61,46 @@ async function fixture(t,options={}) {
     });
     await started;return result;
   }
-  return {call,device,pair,grant,event,upload,list,delayed,advance:ms=>clock+=ms,now:()=>clock};
+  return {call,device,pair,grant,event,upload,list,delayed,close,advance:ms=>clock+=ms,now:()=>clock};
 }
+
+test('withdrawn sharing stays off after reopening SQLite and a new grant rejects old reports', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'gempur-restart-test-'));
+  const dbPath = join(directory, 'gempur.sqlite');
+  let backend;
+  try {
+    backend = await fixture(t, { dbPath });
+    const pair = await backend.pair();
+    const active = await backend.grant(pair, ['domain']);
+    const before = backend.event();
+    assert.equal((await backend.upload(pair, active, [before])).status, 200);
+    assert.equal((await backend.list(pair)).body.detections.length, 1);
+
+    const disabled = await backend.grant(pair, []);
+    assert.equal(disabled.enabled, false);
+    assert.equal(disabled.version, active.version + 1);
+    await backend.close();
+
+    backend = await fixture(t, { dbPath });
+    const current = await backend.call('/api/pairings/' + pair.id + '/automation', { token: pair.c.token });
+    assert.equal(current.status, 200);
+    assert.deepEqual(current.body.automation, disabled);
+    const inbox = await backend.list(pair);
+    assert.equal(inbox.status, 200);
+    assert.deepEqual(inbox.body.detections, []);
+    assert.equal((await backend.upload(pair, active, [before])).status, 409);
+
+    const next = await backend.grant(pair, ['domain']);
+    assert.equal(next.version, disabled.version + 1);
+    assert.equal((await backend.upload(pair, active, [before])).status, 409);
+    const after = backend.event();
+    assert.equal((await backend.upload(pair, next, [after])).status, 200);
+    assert.deepEqual((await backend.list(pair)).body.detections.map(event => event.eventId), [after.eventId]);
+  } finally {
+    await backend?.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
 
 test('private server capability is default-off and cannot be enabled by request payload',async t=>{
   assert.throws(()=>createApp({privateMonitoringEnabled:'true'}));

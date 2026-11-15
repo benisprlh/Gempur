@@ -31,6 +31,7 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | P-FR-09 | Rilis pilot memerlukan full build/lint varian biasa dan privat, review independen, isolasi manifest release, serta bukti dua HP. Daftar aktif tetap 10 seed domain dan fixture; 480 kandidat Indonesia belum otomatis aktif. |
 | P-FR-10 | Pemeriksaan offline upgrade privat memverifikasi application ID, signature, sertifikat yang sama dan versionCode meningkat. QA perangkat memeriksa data dan consent setelah upgrade. |
 | P-FR-11 | Lab USB memakai server loopback dengan database akun uji tersendiri. Uji host memeriksa health, isolasi database dan konflik port. Uji perangkat memeriksa ADB reverse dan pairing dua HP. |
+| P-FR-12 | Setelah backend dibuka kembali dengan database yang sama, izin yang dicabut tetap nonaktif, inbox otomatis kosong, dan laporan dengan versi izin lama ditolak, termasuk setelah peserta memberi izin baru. |
 
 Skenario dan langkah setup berada pada [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md); detail antarmuka pada [kontrak privat](PRIVATE_AUTOMATION_CONTRACT.md). Bagian berikut tetap menjelaskan baseline dan kebutuhan jangka panjang; keberadaan kode tidak menandakan seluruh acceptance telah lulus.
 
