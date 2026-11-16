@@ -98,6 +98,8 @@ Saat ada temuan tertunda, hentikan berbagi. Sinkronkan penghentian dan konfirmas
 
 ## Uji burst notifikasi pendamping
 
+Pada tab Deteksi pendamping, **Muat bantuan dan koreksi** memakai dashboard pasangan. **Muat temuan** meminta inbox secara terpisah. Untuk skenario backend tanpa deteksi privat, gunakan akun sintetis terpisah dan mode default server. Setelah pairing, kirim bantuan dan koreksi manual. Periksa keduanya dapat dimuat dan kartu umum dapat muncul pada layanan yang aktif. Muat temuan secara terpisah untuk mengonfirmasi bahwa capability privat sedang tidak tersedia. Gunakan konfigurasi lab lain dengan deteksi aktif untuk skenario burst di bawah.
+
 Dengan akun uji yang sudah setuju, buat beberapa temuan dari domain benign milik penguji. Pantau dua polling yang berjarak kurang dari 60 detik. Harapkan satu ringkasan temuan. Selama jeda itu kirim satu permintaan bantuan dan satu koreksi. Periksa bahwa kartu permintaan terpisah muncul pada polling berikutnya. Temuan yang masih baru dan masuk hasil polling dapat menghasilkan ringkasan pada polling setelah jeda berakhir.
 
 Ulangi saat layar terkunci dan setelah kartu ditutup. Periksa isi kartu publik, status baca, serta pembatalan kedua kartu saat layanan dihentikan. Catat waktu pengiriman, polling, dan kemunculan kartu secara terpisah. Jeda dihitung sejak aplikasi meminta Android menampilkan ringkasan dan dimulai ulang saat layanan baru dibuat.

@@ -1,5 +1,9 @@
 # Development Log
 
+## 16 November 2026 — bantuan dan koreksi pendamping
+
+Polling dan tombol muat bantuan/koreksi mengecek dashboard tanpa menunggu inbox deteksi. Permintaan manual tetap muncul pada dashboard ketika mode deteksi backend mati. [Laporan dan bukti](development/2026-11-16.md).
+
 ## 15 November 2026 — revokasi setelah restart backend
 
 Tes HTTP dengan SQLite di host membuktikan pencabutan izin tetap berlaku setelah penutupan normal dan pembukaan database yang sama. [Laporan dan bukti](development/2026-11-15.md).

@@ -112,6 +112,31 @@ test('private server capability is default-off and cannot be enabled by request 
   assert.equal((await f.call('/api/exceptions',{method:'POST',token:pair.p.token,body:{pairingId:pair.id,targetKind:'app',target:'org.acme.SlotCasino',reason:'false_positive'}})).status,404);
 });
 
+test('a confirmed companion still receives manual support and correction when detections are disabled', async t => {
+  const f = await fixture(t, { privateMonitoringEnabled: false });
+  const pair = await f.pair();
+  const outsider = await f.device('companion');
+  const support = await f.call('/api/support', {
+    method: 'POST', token: pair.p.token, body: { pairingId: pair.id, message: 'call' },
+  });
+  assert.equal(support.status, 201);
+  const correction = await f.call('/api/exceptions', {
+    method: 'POST', token: pair.p.token, body: { pairingId: pair.id, target: 'fixture-service.org', reason: 'false_positive' },
+  });
+  assert.equal(correction.status, 201);
+
+  assert.equal((await f.list(pair)).status, 404);
+  const dashboardPath = `/api/pairings/${pair.id}/dashboard`;
+  const dashboard = await f.call(dashboardPath, { token: pair.c.token });
+  assert.equal(dashboard.status, 200);
+  assert.equal(dashboard.body.pairing.automation, undefined);
+  assert.deepEqual(dashboard.body.supports, [support.body.request]);
+  assert.deepEqual(dashboard.body.exceptions, [correction.body.exception]);
+  assert.equal(dashboard.body.supports[0].status, 'received');
+  assert.equal(dashboard.body.exceptions[0].state, 'pending');
+  assert.equal((await f.call(dashboardPath, { token: outsider.token })).status, 404);
+});
+
 test('new and existing pairs remain manual until participant grants exact scopes',async t=>{
   const f=await fixture(t),pair=await f.pair();
   assert.equal((await f.call('/api/health')).body.privateMonitoringEnabled,true);

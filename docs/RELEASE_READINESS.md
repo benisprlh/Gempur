@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat 0.3.6 mendahulukan bantuan dan koreksi sebelum inbox temuan. Integrasi host menguji dashboard dengan mode deteksi server dimatikan. Pengujian kartu Android dan lifecycle masih menunggu lab. Pemeriksaan offline memblokir upgrade dari paket 0.3.5 ke 0.3.6 karena sertifikat berbeda. [Laporan 16 November](development/2026-11-16.md).
+
 Kandidat 0.3.5 menambahkan pemeriksaan konfirmasi server sebelum menghapus penanda penghentian berbagi di Android. Lab dua HP masih diperlukan untuk membuktikan pengalaman peserta saat offline lalu tersambung kembali. [Pengujian kandidat](development/2026-11-15.md#validasi-konfirmasi-pencabutan-di-android).
 
 Tes host pada 15 November memverifikasi status pencabutan izin dan penolakan laporan lama setelah restart backend teratur. Uji offline dan sinkronisasi pencabutan dari HP masih menunggu perangkat. [Hasil pengujian](development/2026-11-15.md).
@@ -50,6 +52,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Consent lokal dan sharing terpisah | CODE | Default/upgrade mati, scope/grant versi, perubahan pairing, revokasi saat request tertunda |
 | Revokasi berbagi saat backend dibuka kembali | PASS host | API dengan SQLite pada disk. Status nonaktif tersimpan, inbox kosong dan versi izin lama ditolak sebelum dan setelah izin baru diberikan. |
 | Konfirmasi penghentian berbagi di Android | PASS unit, HP PENDING | Respons kosong/coercion, status aktif, scope tersisa, versi lama ditolak. Cocokkan status sinkronisasi dan inbox setelah HP offline kembali online. |
+| Bantuan/koreksi saat deteksi backend dimatikan | PASS host, HP PENDING | Dashboard mengembalikan kedua permintaan kepada pendamping yang sah. Verifikasi tombol Android, kartu layar terkunci, perubahan tanggal/jam dan backoff pada perangkat. |
 | Deteksi dikenal/pribadi/dugaan/belum diketahui | CODE | Benign controls, critical-app exclusions, tidak menganggap nama sebagai verifikasi isi |
 | Deteksi aplikasi opsional package-only/advisory | CODE | Subset launcher terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian; uji HP, stale event, izin mati; bukan suspend/firewall/uninstall blocking |
 | Antrean dan sharing metadata minimal | CODE | Enkripsi, dedup, TTL/batas, diagnostik dikecualikan, tidak ada URL/inventaris/foreground stream |

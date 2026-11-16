@@ -36,6 +36,7 @@ public final class MainActivity extends Activity {
     private boolean busy=false;
     private JSONArray privateRemoteDetections=new JSONArray();
     private JSONArray privateExceptions=new JSONArray();
+    private JSONArray privateSupports=new JSONArray();
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         try{store=new LocalStore(this);api=new CompanionClient(store);}
@@ -395,7 +396,7 @@ public final class MainActivity extends Activity {
             JSONObject grant=PrivateMonitoring.sharing(this);
             JSONObject serverGrant=chosen==null?null:chosen.optJSONObject("automation");
             if(!selected.equals(active)||(grant.optBoolean("enabled")&&(serverGrant==null||!serverGrant.optBoolean("enabled")||grant.optInt("automationVersion")!=serverGrant.optInt("version")))){
-                PrivateMonitoring.disableSharing(this);AppRiskRepository.clearTemporaryAllowances(this);RuleRepository.clearTemporaryAllowances(this);privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();
+                PrivateMonitoring.disableSharing(this);AppRiskRepository.clearTemporaryAllowances(this);RuleRepository.clearTemporaryAllowances(this);privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();privateSupports=new JSONArray();
                 if(active.isEmpty())PrivateMonitoring.setCompanionWatching(this,false);
             }
             if("participant".equals(device.optString("role"))&&serverGrant!=null&&serverGrant.optBoolean("enabled")&&!grant.optBoolean("enabled")&&!active.isEmpty())store.put("pendingAutomationOffPairing",active);
@@ -405,7 +406,7 @@ public final class MainActivity extends Activity {
     private void stopPrivateLocally(){
         if(!BuildConfig.PRIVATE_BUILD)return;
         PrivateMonitoring.stop(this);AppRiskRepository.clearTemporaryAllowances(this);
-        privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();
+        privateRemoteDetections=new JSONArray();privateExceptions=new JSONArray();privateSupports=new JSONArray();
     }
     private JSONObject pendingPrivateOff(){try{return PrivateMonitoring.pendingServerOff(this);}catch(Exception unreadable){return new JSONObject();}}
     private boolean sameRemoteAccount(JSONObject expected) throws Exception {JSONObject current=store.remoteContext();return current.optString("endpoint").equals(expected.optString("endpoint"))&&current.optString("deviceId").equals(expected.optString("deviceId"))&&current.optString("token").equals(expected.optString("token"));}
@@ -629,17 +630,77 @@ public final class MainActivity extends Activity {
         else button(c,"Mulai notifikasi pendamping",()->{
             if(store.get("pairingId").isEmpty()){info("Belum ada pasangan aktif","Terima undangan pada tab Pendamping lalu perbarui pasangan setelah peserta mengonfirmasi.");return;}
             if(!privateNotificationsReady())return;
-            confirm("Mulai pemeriksaan server?","HP ini akan mengambil temuan dan permintaan koreksi pasangan setiap sekitar 30 detik. Notifikasi layar kunci bersifat umum; detail hanya ditampilkan di aplikasi. Membuka daftar tidak otomatis menandai dibaca.",()->{try{PrivateMonitoring.setCompanionWatching(this,true);PrivateMonitoring.start(this);render();}catch(Exception e){PrivateMonitoring.setCompanionWatching(this,false);info("Belum aktif",e.getMessage());}});
+            confirm("Mulai pemeriksaan server?","HP ini memeriksa permintaan bantuan, koreksi dan temuan pasangan setiap sekitar 30 detik. Notifikasi layar kunci bersifat umum; detail hanya ditampilkan di aplikasi. Membuka daftar tidak otomatis menandai dibaca.",()->{try{PrivateMonitoring.setCompanionWatching(this,true);PrivateMonitoring.start(this);render();}catch(Exception e){PrivateMonitoring.setCompanionWatching(this,false);info("Belum aktif",e.getMessage());}});
         },true);
-        button(c,"Muat temuan dan permintaan koreksi",this::loadPrivateInbox,true);renderPrivateDetections(true);
+        button(c,"Muat bantuan dan koreksi",this::loadCompanionRequests,true);
+        button(c,"Muat temuan",this::loadPrivateInbox,false);
+        renderCompanionSupports();
+        renderPrivateDetections(true);
         for(int i=0;i<privateExceptions.length();i++){JSONObject e=privateExceptions.optJSONObject(i);if(e==null)continue;LinearLayout review=card();label(review,"Koreksi "+e.optString("targetKind","domain")+" · "+e.optString("target"),18,INK,true);label(review,"Status: "+e.optString("state")+". Setuju hanya jika telah meninjau salah blok; bukan membuka semua proteksi.",13,MUTED,false);if("pending".equals(e.optString("state"))){String id=e.optString("id");button(review,"Setujui target ini",()->decidePrivateCorrection(id,true),true);button(review,"Tolak",()->decidePrivateCorrection(id,false),false);}}
     }
+    private void loadCompanionRequests(){
+        try {
+            JSONObject account = store.remoteContext();
+            String pairing = account.getString("pairingId");
+            if (pairing.isEmpty()) { info("Belum ada pasangan","Perbarui pasangan dahulu."); return; }
+            remote(() -> api.requestPinned("GET", "/api/pairings/" + pairing + "/dashboard", null, account), response -> {
+                try {
+                    if (!sameRemoteAccount(account) || !pairing.equals(store.get("pairingId"))) return;
+                    JSONArray supports = response.getJSONArray("supports");
+                    JSONArray exceptions = response.getJSONArray("exceptions");
+                    privateSupports = supports;
+                    privateExceptions = exceptions;
+                    tab = 4;
+                    render();
+                } catch (Exception e) {
+                    info("Permintaan belum dimuat","Periksa koneksi atau perbarui pasangan.");
+                }
+            });
+        } catch (Exception e) {
+            info("Profil belum tersedia","Perbarui koneksi pendamping.");
+        }
+    }
+    private void renderCompanionSupports(){
+        Instant now = Instant.now();
+        for (int i = 0; i < privateSupports.length(); i++) {
+            JSONObject support = privateSupports.optJSONObject(i);
+            if (support == null || !"received".equals(support.optString("status"))) continue;
+            try {
+                if (!Instant.parse(support.getString("expiresAt")).isAfter(now)) continue;
+            } catch (org.json.JSONException | java.time.format.DateTimeParseException invalid) {
+                continue;
+            }
+            String message = switch (support.optString("message")) {
+                case "call" -> "Bisa telepon saya?";
+                case "message" -> "Bisa kirim pesan?";
+                case "company" -> "Bisa temani saya?";
+                default -> "";
+            };
+            String id = support.optString("id");
+            if (message.isEmpty() || !id.matches("support_[a-f0-9]{32}")) continue;
+            LinearLayout request = card();
+            label(request,message,18,INK,true);
+            label(request,"Diterima server: " + format(support.optString("createdAt")),13,MUTED,false);
+        }
+    }
     private void loadPrivateInbox(){
-        if(store.get("pairingId").isEmpty()){info("Belum ada pasangan","Perbarui pasangan dahulu.");return;}
-        final String pairing=store.get("pairingId");final boolean companion="companion".equals(store.get("role"));
-        remote(()->{JSONObject detections=api.request("GET","/api/detections?pairingId="+pairing,null);if(companion)detections.put("exceptions",api.request("GET","/api/pairings/"+pairing+"/dashboard",null).getJSONArray("exceptions"));return detections;},r->{
-            if(!pairing.equals(store.get("pairingId")))return;privateRemoteDetections=r.optJSONArray("detections");if(privateRemoteDetections==null)privateRemoteDetections=new JSONArray();privateExceptions=r.optJSONArray("exceptions");if(privateExceptions==null)privateExceptions=new JSONArray();tab=4;render();
-        });
+        try {
+            JSONObject account = store.remoteContext();
+            String pairing = account.getString("pairingId");
+            if (pairing.isEmpty()) { info("Belum ada pasangan","Perbarui pasangan dahulu."); return; }
+            remote(() -> api.requestPinned("GET", "/api/detections?pairingId=" + pairing, null, account), response -> {
+                try {
+                    if (!sameRemoteAccount(account) || !pairing.equals(store.get("pairingId"))) return;
+                    privateRemoteDetections = response.getJSONArray("detections");
+                    tab = 4;
+                    render();
+                } catch (Exception e) {
+                    info("Temuan belum dimuat","Periksa koneksi atau perbarui pasangan.");
+                }
+            });
+        } catch (Exception e) {
+            info("Profil belum tersedia","Perbarui koneksi pendamping.");
+        }
     }
     private void renderPrivateDetections(boolean companion){
         for(int i=0;i<Math.min(privateRemoteDetections.length(),30);i++){JSONObject event=privateRemoteDetections.optJSONObject(i);if(event==null)continue;String id=event.optString("id"),kind=event.optString("kind"),target=event.optString("target");LinearLayout c=card();label(c,target,18,INK,true);label(c,kind+" · "+privateVerdict(event.optString("verdict"))+" · "+privateReason(event.optString("reason"))+"\n"+privateAction(kind,event.optString("action"))+" · "+event.optInt("count",1)+" kejadian digabung\nWaktu temuan: "+format(event.optString("occurredAt"))+"\nDiterima: "+format(event.optString("receivedAt"))+"\nDibaca: "+(event.isNull("readAt")?"belum ditandai":format(event.optString("readAt"))),13,MUTED,false);
@@ -655,7 +716,7 @@ public final class MainActivity extends Activity {
     private String privateReason(String reason){return "ml_model".equals(reason)?"Sinyal AI lokal":"name_heuristic".equals(reason)?"Aturan pola nama":"personal_rule".equals(reason)?"Aturan pribadi":"known_rule".equals(reason)?"Daftar domain":"Belum diketahui";}
     private String privateAction(String kind,String action){if(!"blocked".equals(action))return "Ditandai untuk tinjauan";return "app".equals(kind)?"Diarahkan ke Beranda Android; jaringan aplikasi tidak diputus":"Permintaan DNS diblokir";}
     private void decidePrivateCorrection(String id,boolean approve){
-        confirm(approve?"Setujui salah blok target ini?":"Tolak permintaan?",approve?"Persetujuan hanya untuk target yang ditampilkan, dengan masa tunggu 10 menit dan durasi maksimum 30 menit. Pastikan telah ditinjau; persetujuan tidak membuktikan target aman.":"Target tetap dibatasi. Peserta masih mengendalikan perangkat dan dapat menghentikan layanan sendiri.",()->remote(()->api.request("POST","/api/exceptions/"+id+"/decision",new JSONObject().put("decision",approve?"approve":"deny")),r->loadPrivateInbox()));
+        confirm(approve?"Setujui salah blok target ini?":"Tolak permintaan?",approve?"Persetujuan hanya untuk target yang ditampilkan, dengan masa tunggu 10 menit dan durasi maksimum 30 menit. Pastikan telah ditinjau; persetujuan tidak membuktikan target aman.":"Target tetap dibatasi. Peserta masih mengendalikan perangkat dan dapat menghentikan layanan sendiri.",()->remote(()->api.request("POST","/api/exceptions/"+id+"/decision",new JSONObject().put("decision",approve?"approve":"deny")),r->loadCompanionRequests()));
     }
     private String format(String raw){try{return Instant.parse(raw).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy · HH:mm"));}catch(Exception e){return raw;}}
     private void openUrl(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){info("Browser tidak tersedia","Buka alamat tersebut pada browser pilihanmu.");}}

@@ -17,6 +17,7 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 
 ## Prioritas setelah fondasi
 
+- Uji bantuan dan koreksi melalui APK privat saat fitur deteksi backend dimatikan atau inbox temuan gagal. Catat perbedaan antara respons dashboard, permintaan notifikasi ke Android, tampilan kartu, dan akses detail setelah dibuka.
 - Prioritas pertama sekarang adalah pilot APK privat yang dipilih pemilik: uji dua HP dengan HTTPS, consent terpisah, pairing, notifikasi, revokasi, dan koreksi salah blok. Baca [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md) serta [kontrak implementasi](PRIVATE_AUTOMATION_CONTRACT.md).
 - Pertahankan isolasi build: `privateDebug` saja yang dapat berbagi temuan otomatis; debug/release biasa tetap manual. Server privat default mati, dan grant lama tetap mati setelah upgrade.
 - Pada lab dua HP, uji pencabutan berbagi saat peserta offline, lalu pulihkan jaringan dan pastikan sinkronisasi selesai sebelum izin baru diberikan. Tes backend dengan SQLite sudah mencakup penutupan normal dan pembukaan kembali.

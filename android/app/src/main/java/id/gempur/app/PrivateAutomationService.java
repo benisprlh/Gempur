@@ -58,7 +58,7 @@ public final class PrivateAutomationService extends Service {
     private void tick() {
         if (!RUNNING.get()) return;
         if (!PrivateMonitoring.notificationsVisible(this)) { permissionLost(); return; }
-        if (System.currentTimeMillis() < nextAttemptAt) return;
+        if (SystemClock.elapsedRealtime() < nextAttemptAt) return;
         try {
             JSONObject grant = PrivateMonitoring.sharing(this);
             boolean watching = PrivateMonitoring.companionWatching(this);
@@ -87,11 +87,11 @@ public final class PrivateAutomationService extends Service {
                 PrivateMonitoring.state(this, "session_ended", "Sesi server berakhir. Masuk ulang sebelum mengaktifkan privat.");
             } else {
                 failures++;
-                nextAttemptAt = System.currentTimeMillis() + (rejected.status == 429 ? 5 * 60_000 : backoff());
+                nextAttemptAt = SystemClock.elapsedRealtime() + (rejected.status == 429 ? 5 * 60_000 : backoff());
                 PrivateMonitoring.state(this, rejected.status == 429 ? "server_busy" : "server_rejected", "Server belum menerima pembaruan. Proteksi lokal tetap tersedia; periksa koneksi dan izin berbagi.");
             }
         } catch (Exception unavailable) {
-            failures++; nextAttemptAt = System.currentTimeMillis() + backoff();
+            failures++; nextAttemptAt = SystemClock.elapsedRealtime() + backoff();
             PrivateMonitoring.state(this, "offline_or_unavailable", "Pembaruan belum tersinkron. Antrean berbatas waktu; tidak ada klaim pendamping sudah menerima.");
         }
     }
@@ -148,7 +148,13 @@ public final class PrivateAutomationService extends Service {
         }
         CompanionClient api = new CompanionClient(new LocalStore(this));
         JSONObject me = api.requestPinned("GET", "/api/me", null, account);
-        if (!"companion".equals(me.getJSONObject("device").optString("role"))) { PrivateMonitoring.setCompanionWatching(this, false); return; }
+        if (!watchStillCurrent(account)) return;
+        JSONObject device = me.getJSONObject("device");
+        if (!"companion".equals(device.optString("role"))
+                || !account.getString("deviceId").equals(device.get("id"))) {
+            PrivateMonitoring.setCompanionWatching(this, false); PrivateMonitoring.cancelAlerts(this);
+            return;
+        }
         JSONObject pairing = null; JSONArray pairings = me.getJSONArray("pairings");
         for (int i = 0; i < pairings.length(); i++) { JSONObject candidate = pairings.getJSONObject(i); if (pairId.equals(candidate.optString("id")) && "active".equals(candidate.optString("status"))) pairing = candidate; }
         if (pairing == null) {
@@ -156,23 +162,24 @@ public final class PrivateAutomationService extends Service {
             PrivateMonitoring.clearAllowances(this);
             PrivateMonitoring.state(this, "pairing_ended", "Akses pendamping tidak lagi aktif."); return;
         }
-        if (!watchStillCurrent(account)) return;
-        JSONObject inbox = api.requestPinned("GET", "/api/detections?pairingId=" + pairId, null, account);
-        if (!watchStillCurrent(account)) return;
         JSONObject dashboard = api.requestPinned("GET", "/api/pairings/" + pairId + "/dashboard", null, account);
         if (!watchStillCurrent(account)) return;
         PrivateMonitorStore store = new PrivateMonitorStore(this);
         Set<String> notified = store.notified(pairId);
-        JSONArray detectionIds = new JSONArray();
-        JSONArray requestIds = new JSONArray();
-        JSONArray detections = inbox.optJSONArray("detections");
-        long cutoff = System.currentTimeMillis() - PrivateEventPolicy.TTL_MS;
-        if (detections != null) for (int i = 0; i < detections.length(); i++) {
-            JSONObject event = detections.getJSONObject(i); String id = event.optString("id");
-            long occurred; try { occurred = Instant.parse(event.getString("occurredAt")).toEpochMilli(); } catch (Exception invalid) { continue; }
-            if (id.matches("detection_[a-f0-9]{32}") && event.isNull("readAt") && occurred >= cutoff
-                    && occurred <= System.currentTimeMillis() + 60_000 && notified.add(id)) detectionIds.put(id);
+        postCompanionRequests(account, pairId, dashboard, store, notified);
+
+        JSONObject automation = pairing.optJSONObject("automation");
+        if (automation != null && Boolean.TRUE.equals(automation.opt("enabled"))
+                && detectionAlerts.canPost(SystemClock.elapsedRealtime()) && watchStillCurrent(account)) {
+            JSONObject inbox = api.requestPinned("GET", "/api/detections?pairingId=" + pairId, null, account);
+            postDetectionSummary(account, pairId, inbox, store, notified);
         }
+        PrivateMonitoring.state(this, "companion_polling", "Pendamping diperiksa berkala sekitar 30 detik saat layanan terlihat. Notifikasi dapat tertunda.");
+    }
+
+    private void postCompanionRequests(JSONObject account, String pairId, JSONObject dashboard,
+                                       PrivateMonitorStore store, Set<String> notified) throws Exception {
+        JSONArray requestIds = new JSONArray();
         JSONArray exceptions = dashboard.optJSONArray("exceptions");
         if (exceptions != null) for (int i = 0; i < exceptions.length(); i++) {
             JSONObject exception = exceptions.getJSONObject(i); String id = exception.optString("id");
@@ -191,17 +198,30 @@ public final class PrivateAutomationService extends Service {
                         PrivateMonitoring.alert(this, "Ada permintaan peserta", "Buka Gempur untuk meninjau permintaan.").build());
                 store.markNotified(pairId, requestIds);
             }
-            if (detectionIds.length() > 0 && detectionAlerts.canPost(SystemClock.elapsedRealtime())
-                    && watchStillCurrent(account)) {
+        }
+    }
+
+    private void postDetectionSummary(JSONObject account, String pairId, JSONObject inbox,
+                                      PrivateMonitorStore store, Set<String> notified) throws Exception {
+        if (!watchStillCurrent(account)) return;
+        JSONArray detectionIds = new JSONArray();
+        JSONArray detections = inbox.optJSONArray("detections");
+        long cutoff = System.currentTimeMillis() - PrivateEventPolicy.TTL_MS;
+        if (detections != null) for (int i = 0; i < detections.length(); i++) {
+            JSONObject event = detections.getJSONObject(i); String id = event.optString("id");
+            long occurred; try { occurred = Instant.parse(event.getString("occurredAt")).toEpochMilli(); } catch (Exception invalid) { continue; }
+            if (id.matches("detection_[a-f0-9]{32}") && event.isNull("readAt") && occurred >= cutoff
+                    && occurred <= System.currentTimeMillis() + 60_000 && notified.add(id)) detectionIds.put(id);
+        }
+        synchronized (PrivateMonitoring.NOTIFICATION_LOCK) {
+            if (detectionIds.length() > 0 && watchStillCurrent(account)) {
                 getSystemService(NotificationManager.class).notify(PrivateMonitoring.COMPANION_NOTIFICATION,
                         PrivateMonitoring.alert(this, "Ada temuan untuk ditinjau", "Buka Gempur untuk melihat temuan.")
                                 .setOnlyAlertOnce(true).build());
                 detectionAlerts.posted(SystemClock.elapsedRealtime());
-                // Record only IDs submitted to Android. Deferred IDs remain eligible on later polls.
                 store.markNotified(pairId, detectionIds);
             }
         }
-        PrivateMonitoring.state(this, "companion_polling", "Pendamping diperiksa berkala sekitar 30 detik saat layanan terlihat. Notifikasi dapat tertunda.");
     }
 
     private boolean watchStillCurrent(JSONObject previous) throws Exception {
@@ -210,7 +230,7 @@ public final class PrivateAutomationService extends Service {
         JSONObject account = new LocalStore(this).remoteContext();
         return "companion".equals(account.optString("role")) && account.optString("pairingId").equals(previous.optString("pairingId"))
                 && account.optString("token").equals(previous.optString("token")) && account.optString("endpoint").equals(previous.optString("endpoint"))
-                && account.optString("pendingRevocation").isEmpty();
+                && account.optString("deviceId").equals(previous.optString("deviceId")) && account.optString("pendingRevocation").isEmpty();
     }
     private long backoff() { return Math.min(5 * 60_000L, 30_000L * (1L << Math.min(failures, 4))); }
     private void endGrant(JSONObject grant) throws Exception {
