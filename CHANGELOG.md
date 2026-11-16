@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.6-alpha.1 — kandidat 16 November 2026
+
+- Prioritaskan polling bantuan dan koreksi sebelum inbox temuan. Lewati inbox saat grant berbagi nonaktif atau cooldown ringkasan masih berjalan.
+- Sediakan tombol terpisah untuk memuat bantuan dan koreksi di aplikasi. Waktu tunggu retry memakai jam monoton Android.
+- [Laporan pengujian](docs/development/2026-11-16.md).
+
 ## 0.3.5-alpha.1 — kandidat 15 November 2026
 
 - Pertahankan penanda penghentian berbagi saat konfirmasi server kosong, masih aktif, atau membawa versi izin lama. Cocokkan penanda yang tersimpan sebelum menampilkan penghentian diterima.

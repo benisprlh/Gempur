@@ -27,6 +27,10 @@ Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akura
 - Dataset COMNETS UNSRI menjelaskan pengukuran lalu lintas dari tiga sesi. Berkas dibatasi akses. Metadata tidak mendokumentasikan kontrol negatif dan label keluarga hostname yang dibutuhkan evaluasi Gempur. Tidak ada impor. [Rekaman dataset](https://zenodo.org/records/15233150)
 - Kasus normalisasi Wikimedia Commons setelah verifikasi manual memberi kandidat kontrol historis untuk evaluasi salah blokir. Kasus tersebut perlu ditinjau pada cakupan hostname dan waktu yang relevan sebelum dimasukkan ke evaluasi. [Komdigi](https://portal.komdigi.go.id/kanal-publik/berita-kini/10095)
 
+## Pemeriksaan 16 November 2026
+
+- Statistik Komdigi menjumlahkan kasus dari situs dan media sosial. Publikasi kementerian juga mencatat konten muncul di layanan bersama seperti media sosial dan berbagi berkas. Angka kasus tidak menyediakan pasangan hostname, label, waktu observasi, dan kontrol negatif yang diperlukan untuk evaluasi Gempur. Jangan blokir seluruh host bersama berdasarkan laporan konten dari satu akun atau halaman. [Statistik 2023](https://data.komdigi.go.id/publikasi/document/data-statistik-aplikasi-informatika-2023) · [Rilis Komdigi Oktober 2026](https://www.komdigi.go.id/berita/artikel/detail/dua-tahun-kemkomdigi-jaga-ruang-digital-403-juta-konten-judi-online-telah-ditangani)
+
 ## Protokol kandidat berikutnya
 
 1. Verifikasi lisensi dataset, pin bytes/commit/hash dan provenance setiap sumber. UT1, Sinfonietta dan arfshl sudah digunakan/dicadangkan; agregator seperti Hagezi yang menggabungkannya bukan holdout independen.
