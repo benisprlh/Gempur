@@ -1,5 +1,9 @@
 # Development Log
 
+## 17 November 2026 — signing upgrade privat
+
+Pemilik kunci dapat menandatangani salinan APK privat yang telah diverifikasi dan membandingkan sertifikatnya dengan APK yang sudah dipakai. [Laporan dan bukti](development/2026-11-17.md).
+
 ## 16 November 2026 — bantuan dan koreksi pendamping
 
 Polling dan tombol muat bantuan/koreksi mengecek dashboard tanpa menunggu inbox deteksi. Permintaan manual tetap muncul pada dashboard ketika mode deteksi backend mati. [Laporan dan bukti](development/2026-11-16.md).

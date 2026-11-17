@@ -10,6 +10,8 @@ Debug/release biasa tetap tanpa berbagi temuan otomatis dan tanpa aset model. Se
 
 Jika HP sudah memiliki Gempur Privat, periksa APK lama dan kandidat dengan [pemeriksaan upgrade offline](SIGNING.md#pemeriksaan-sebelum-upgrade-privat) sebelum memasang. Gunakan APK lama yang benar-benar terpasang sebagai pembanding. Jika sertifikat berbeda, pertahankan instalasi lama dan siapkan build dengan identitas signing aslinya.
 
+Pemegang identitas signing asli dapat mengikuti [alur membuat APK upgrade](SIGNING.md#buat-apk-upgrade-privat). Upgrade memerlukan versionCode yang naik. Tooling 17 November tidak menaikkan versionCode aplikasi 0.3.6.
+
 ## Sambungkan server uji
 
 Pilih salah satu cara berikut. Tidak ada server Gempur bawaan yang telah dihosting.
