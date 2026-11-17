@@ -20,6 +20,18 @@ Perintah memverifikasi signature kedua APK, memeriksa application ID privat, dan
 
 Jika sertifikat berbeda, buat kandidat upgrade menggunakan identitas signing privat asli di lingkungan pemilik kunci, lalu jalankan ulang pemeriksaan. Pertahankan instalasi dan data di HP. Setelah hasil cocok, validasi upgrade pada perangkat uji dan periksa catatan, aturan pribadi, serta status consent.
 
+## Buat APK upgrade privat
+
+Jalankan di checkout kandidat yang ditinjau pada komputer pemegang kunci privat asli. Jalankan verifier penuh dan simpan evidence dari run tersebut. Siapkan APK lama yang benar-benar dipasang, dan pastikan kandidat punya versionCode lebih tinggi. Tool ini memakai salinan APK privat yang dibuktikan evidence. APK debug biasa dan AAB tetap dipisah dari alur ini.
+
+Gunakan secret manager atau proses lokal pemilik kunci untuk mengisi `GEMPUR_PRIVATE_STORE_FILE` (path absolut ke keystore di luar repo), `GEMPUR_PRIVATE_STORE_PASSWORD`, `GEMPUR_PRIVATE_KEY_ALIAS` dan `GEMPUR_PRIVATE_KEY_PASSWORD`. Kunci pribadi dan sandinya tetap di lingkungan pemilik. Jangan gunakan upload key Play untuk APK privat.
+
+```sh
+node tools/sign-private-upgrade.mjs out/verify/RUN_ID/evidence.json /path/ke/private-lama.apk out/Gempur-private-upgrade.apk
+```
+
+Gunakan path baru di bawah `out/` pada filesystem lokal yang mendukung hard link. Direktori induk harus sudah ada. Tool memakai JDK dan Build Tools 35.0.0 yang sama dengan pemeriksaan upgrade. Ia menjalankan `apksigner` secara offline, menyimpan output hanya setelah sertifikat cocok, dan mencetak fingerprint source serta checksum APK. APK sumber dipertahankan. Jika identitas signing asli tidak tersedia, pertahankan instalasi dan data di HP. Selesaikan verifikasi data dan consent dengan upgrade manual di HP uji setelah pemeriksaan offline lulus.
+
 ## Signing lokal terpisah
 
 Verifier `node tools/verify.mjs` sengaja membangun artifact development tanpa menggunakan variable signing produksi. Jalankan signing hanya setelah verifikasi penuh dan review selesai, dengan environment yang diprovisikan secara terotorisasi melalui secret manager atau proses pemilik kunci.

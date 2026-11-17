@@ -29,11 +29,11 @@ export function comparePrivateApks(previous, candidate) {
   return { compatible: blockers.length === 0, blockers, previous, candidate };
 }
 
-function inspectApk(path, sdk, java) {
+export function inspectApk(path, sdk, java, env) {
   const apk = resolve(path);
   const digest = sha256(readFileSync(apk));
   const buildTools = join(sdk, 'build-tools', '35.0.0');
-  const options = { encoding: 'utf8', timeout: 30_000, maxBuffer: 4 * 1024 * 1024, windowsHide: true };
+  const options = { encoding: 'utf8', timeout: 30_000, maxBuffer: 4 * 1024 * 1024, windowsHide: true, env, stdio: ['ignore', 'pipe', 'pipe'] };
   const certificates = execFileSync(java,
     ['-jar', join(buildTools, 'lib', 'apksigner.jar'), 'verify', '--verbose', '--print-certs', apk], options);
   const badging = execFileSync(join(buildTools, process.platform === 'win32' ? 'aapt2.exe' : 'aapt2'),

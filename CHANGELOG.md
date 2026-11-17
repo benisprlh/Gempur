@@ -1,5 +1,10 @@
 # Changelog
 
+## Tooling upgrade privat — 17 November 2026
+
+- Tambah tool signing lokal untuk APK privat dari evidence penuh. Output dibuat hanya jika sertifikat cocok dengan APK lama dan versionCode naik.
+- [Laporan pengujian](docs/development/2026-11-17.md).
+
 ## 0.3.6-alpha.1 — kandidat 16 November 2026
 
 - Prioritaskan polling bantuan dan koreksi sebelum inbox temuan. Lewati inbox saat grant berbagi nonaktif atau cooldown ringkasan masih berjalan.

@@ -31,6 +31,11 @@ Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akura
 
 - Statistik Komdigi menjumlahkan kasus dari situs dan media sosial. Publikasi kementerian juga mencatat konten muncul di layanan bersama seperti media sosial dan berbagi berkas. Angka kasus tidak menyediakan pasangan hostname, label, waktu observasi, dan kontrol negatif yang diperlukan untuk evaluasi Gempur. Jangan blokir seluruh host bersama berdasarkan laporan konten dari satu akun atau halaman. [Statistik 2023](https://data.komdigi.go.id/publikasi/document/data-statistik-aplikasi-informatika-2023) · [Rilis Komdigi Oktober 2026](https://www.komdigi.go.id/berita/artikel/detail/dua-tahun-kemkomdigi-jaga-ruang-digital-403-juta-konten-judi-online-telah-ditangani)
 
+## Pemeriksaan 17 November 2026
+
+- Rekaman Universitas Bung Hatta menyebut URL bersumber dari UT1, dengan scraping dan pelabelan manual menurut penulis. Karena V1 memakai UT1, dataset ini belum memenuhi pemisahan sumber untuk holdout baru. Metadata publik belum memberi lisensi penggunaan ulang yang eksplisit. Berkas tidak diunduh. [Zenodo 21137056](https://zenodo.org/records/21137056)
+- Dataset TOMCAT Indonesia mengumpulkan respons psikometrik orang dewasa. Variabel yang dipublikasikan tidak menyediakan label hostname dan kontrol negatif regional. Data peserta tidak digunakan untuk eksperimen domain. [Mendeley Data](https://data.mendeley.com/datasets/rk42nr4xsn/1)
+
 ## Protokol kandidat berikutnya
 
 1. Verifikasi lisensi dataset, pin bytes/commit/hash dan provenance setiap sumber. UT1, Sinfonietta dan arfshl sudah digunakan/dicadangkan; agregator seperti Hagezi yang menggabungkannya bukan holdout independen.
