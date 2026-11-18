@@ -1,5 +1,10 @@
 # Changelog
 
+## Tooling lab privat — 18 November 2026
+
+- Tambah preflight yang membaca status ADB reverse untuk kedua HP dan capability backend loopback tanpa menggunakan proxy.
+- [Laporan pengujian](docs/development/2026-11-18.md).
+
 ## Tooling upgrade privat — 17 November 2026
 
 - Tambah tool signing lokal untuk APK privat dari evidence penuh. Output dibuat hanya jika sertifikat cocok dengan APK lama dan versionCode naik.

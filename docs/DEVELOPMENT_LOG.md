@@ -1,5 +1,9 @@
 # Development Log
 
+## 18 November 2026 — preflight lab USB
+
+Operator dapat memeriksa backend loopback dan dua pemetaan ADB reverse sebelum pairing. [Laporan dan bukti](development/2026-11-18.md).
+
 ## 17 November 2026 — signing upgrade privat
 
 Pemilik kunci dapat menandatangani salinan APK privat yang telah diverifikasi dan membandingkan sertifikatnya dengan APK yang sudah dipakai. [Laporan dan bukti](development/2026-11-17.md).

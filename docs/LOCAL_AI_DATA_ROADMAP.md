@@ -36,6 +36,11 @@ Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akura
 - Rekaman Universitas Bung Hatta menyebut URL bersumber dari UT1, dengan scraping dan pelabelan manual menurut penulis. Karena V1 memakai UT1, dataset ini belum memenuhi pemisahan sumber untuk holdout baru. Metadata publik belum memberi lisensi penggunaan ulang yang eksplisit. Berkas tidak diunduh. [Zenodo 21137056](https://zenodo.org/records/21137056)
 - Dataset TOMCAT Indonesia mengumpulkan respons psikometrik orang dewasa. Variabel yang dipublikasikan tidak menyediakan label hostname dan kontrol negatif regional. Data peserta tidak digunakan untuk eksperimen domain. [Mendeley Data](https://data.mendeley.com/datasets/rk42nr4xsn/1)
 
+## Pemeriksaan 18 November 2026
+
+- Proyek gamblingdet-id menyebut sumber Trust Positif dan SimilarWeb untuk tangkapan situs. README menautkan dataset gambar. Metadata yang diperiksa belum membuktikan daftar hostname bertanggal, izin penggunaan ulang data hostname, anotasi negatif independen atau pemisahan keluarga. [Repository penelitian](https://github.com/azzandwi1/identifying-indonesian-gambling-websites-using-multimodal-late-fusion-technique)
+- Dataset promosi multimodal ITS mencantumkan lisensi CC BY 4.0 pada kartu dataset dan mendeskripsikan 5.028 unggahan yang dianotasi dari media sosial. Label unggahan tidak memberi label hostname untuk layanan bersama. Berkas tidak diimpor dan tidak ada tambahan aturan. [Kartu dataset](https://huggingface.co/datasets/0xRafie/indonesian-gambling-multimodal-dataset)
+
 ## Protokol kandidat berikutnya
 
 1. Verifikasi lisensi dataset, pin bytes/commit/hash dan provenance setiap sumber. UT1, Sinfonietta dan arfshl sudah digunakan/dicadangkan; agregator seperti Hagezi yang menggabungkannya bukan holdout independen.

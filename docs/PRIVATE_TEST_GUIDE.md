@@ -27,10 +27,18 @@ Launcher mengikat server ke `127.0.0.1:8080` dan membuat database baru di direkt
 Di terminal lain, lihat serial kedua HP dengan `adb devices`, lalu untuk masing-masing perangkat:
 
 ```sh
-adb -s DEVICE_SERIAL reverse tcp:8080 tcp:8080
+adb -s DEVICE_SERIAL reverse --no-rebind tcp:8080 tcp:8080
 ```
 
-Ganti `DEVICE_SERIAL` dengan serial yang benar. Atur endpoint pada kedua APK privat ke `http://127.0.0.1:8080`. ADB reverse meneruskan loopback masing-masing HP ke server komputer; ini pengecualian debug yang terbatas, bukan izin HTTP melalui internet. Langkah ini belum dijalankan sebagai bukti uji perangkat. Setelah selesai, hapus pemetaan pada tiap HP dengan `adb -s DEVICE_SERIAL reverse --remove tcp:8080` dan hentikan server.
+Ganti `DEVICE_SERIAL` dengan serial yang benar. Jika pemetaan sudah ada, periksa sebelum menggantinya. `--no-rebind` mencegah perintah menimpa pemetaan yang sudah aktif. Setelah backend berjalan, periksa konfigurasi dengan ADB lokal:
+
+```sh
+node tools/check-private-lab.mjs PARTICIPANT_SERIAL COMPANION_SERIAL 8080
+```
+
+Alat membaca status dan `reverse --list` pada dua serial yang dipilih serta mengecek `GET /api/health` pada loopback host. Exit 0 berarti konfigurasi sesuai, 1 berarti belum siap, dan 2 berarti argumen tidak valid. Output memakai label peserta dan pendamping tanpa mencetak serial atau log mentah. Serial dalam argumen tetap bisa tercatat di histori shell lokal. Pemeriksaan ini belum membaca endpoint di dalam APK atau membuktikan koneksi dari HP.
+
+Atur endpoint kedua APK privat ke `http://127.0.0.1:8080` dan lanjutkan uji di aplikasi. ADB reverse meneruskan loopback HP ke komputer untuk lab debug. Jangan membuka HTTP mentah ke internet. Setelah uji, hapus hanya pemetaan yang Anda buat untuk lab dengan `adb -s DEVICE_SERIAL reverse --remove tcp:8080`, lalu hentikan server.
 
 **Dua HP tanpa USB/jarak jauh:** operator harus menyediakan backend HTTPS sendiri dengan sertifikat yang dipercaya HP, reverse proxy, penyimpanan privat dan `PUBLIC_ORIGIN` sesuai origin sebenarnya. Aktifkan `GEMPUR_PRIVATE_MONITORING=true` saat memulai server. Lihat [setup server](../server/README.md). Pakai origin HTTPS yang sama pada kedua HP; jangan membuka port HTTP mentah ke internet. `GET /api/health` harus menunjukkan `privateMonitoringEnabled:true`. Hosting, domain, TLS dan keberhasilan deployment belum disediakan oleh APK.
 

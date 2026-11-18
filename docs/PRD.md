@@ -35,6 +35,7 @@ Pemilik memilih **uji APK privat** untuk deteksi/pemblokiran tambahan, pemberita
 | P-FR-13 | Klien mempertahankan penghentian tertunda ketika konfirmasi tidak lengkap atau versi izin masih sama/lebih lama. Respons harus mengonfirmasi status nonaktif atau berakhirnya akses pasangan, dan penanda privat harus cocok dengan origin, profil, pasangan, versi izin dan UUID pencabutannya. |
 | P-FR-14 | Dalam polling pendamping, proses bantuan dan koreksi sebelum memuat temuan. Pemuatan manual untuk bantuan/koreksi memakai dashboard saja. Cooldown, grant temuan nonaktif atau endpoint deteksi yang gagal tidak menghalangi pemrosesan dashboard yang berhasil pada putaran tersebut. |
 | P-FR-15 | Pemegang kunci dapat membuat APK upgrade privat dari evidence full PASS. Output hanya dibuat bila signature cocok dengan APK lama dan versionCode lebih tinggi. APK input dan output yang sudah ada dipertahankan. |
+| P-FR-16 | Pemeriksaan host lab USB melaporkan kesiapan backend privat loopback dan pemetaan ADB reverse untuk dua perangkat pilihan. Pemeriksaan tidak mengubah pemetaan, APK atau data. Hasil preflight tidak membuktikan koneksi aplikasi atau QA HP. |
 
 Skenario dan langkah setup berada pada [PRIVATE_TEST_GUIDE.md](PRIVATE_TEST_GUIDE.md); detail antarmuka pada [kontrak privat](PRIVATE_AUTOMATION_CONTRACT.md). Bagian berikut tetap menjelaskan baseline dan kebutuhan jangka panjang; keberadaan kode tidak menandakan seluruh acceptance telah lulus.
 
