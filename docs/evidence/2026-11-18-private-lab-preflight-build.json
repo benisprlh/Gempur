@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 3,
+  "runId": "20261118T024917130Z-e5d36e",
+  "mode": "full",
+  "startedAt": "2026-11-18T02:49:17.130Z",
+  "finishedAt": "2026-11-18T02:49:47.349Z",
+  "status": "PASS",
+  "mergeEligible": true,
+  "tests": {
+    "node": {
+      "tests": 94,
+      "pass": 94,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "engine": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidClient": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "privateAndroidClient": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "privateLint": {
+    "issues": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "distribution": {
+    "ordinaryMonitoringDisabled": true,
+    "privateMonitoringEnabled": true,
+    "ordinaryManifestIsolated": true,
+    "privateManifestDeclared": true,
+    "targetedAppVisibility": true,
+    "applicationIds": {
+      "release": "id.gempur.app",
+      "debug": "id.gempur.app.debug",
+      "private": "id.gempur.app.private.debug"
+    }
+  },
+  "ml": {
+    "valid": true,
+    "modelVersion": "domain-ml-2026-11-09-v1",
+    "modelSha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+    "paritySha256": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+    "manifestSha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8",
+    "evaluationSha256": "0e0507c76550fcf9e0dd60d0599210491e341db9737a5afeadb7ee36376414eb",
+    "sourcesLockSha256": "9bb959c3a33633edf1c471fc11be5de181205e1b0f31dc9ada61d9b0fe1eadac",
+    "experimentSha256": "30b1e756c1f1977ae5787a839ae7c2083480e91ec3136c6dfb6b25a1e1317de1",
+    "splitManifestSha256": "a1e6f1f22d6ba8264ea37f1da5c81f7dfec075e77c593ff062669e70bb24899c",
+    "frozenSelectionSha256": "d37158e27f65470407a1ebaa359bc93b69f3185fe156435b7db6bfc6b2fda6ff",
+    "featureCount": 24000,
+    "reviewThreshold": 0.9948492012769712,
+    "mode": "advisory-only",
+    "autoQuarantineEligible": false,
+    "independentlyReviewedLabelCount": 0,
+    "parityRows": 69,
+    "asciiParityVerified": 66,
+    "metricSets": 12
+  },
+  "mlPackaging": {
+    "ordinaryAssetsAbsent": true,
+    "privateAssetsBound": true,
+    "files": {
+      "domain-model.tsv": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a",
+      "manifest.json": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8",
+      "parity.tsv": "098a0a815e3e827b5e463bdbc236133c12eefce02f0a1dea956400c243c3a7d4",
+      "NOTICE.txt": "5e9a6720c9a48a20a35b7061b27d1294e6e7553bc1a9f040d6cd9c756ebaa47c",
+      "LICENSE-CC-BY-SA-4.0.txt": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "kind": "debug-apk",
+      "bytes": 238733,
+      "sha256": "35f5c0c341a4d331b13899a8fc4e62ff42733adb60c6fe4d87b0e529de10c682",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/apk/privateDebug/app-privateDebug.apk",
+      "kind": "private-debug-apk",
+      "bytes": 584222,
+      "sha256": "a5b2c3dd58be137fd8db6df7029a70c4cdf6dc768c8631e049b4949484e87923",
+      "signing": "development"
+    },
+    {
+      "path": "android/app/build/outputs/bundle/release/app-release.aab",
+      "kind": "release-aab",
+      "bytes": 58718,
+      "sha256": "64e0e4bd2fd352b68c1ed327c91f1cf4b0f5135e06df29e9b36228915e5e1eef",
+      "signing": "unsigned"
+    },
+    {
+      "path": "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "kind": "instrumentation-apk",
+      "bytes": 4670521,
+      "sha256": "caed4ad49907582f351c5bdcd06c0da15b7ebc6dd403d88ec7838f02bdb2c3a8",
+      "signing": "development"
+    }
+  ],
+  "errors": [],
+  "limits": {
+    "emulatorExecuted": false,
+    "physicalDeviceTested": false,
+    "playApproved": false,
+    "productionSigningAttempted": false
+  },
+  "source": {
+    "sha256": "9d8161b5853ab4880624e93b5f5b542d41ad7124480c7e35ab898e10b58ddad0",
+    "files": 114,
+    "unchanged": true
+  },
+  "baseCommit": "376c13a92bc51776c298e7dd0ed1a22216fae4f1",
+  "toolchain": {
+    "node": "v24.22.3",
+    "java": "17.0.21+9",
+    "gradle": "8.11.1",
+    "androidSdk": 36
+  },
+  "review": {
+    "independent": "PASS",
+    "evidenceCheckValid": true,
+    "instrumentationExecuted": false,
+    "physicalDeviceTested": false
+  },
+  "privateLabPreflight": {
+    "focusedTests": 5,
+    "realBackendCliSmoke": "PASS",
+    "adbDevicesDetected": 0,
+    "fixtureReverseChecksPassed": true,
+    "localHttpProxyRequests": 0
+  }
+}

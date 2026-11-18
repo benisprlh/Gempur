@@ -29,6 +29,8 @@ Pakai kandidat 0.3.6 untuk memeriksa konfirmasi penghentian, sinkronisasi dua HP
 
 Tool signing lokal dapat menyiapkan APK upgrade di lingkungan pemegang identitas signing lama. Instalasi code 9 menunggu kandidat aplikasi dengan versionCode yang lebih tinggi. Pilot tetap dimulai setelah lab dua HP lulus. [Signing upgrade](SIGNING.md#buat-apk-upgrade-privat).
 
+Preflight host membantu menemukan pemetaan USB atau mode backend yang salah sebelum pairing. Pilot 14 hari tetap dihitung setelah QA dua HP. [Preflight lab](PRIVATE_TEST_GUIDE.md#sambungkan-server-uji).
+
 ## Kebijakan rilis
 
 - Versi `0.x` digunakan untuk pengembangan/pilot. `1.0.0` baru ketika gate rilis terpenuhi.
