@@ -49,4 +49,19 @@ public final class PrivateEventPolicyTest {
         try { PrivateEventPolicy.validate("ml_model", "suspected", "flagged"); fail(); }
         catch (IllegalArgumentException expected) {}
     }
+    @Test public void nameHeuristicsNeverDescribeABlockedAction() {
+        for (String kind : new String[]{"domain", "app"}) {
+            PrivateEventPolicy.validate(kind, "name_heuristic", "suspected", "flagged");
+            try {
+                PrivateEventPolicy.validate(kind, "name_heuristic", "suspected", "blocked");
+                fail("Name heuristics must remain advisory");
+            } catch (IllegalArgumentException expected) {}
+        }
+        try {
+            PrivateEventPolicy.validate("name_heuristic", "suspected", "blocked");
+            fail("Legacy callers must also validate advisory actions");
+        } catch (IllegalArgumentException expected) {}
+        PrivateEventPolicy.validate("domain", "known_rule", "known", "blocked");
+        PrivateEventPolicy.validate("domain", "personal_rule", "personal", "blocked");
+    }
 }

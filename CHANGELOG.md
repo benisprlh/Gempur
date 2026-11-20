@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.7-alpha.1 — kandidat 20 November 2026
+
+- Validasi laporan pola nama hanya menerima tindakan ditandai untuk tinjauan. Riwayat server lama tetap terbaca.
+- [Laporan pengujian](docs/development/2026-11-19.md).
+
 ## Tooling lab privat — 18 November 2026
 
 - Tambah preflight yang membaca status ADB reverse untuk kedua HP dan capability backend loopback tanpa menggunakan proxy.

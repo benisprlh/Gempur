@@ -25,9 +25,9 @@ Langkah dua HP, termasuk lab USB/ADB yang belum dieksekusi sebagai bukti, ada di
 
 Per 15 November, uji host menutup skenario pencabutan yang sudah diterima server lalu backend dibuka kembali. Tanggal mulai pilot tetap mengikuti lab dua HP, termasuk pencabutan dari HP saat jaringan terputus dan sinkronisasi setelah tersambung kembali. [Laporan uji](development/2026-11-15.md).
 
-Pakai kandidat 0.3.6 untuk memeriksa konfirmasi penghentian, sinkronisasi dua HP, dan akses bantuan/koreksi saat temuan otomatis tidak tersedia. Periksa identitas signing dengan APK terpasang sebelum upgrade. [Panduan lab](PRIVATE_TEST_GUIDE.md).
+Kandidat 0.3.7/code 10 memperketat validasi tindakan laporan pola nama. Gunakan kandidat yang telah digabung dan diverifikasi untuk memeriksa konfirmasi penghentian, sinkronisasi dua HP, dan akses bantuan/koreksi saat temuan otomatis tidak tersedia. Periksa identitas signing dengan APK terpasang sebelum upgrade. [Panduan lab](PRIVATE_TEST_GUIDE.md).
 
-Tool signing lokal dapat menyiapkan APK upgrade di lingkungan pemegang identitas signing lama. Instalasi code 9 menunggu kandidat aplikasi dengan versionCode yang lebih tinggi. Pilot tetap dimulai setelah lab dua HP lulus. [Signing upgrade](SIGNING.md#buat-apk-upgrade-privat).
+Tool signing lokal dapat menyiapkan APK upgrade di lingkungan pemegang identitas signing lama. Untuk instalasi code 9, kandidat code 10 tetap memerlukan sertifikat asli yang cocok sebelum upgrade. Pilot tetap dimulai setelah lab dua HP lulus. [Signing upgrade](SIGNING.md#buat-apk-upgrade-privat).
 
 Preflight host membantu menemukan pemetaan USB atau mode backend yang salah sebelum pairing. Pilot 14 hari tetap dihitung setelah QA dua HP. [Preflight lab](PRIVATE_TEST_GUIDE.md#sambungkan-server-uji).
 

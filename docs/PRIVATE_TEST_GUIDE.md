@@ -89,6 +89,8 @@ Untuk salah blok:
 
 ## Berhenti dan menghapus
 
+Pada kandidat 0.3.7, backend menolak laporan pola nama yang mengklaim blocked. Antrean lama dengan kombinasi tersebut akan memicu penghentian berbagi lokal dan penanda penghentian server. Selesaikan sinkronisasi penghentian, tinjau pilihan lalu beri persetujuan baru bila sesuai. Riwayat lokal tetap ada, sedangkan penghentian grant mengikuti aturan penghapusan temuan server yang sudah berlaku.
+
 Tes integrasi host memeriksa bahwa revokasi yang sudah diterima server tetap berlaku saat backend dibuka kembali dengan database SQLite yang sama. Pada lab dua HP, uji juga pencabutan dari HP peserta saat offline, lalu sambungkan lagi dan periksa status sinkronisasi serta inbox pendamping. [Skenario host](development/2026-11-15.md).
 
 Jika penanda penghentian masih tampil setelah tersambung, periksa kembali origin dan akun peserta. Saat menyinkronkan, respons server harus membuktikan grant nonaktif dengan versi lebih baru atau pasangan sudah tidak aktif pada akun yang sesuai. Setelah konfirmasi, muat ulang inbox pendamping. [Skenario konfirmasi Android](development/2026-11-15.md#validasi-konfirmasi-pencabutan-di-android).

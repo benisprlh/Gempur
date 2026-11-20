@@ -47,6 +47,9 @@ public final class PrivateEventPolicy {
             }
             return;
         }
+        if ("name_heuristic".equals(reason) && !"flagged".equals(action)) {
+            throw new IllegalArgumentException("Name heuristics are advisory-only");
+        }
         if (!("known_rule".equals(reason) && "known".equals(verdict))
                 && !("personal_rule".equals(reason) && "personal".equals(verdict))
                 && !("name_heuristic".equals(reason) && "suspected".equals(verdict))) {

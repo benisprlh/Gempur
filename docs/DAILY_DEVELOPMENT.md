@@ -17,6 +17,7 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 
 ## Prioritas setelah fondasi
 
+- Dalam lab upgrade, periksa antrean lama yang mengandung laporan pola nama berstatus blocked. Sinkronkan penghentian berbagi setelah penolakan server sebelum memilih izin baru. [Laporan](development/2026-11-20.md).
 - Gunakan preflight lab USB untuk mencocokkan port reverse setiap HP dengan backend loopback. Lanjutkan pairing dan uji koneksi dari aplikasi pada dua HP yang disetujui. [Panduan lab](PRIVATE_TEST_GUIDE.md#sambungkan-server-uji).
 - Untuk instalasi privat yang sudah berjalan, siapkan APK upgrade di lingkungan pemilik identitas signing lama. Simpan APK acuan yang benar-benar dipasang dan uji data setelah update pada HP yang disetujui. [Panduan signing](SIGNING.md#buat-apk-upgrade-privat).
 - Uji bantuan dan koreksi melalui APK privat saat fitur deteksi backend dimatikan atau inbox temuan gagal. Catat perbedaan antara respons dashboard, permintaan notifikasi ke Android, tampilan kartu, dan akses detail setelah dibuka.
