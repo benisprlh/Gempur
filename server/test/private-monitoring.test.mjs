@@ -223,6 +223,63 @@ test('AI cannot claim known gambling, block automatically, classify apps or uplo
   assert.equal((await f.upload(pair,appOnly,[f.event({reason:'ml_model',verdict:'suspected',action:'flagged'})])).status,400);
 });
 
+test('name heuristics accept only advisory reports and reject mixed batches atomically', async t => {
+  const f = await fixture(t);
+  const pair = await f.pair();
+  const grant = await f.grant(pair);
+  for (const kind of ['domain', 'app']) {
+    const report = f.event({
+      kind, target: kind === 'domain' ? 'fixture-service.org' : 'org.fixture.Game',
+      reason: 'name_heuristic', verdict: 'suspected', action: 'blocked',
+    });
+    const valid = f.event();
+    const rejected = await f.upload(pair, grant, [valid, report]);
+    assert.equal(rejected.status, 400);
+    assert.equal(rejected.body.error.code, 'invalid_detection');
+    assert.deepEqual((await f.list(pair)).body.detections, []);
+    const advisory = { ...report, action: 'flagged' };
+    const accepted = await f.upload(pair, grant, [advisory]);
+    assert.equal(accepted.status, 200);
+    assert.equal((await f.list(pair)).body.detections[0].action, 'flagged');
+    await f.grant(pair, []);
+    Object.assign(grant, await f.grant(pair));
+  }
+});
+
+test('historical heuristic blocked rows remain readable without rewriting their recorded action', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'gempur-historical-action-'));
+  let f;
+  try {
+    const dbPath = join(directory, 'history.sqlite');
+    f = await fixture(t, { dbPath });
+    const pair = await f.pair();
+    const grant = await f.grant(pair);
+    const event = f.event();
+    assert.equal((await f.upload(pair, grant, [event])).status, 200);
+    const db = new DatabaseSync(dbPath);
+    try {
+      db.prepare("UPDATE detections SET reason='name_heuristic',verdict='suspected' WHERE event_id=?").run(event.eventId);
+    } finally {
+      db.close();
+    }
+    const detection = (await f.list(pair)).body.detections[0];
+    assert.equal(detection.reason, 'name_heuristic');
+    assert.equal(detection.action, 'blocked');
+    assert.equal(detection.eventId, event.eventId);
+    const read = await f.call('/api/detections/' + detection.id + '/read', {
+      method: 'POST', token: pair.c.token, body: {},
+    });
+    assert.equal(read.status, 200);
+    assert.equal(read.body.detection.action, 'blocked');
+    const exported = await f.call('/api/me/export', { token: pair.p.token });
+    assert.equal(exported.status, 200);
+    assert.equal(exported.body.pairings[0].detections[0].action, 'blocked');
+  } finally {
+    await f?.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test('scope/grant changes reject stale queues and erase events plus event-bound corrections',async t=>{
   const f=await fixture(t),pair=await f.pair(),old=await f.grant(pair,['domain']);
   assert.equal((await f.upload(pair,old,[f.event({kind:'app',target:'org.acme.app'})])).status,400);
@@ -233,7 +290,7 @@ test('scope/grant changes reject stale queues and erase events plus event-bound 
   const current=await f.grant(pair,['app']);assert.equal(current.version,old.version+1);
   assert.equal((await f.upload(pair,old,[event])).status,409);assert.equal((await f.list(pair)).body.detections.length,0);
   assert.equal((await f.call(`/api/exceptions/${correction.body.exception.id}`,{token:pair.p.token})).body.exception.state,'cancelled');
-  assert.equal((await f.upload(pair,current,[f.event({kind:'app',target:'org.acme.SlotCasino',reason:'name_heuristic',verdict:'suspected'})])).status,200);
+  assert.equal((await f.upload(pair,current,[f.event({kind:'app',target:'org.acme.SlotCasino',reason:'name_heuristic',verdict:'suspected',action:'flagged'})])).status,200);
   const disabled=await f.grant(pair,[]);assert.equal(disabled.enabled,false);assert.deepEqual((await f.list(pair)).body.detections,[]);
   assert.equal((await f.upload(pair,current,[event])).status,409);
 });
@@ -268,7 +325,7 @@ test('logout during incomplete upload invalidates token and ends private grants'
 });
 
 test('typed corrections bind exactly to one accessible detection and preserve permit replay protection',async t=>{
-  const f=await fixture(t),pair=await f.pair(),grant=await f.grant(pair);await f.upload(pair,grant,[f.event({kind:'app',target:'org.acme.SlotCasino',reason:'name_heuristic',verdict:'suspected'})]);
+  const f=await fixture(t),pair=await f.pair(),grant=await f.grant(pair);await f.upload(pair,grant,[f.event({kind:'app',target:'org.acme.SlotCasino',reason:'name_heuristic',verdict:'suspected',action:'flagged'})]);
   const detection=(await f.list(pair)).body.detections[0];
   const payload={pairingId:pair.id,target:detection.target,targetKind:'app',detectionId:detection.id,reason:'false_positive'};
   assert.equal((await f.call('/api/exceptions',{method:'POST',token:pair.p.token,body:{...payload,target:'org.acme.OtherApp'}})).status,404);

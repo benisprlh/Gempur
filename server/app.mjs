@@ -293,7 +293,8 @@ export function createApp({ dbPath = ':memory:', now = Date.now, publicOrigin = 
           if(!['domain','app'].includes(event.kind)||!grant.scopes.includes(event.kind))reject(400,'scope_rejected','Jenis deteksi di luar izin berbagi.');
           const target=privateTarget(event.kind,event.target),expectedVerdict={known_rule:'known',personal_rule:'personal',name_heuristic:'suspected',ml_model:'suspected'}[event.reason];
           const invalidMl=event.reason==='ml_model'&&(event.kind!=='domain'||event.verdict!=='suspected'||event.action!=='flagged');
-          if(!expectedVerdict||event.verdict!==expectedVerdict||!['blocked','flagged'].includes(event.action)||invalidMl||!Number.isSafeInteger(event.count)||event.count<1||event.count>1000)reject(400,'invalid_detection','Ringkasan deteksi tidak valid.');
+          const invalidHeuristic=event.reason==='name_heuristic'&&event.action!=='flagged';
+          if(!expectedVerdict||event.verdict!==expectedVerdict||!['blocked','flagged'].includes(event.action)||invalidMl||invalidHeuristic||!Number.isSafeInteger(event.count)||event.count<1||event.count>1000)reject(400,'invalid_detection','Ringkasan deteksi tidak valid.');
           const occurredAt=typeof event.occurredAt==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/.test(event.occurredAt)?Date.parse(event.occurredAt):NaN;
           if(!Number.isFinite(occurredAt)||occurredAt<now()-DAY||occurredAt>now()+MINUTE)reject(400,'invalid_time','Deteksi harus dibuat dalam 24 jam terakhir.');
           return {eventId,kind:event.kind,target,reason:event.reason,verdict:event.verdict,action:event.action,occurredAt,count:event.count};

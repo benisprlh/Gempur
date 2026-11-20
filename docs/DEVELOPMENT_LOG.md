@@ -1,5 +1,13 @@
 # Development Log
 
+## 20 November 2026 — integrasi kandidat laporan advisory
+
+Patch 19 November dipulihkan, direview dan diverifikasi ulang untuk publikasi setelah akses GitHub tersedia. [Laporan dan bukti](development/2026-11-20.md).
+
+## 19 November 2026 — validasi tindakan laporan dugaan
+
+Kandidat lokal menolak laporan baru pola nama yang mengklaim pemblokiran. Akses tulis GitHub belum tersedia. [Laporan dan bukti](development/2026-11-19.md).
+
 ## 18 November 2026 — preflight lab USB
 
 Operator dapat memeriksa backend loopback dan dua pemetaan ADB reverse sebelum pairing. [Laporan dan bukti](development/2026-11-18.md).

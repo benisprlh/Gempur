@@ -41,6 +41,11 @@ Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akura
 - Proyek gamblingdet-id menyebut sumber Trust Positif dan SimilarWeb untuk tangkapan situs. README menautkan dataset gambar. Metadata yang diperiksa belum membuktikan daftar hostname bertanggal, izin penggunaan ulang data hostname, anotasi negatif independen atau pemisahan keluarga. [Repository penelitian](https://github.com/azzandwi1/identifying-indonesian-gambling-websites-using-multimodal-late-fusion-technique)
 - Dataset promosi multimodal ITS mencantumkan lisensi CC BY 4.0 pada kartu dataset dan mendeskripsikan 5.028 unggahan yang dianotasi dari media sosial. Label unggahan tidak memberi label hostname untuk layanan bersama. Berkas tidak diimpor dan tidak ada tambahan aturan. [Kartu dataset](https://huggingface.co/datasets/0xRafie/indonesian-gambling-multimodal-dataset)
 
+## Pemeriksaan 19 November 2026
+
+- Pool domain Indonesia menggabungkan Tranco, Common Crawl dan sumber nama domain lain. Daftar popularitas/keberadaan belum memberi label benign atau judol. Pool perlu pemeriksaan lisensi tiap sumber, tanggal observasi dan anotasi independen sebelum menjadi kontrol negatif. Tidak ada impor. [Metadata pool](https://github.com/ManaSiWibi/dataset-domain-indonesia)
+- Organisasi IOG-ISPACS-25 kini mendeskripsikan kode penelitian defacement yang dibahas pada roadmap awal. Metadata mendeskripsikan halaman diretas, dengan false positives dari pencarian kata kunci. Kategori halaman tidak mengklasifikasikan keseluruhan domain institusi. Inventaris dataset bertanggal dan izin distribusi perlu diperiksa sebelum akuisisi. [Halaman penelitian](https://github.com/IOG-ISPACS-25)
+
 ## Protokol kandidat berikutnya
 
 1. Verifikasi lisensi dataset, pin bytes/commit/hash dan provenance setiap sumber. UT1, Sinfonietta dan arfshl sudah digunakan/dicadangkan; agregator seperti Hagezi yang menggabungkannya bukan holdout independen.
