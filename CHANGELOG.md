@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.8-alpha.1 — kandidat 21 November 2026
+
+- Pemulihan consent lokal setelah proses mati memutus grant berbagi lama secara durable sebelum deteksi lokal dapat diaktifkan. Riwayat tetap disimpan, binding unggah dibersihkan, dan penanda server-off harus disinkronkan sebelum consent berbagi baru.
+
 ## 0.3.7-alpha.1 — kandidat 20 November 2026
 
 - Validasi laporan pola nama hanya menerima tindakan ditandai untuk tinjauan. Riwayat server lama tetap terbaca.

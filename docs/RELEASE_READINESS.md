@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat 0.3.8/code 11 memperbaiki pemulihan consent lokal setelah proses mati. [Status 21 November](development/2026-11-21.md).
+
 Kandidat 0.3.7 memperketat validasi laporan baru pola nama. Bukti build dan review diperbarui setelah akses GitHub pulih. [Status 20 November](development/2026-11-20.md).
 
 Preflight host lab USB tersedia. Pemeriksaan membaca health loopback dan pemetaan dua perangkat pilihan. Bukti dua HP tetap PENDING. [Laporan 18 November](development/2026-11-18.md).
@@ -61,6 +63,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Bantuan/koreksi saat deteksi backend dimatikan | PASS host, HP PENDING | Dashboard mengembalikan kedua permintaan kepada pendamping yang sah. Verifikasi tombol Android, kartu layar terkunci, perubahan tanggal/jam dan backoff pada perangkat. |
 | Penandatanganan upgrade privat | PASS fixture, HP PENDING | Build terverifikasi dapat ditandatangani dengan identitas fixture lama; sertifikat berbeda dan versionCode sama ditolak. Validasi instalasi aktual memerlukan pemilik identitas signing dan HP uji. |
 | Preflight lab USB | PASS host, HP PENDING | Host lokal dan stub ADB menguji kesiapan serta kegagalan port/otorisasi. ADB nyata diperiksa tanpa perangkat terhubung. |
+| Pemulihan consent setelah proses mati | Review source + fixture compile; HP PENDING | Grant lama diputus sebelum consent lokal dipulihkan; pastikan Task Manager, storage failure dan grant baru lewat QA perangkat. |
 | Laporan pola nama advisory | PASS otomatis, QA HP PENDING | Android dan server menolak blocked untuk laporan baru. Tes batch campuran dan riwayat lama lulus. |
 | Deteksi dikenal/pribadi/dugaan/belum diketahui | CODE | Benign controls, critical-app exclusions, tidak menganggap nama sebagai verifikasi isi |
 | Deteksi aplikasi opsional package-only/advisory | CODE | Subset launcher terlihat melalui MAIN/LAUNCHER, tanpa QUERY_ALL_PACKAGES di seluruh varian; uji HP, stale event, izin mati; bukan suspend/firewall/uninstall blocking |
