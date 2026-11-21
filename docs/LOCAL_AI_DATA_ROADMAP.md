@@ -54,3 +54,7 @@ Tidak ada kontak/email kepada penulis; pengiriman belum diotorisasi. Klaim akura
 4. Fit preprocessing pada train; pilih model/ambang pada validation. Bekukan kandidat sebelum sekali membuka test baru. Laporkan confusion matrix, recall termasuk abstention, precision/FPR beserta interval, coverage dan batas sumber; jalankan parity serta QA perangkat terpisah.
 
 Riset harian berikutnya memeriksa rilis sumber dan menyelesaikan blocker nyata, bukan menjanjikan data baru, akurasi 99%, atau tanggal auto-block sebelum bukti tersedia.
+
+## Pemeriksaan 21 November 2026
+
+Halaman paper Amikom tidak menautkan rilis dataset hostname yang dapat diverifikasi pada pemeriksaan ini; bagian Downloads bukan bukti lisensi dataset. Rekaman COMNETS tetap Restricted, menjelaskan pengumpulan sesi lalu lintas dan belum menyediakan kontrol negatif hostname independen pada metadata publik. Tidak ada data diunduh, kontak penulis, tambahan aturan produksi atau training. [Amikom](https://hostjournals.com/bulletincsr/article/view/586) · [COMNETS](https://zenodo.org/records/15233150).

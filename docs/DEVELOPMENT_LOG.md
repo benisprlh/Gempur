@@ -1,5 +1,9 @@
 # Development Log
 
+## 21 November 2026
+
+Pemulihan consent lokal memutus grant tersimpan sebelum menerbitkan token consent proses baru. [Laporan dan bukti](development/2026-11-21.md).
+
 ## 20 November 2026 — integrasi kandidat laporan advisory
 
 Patch 19 November dipulihkan, direview dan diverifikasi ulang untuk publikasi setelah akses GitHub tersedia. [Laporan dan bukti](development/2026-11-20.md).

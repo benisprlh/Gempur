@@ -71,3 +71,5 @@ Diperiksa pada 9 November 2026:
 - [Android app signing](https://developer.android.com/studio/publish/app-signing): bundle upload perlu ditandatangani; Play App Signing dan upload key harus dikonfigurasi dengan benar.
 - [VPN policy](https://support.google.com/googleplay/android-developer/answer/12564964?hl=en): penggunaan API serta disclosure perlu sesuai implementasi dan ditinjau.
 
+
+Kandidat 21 November 0.3.8/code 11 menutup jalur pemulihan consent proses baru. Target pilot tetap 14 hari setelah QA dua HP, signing upgrade asli dan lab consent/revokasi lulus; belum ada tanggal mulai kalender yang terverifikasi. Distribusi Play menunggu signing, URL privasi/penghapusan, akun dan testing sesuai akun.

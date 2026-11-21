@@ -112,10 +112,20 @@ public final class PrivateMonitoring {
         }
         synchronized (LOCAL_CONSENT_LOCK) {
             if (!notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi Gempur privat sebelum mengaktifkan deteksi.");
+            boolean restoringConsent = localObservationConsent == null;
             localObservationConsent = null;
+            if (restoringConsent) {
+                try { endUnresumedSharing(context); }
+                catch (Exception failure) { throw unavailable(failure); }
+            }
             if (!prefs(context).edit().putBoolean("local_enabled", true).commit()) throw new IllegalStateException("Pilihan deteksi belum tersimpan.");
             localObservationConsent = new Object();
         }
+    }
+    // Process death may skip Service.onDestroy. A local-only opt-in must not revive its durable grant.
+    static void endUnresumedSharing(Context context) throws Exception {
+        new PrivateMonitorStore(context).disable(); // Must persist successfully before publishing local consent.
+        clearAllowances(context);
     }
     private static boolean saveLocalOff(Context context, boolean stopCompanion) {
         synchronized (LOCAL_CONSENT_LOCK) {

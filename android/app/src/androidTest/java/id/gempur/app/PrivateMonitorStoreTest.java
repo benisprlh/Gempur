@@ -43,6 +43,31 @@ public final class PrivateMonitorStoreTest {
         targetStore.recordObserved("domain", target, "known_rule", "known", "blocked",
                 System.currentTimeMillis(), targetStore.observationEpoch(), () -> true);
     }
+    @Test public void localConsentRecoveryEndsPersistedGrantAndKeepsRevocationProof() throws Exception {
+        enable(PAIR_A, 3);
+        record(store, "fixture-risk.org");
+        JSONObject oldGrant = store.sharing();
+        assertEquals(1, store.batch(oldGrant).length());
+        // Reopen the durable vault; the recovery hook is used before restoring in-memory local consent.
+        PrivateMonitoring.endUnresumedSharing(context);
+        PrivateMonitorStore reopened = new PrivateMonitorStore(context);
+        assertFalse(reopened.sharing().optBoolean("enabled"));
+        assertEquals(0, reopened.batch(oldGrant).length());
+        assertEquals(1, reopened.events().length());
+        JSONObject pending = reopened.pendingServerOff();
+        assertEquals(PAIR_A, pending.getString("pairingId"));
+        assertEquals(DEVICE, pending.getString("deviceId"));
+        assertEquals("https://private-fixture.org", pending.getString("endpoint"));
+        assertEquals(3, pending.getInt("automationVersion"));
+        assertFalse(pending.getString("revocationId").isEmpty());
+        try { enable(PAIR_A, 4); fail("Unresolved server-off must block a new grant"); }
+        catch (IllegalStateException expected) { /* preserve the revocation */ }
+        PrivateMonitoring.endUnresumedSharing(context);
+        assertEquals(pending.toString(), reopened.pendingServerOff().toString());
+        assertTrue(reopened.acknowledgeServerOff(pending));
+        enable(PAIR_A, 4);
+        assertEquals(0, reopened.batch(reopened.sharing()).length());
+    }
     @Test public void queuedObservationCannotBindToLaterGrantOrSurviveClear() throws Exception {
         long observedAt = System.currentTimeMillis();
         PrivateMonitorStore.ObservationEpoch beforeGrant = store.observationEpoch();
