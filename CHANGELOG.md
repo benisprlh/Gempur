@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9-alpha.1 — kandidat 22 November 2026
+
+- Retry inbox temuan dipisahkan dari dashboard bantuan/koreksi. Inbox gagal memakai backoff tersendiri; HTTP401 tetap mengakhiri sesi. Ini tidak menjamin interval/performa notifikasi pada HP.
+
 ## 0.3.8-alpha.1 — kandidat 21 November 2026
 
 - Pemulihan consent lokal setelah proses mati memutus grant berbagi lama secara durable sebelum deteksi lokal dapat diaktifkan. Riwayat tetap disimpan, binding unggah dibersihkan, dan penanda server-off harus disinkronkan sebelum consent berbagi baru.

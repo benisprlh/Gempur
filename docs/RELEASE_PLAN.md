@@ -73,3 +73,5 @@ Diperiksa pada 9 November 2026:
 
 
 Kandidat 21 November 0.3.8/code 11 menutup jalur pemulihan consent proses baru. Target pilot tetap 14 hari setelah QA dua HP, signing upgrade asli dan lab consent/revokasi lulus; belum ada tanggal mulai kalender yang terverifikasi. Distribusi Play menunggu signing, URL privasi/penghapusan, akun dan testing sesuai akun.
+
+Kandidat22 November0.3.9/code12 menambah isolasi retry inbox. Pilot14hari tetap dimulai setelah lab dua HP/signing asli dan QA consent/bantuan lulus; tanggal mulai belum ditetapkan karena perangkat belum tersedia. Bukan rilis Play.
