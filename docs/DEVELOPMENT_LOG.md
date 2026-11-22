@@ -1,5 +1,9 @@
 # Development Log
 
+## 22 November 2026
+
+Retry inbox temuan terpisah dari dashboard bantuan/koreksi; empat tes unit per varian. [Laporan](development/2026-11-22.md).
+
 ## 21 November 2026
 
 Pemulihan consent lokal memutus grant tersimpan sebelum menerbitkan token consent proses baru. [Laporan dan bukti](development/2026-11-21.md).

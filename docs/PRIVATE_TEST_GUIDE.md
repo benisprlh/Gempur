@@ -125,3 +125,7 @@ Batas platform: [AccessibilityService/HOME](https://developer.android.com/refere
 ## Pemulihan setelah proses mati — kandidat 0.3.8
 
 Pada HP lab yang disetujui, aktifkan sharing lalu hentikan aplikasi melalui Task Manager Android. Buka kembali dan pilih hanya deteksi lokal. Pastikan sharing OFF, riwayat tetap ada dan penanda penghentian server muncul; sinkronkan sebelum memberi izin berbagi baru. Uji juga crash/restart, storage error dan rotasi layar saat layanan masih hidup. Jangan reset/uninstall atau menjalankan fixture destructive pada HP. Ini langkah QA yang belum dieksekusi; fixture vault hanya dikompilasi.
+
+## Uji inbox gagal — kandidat 0.3.9
+
+Pada backend lab sintetis, pertahankan dashboard sehat dan buat request inbox temuan gagal503/429/403. Kirim bantuan dan koreksi; pastikan dashboard tetap diminta sebelum gate retry inbox dan kartu permintaan dapat muncul. Catat waktu request/response, retry, OS request dan tampilan kartu. Setelah inbox pulih, pastikan retry direset dan dedup/cooldown60s tetap berlaku. HTTP401 harus mengakhiri sesi. Ulangi stop/revoke/perubahan akun saat request ditahan. Ini skenario QA perangkat belum dijalankan; request lambat masih dapat memperpanjang satu tick. Jangan mengubah layanan produksi atau data peserta.

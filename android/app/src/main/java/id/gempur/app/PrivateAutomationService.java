@@ -23,6 +23,7 @@ public final class PrivateAutomationService extends Service {
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     private ScheduledExecutorService worker;
     private final DetectionAlertCooldown detectionAlerts = new DetectionAlertCooldown();
+    private final DetectionInboxRetry detectionInboxRetry = new DetectionInboxRetry();
     private long nextAttemptAt = 0;
     private int failures = 0;
     public static boolean isRunning() { return RUNNING.get(); }
@@ -171,7 +172,24 @@ public final class PrivateAutomationService extends Service {
         JSONObject automation = pairing.optJSONObject("automation");
         if (automation != null && Boolean.TRUE.equals(automation.opt("enabled"))
                 && detectionAlerts.canPost(SystemClock.elapsedRealtime()) && watchStillCurrent(account)) {
-            JSONObject inbox = api.requestPinned("GET", "/api/detections?pairingId=" + pairId, null, account);
+            JSONObject inbox = null;
+            if (detectionInboxRetry.canAttempt(SystemClock.elapsedRealtime())) {
+                try {
+                    inbox = api.requestPinned("GET", "/api/detections?pairingId=" + pairId, null, account);
+                    detectionInboxRetry.succeeded();
+                } catch (CompanionClient.ApiException rejected) {
+                    if (rejected.status == 401) throw rejected; // Expired authentication still stops the session.
+                    detectionInboxRetry.failed(SystemClock.elapsedRealtime(), rejected.status);
+                } catch (Exception unavailable) {
+                    detectionInboxRetry.failed(SystemClock.elapsedRealtime(), 0);
+                }
+            }
+            if (!watchStillCurrent(account)) return;
+            if (inbox == null) {
+                PrivateMonitoring.state(this, "companion_inbox_deferred", "Bantuan/koreksi diperiksa. Inbox temuan belum tersedia; retry inbox terpisah dari bantuan. Notifikasi tetap dapat tertunda.");
+                return;
+            }
+            // Storage/notification errors stay outside the fetch catch, so they are never treated as received.
             postDetectionSummary(account, pairId, inbox, store, notified);
         }
         PrivateMonitoring.state(this, "companion_polling", "Pendamping diperiksa berkala sekitar 30 detik saat layanan terlihat. Notifikasi dapat tertunda.");

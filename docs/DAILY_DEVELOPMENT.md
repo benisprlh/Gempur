@@ -17,6 +17,8 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 
 ## Prioritas setelah fondasi
 
+- Uji retry inbox terpisah pada lab dua HP: dashboard sehat/inbox gagal,401,429,request lambat dan pencabutan saat request tertahan. [Status](development/2026-11-22.md).
+
 - Uji pemulihan consent setelah Task Manager/process death pada dua HP lab: deteksi lokal tidak memulihkan sharing lama. Verifikasi penanda server-off dan kegagalan penyimpanan. [Status](development/2026-11-21.md).
 
 - Dalam lab upgrade, periksa antrean lama yang mengandung laporan pola nama berstatus blocked. Sinkronkan penghentian berbagi setelah penolakan server sebelum memilih izin baru. [Laporan](development/2026-11-20.md).

@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat0.3.9/code12 memisahkan retry inbox temuan dari dashboard bantuan. [Status 22 November](development/2026-11-22.md).
+
 Kandidat 0.3.8/code 11 memperbaiki pemulihan consent lokal setelah proses mati. [Status 21 November](development/2026-11-21.md).
 
 Kandidat 0.3.7 memperketat validasi laporan baru pola nama. Bukti build dan review diperbarui setelah akses GitHub pulih. [Status 20 November](development/2026-11-20.md).
@@ -60,6 +62,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Consent lokal dan sharing terpisah | CODE | Default/upgrade mati, scope/grant versi, perubahan pairing, revokasi saat request tertunda |
 | Revokasi berbagi saat backend dibuka kembali | PASS host | API dengan SQLite pada disk. Status nonaktif tersimpan, inbox kosong dan versi izin lama ditolak sebelum dan setelah izin baru diberikan. |
 | Konfirmasi penghentian berbagi di Android | PASS unit, HP PENDING | Respons kosong/coercion, status aktif, scope tersisa, versi lama ditolak. Cocokkan status sinkronisasi dan inbox setelah HP offline kembali online. |
+| Retry inbox temuan terpisah | Unit policy + review source; QA HP PENDING | Inbox gagal tidak menetapkan backoff dashboard;401 tetap sesi berakhir. Uji I/O lambat, stop/revoke dan kartu dua HP. |
 | Bantuan/koreksi saat deteksi backend dimatikan | PASS host, HP PENDING | Dashboard mengembalikan kedua permintaan kepada pendamping yang sah. Verifikasi tombol Android, kartu layar terkunci, perubahan tanggal/jam dan backoff pada perangkat. |
 | Penandatanganan upgrade privat | PASS fixture, HP PENDING | Build terverifikasi dapat ditandatangani dengan identitas fixture lama; sertifikat berbeda dan versionCode sama ditolak. Validasi instalasi aktual memerlukan pemilik identitas signing dan HP uji. |
 | Preflight lab USB | PASS host, HP PENDING | Host lokal dan stub ADB menguji kesiapan serta kegagalan port/otorisasi. ADB nyata diperiksa tanpa perangkat terhubung. |
