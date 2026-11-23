@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "kind": "HOST_TIMING_DIAGNOSTIC",
+  "createdAt": "2026-11-23T02:18:18.654Z",
+  "java": "openjdk 17.0.21.1 2026-11-17",
+  "os": "linux",
+  "arch": "x64",
+  "inputs": [
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/DetectionPolicy.java",
+      "bytes": 7198,
+      "sha256": "96b9b251f1da1faf8bc790834e73e5a4294c00ff480e74be8ac88cc23b33912f"
+    },
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/DnsCodec.java",
+      "bytes": 4467,
+      "sha256": "5d107a555fe8fcc044f9661b8417ac7746073b7bb1ea62d09d703357071f7fd6"
+    },
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/DomainRules.java",
+      "bytes": 4582,
+      "sha256": "7f01a373476cd1f3025103b4bf5920960fbf6387c77c1eedd2ad5d1f55add49e"
+    },
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/Ipv4Udp.java",
+      "bytes": 3942,
+      "sha256": "56b5b282871dfb36ff345838bc799301a8014e4838d873a50224436a82243509"
+    },
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/LexicalDomainModel.java",
+      "bytes": 7301,
+      "sha256": "fe4f15ce112e092ac05ca16d468883120eb6151bb2c358c1a885601cd534356a"
+    },
+    {
+      "path": "android/engine/src/main/java/id/gempur/engine/TemporaryAllowance.java",
+      "bytes": 1171,
+      "sha256": "85498678dd2cecb4b766fe47cc923da98a0bd98c92f8c83ab53ddc9c7b98ba71"
+    },
+    {
+      "path": "tools/perf/DnsEngineBenchmark.java",
+      "bytes": 4152,
+      "sha256": "417698e77bcd2589528abd4857ead190d75c8d6a031ba6723846ebc37efe8464"
+    },
+    {
+      "path": "android/app/src/privateDebug/assets/ml/domain-model.tsv",
+      "bytes": 627278,
+      "sha256": "4ba29fe63c1111c7f60e50a24af72e9f9692950fe0b6b4c85f4acc45eb7dc53a"
+    },
+    {
+      "path": "android/app/src/privateDebug/assets/ml/manifest.json",
+      "bytes": 1256,
+      "sha256": "132285962a233a5a51aad9461af985d3c286121e9ade1ab4f0af83ff942b7bc8"
+    },
+    {
+      "path": "tools/benchmark-dns.mjs",
+      "bytes": 5100,
+      "sha256": "d0bb2d73dc5f10271367fe9b38a80ad8134e17bd6fd9a8424954e649b79d0c88"
+    }
+  ],
+  "fixturesSha256": "9ff2587df184e5154a7f13a219b191728349291ef96fd2013ba7c758efcac382",
+  "warmupPerStage": 20000,
+  "fixtureOrder": "fixed cyclic",
+  "fixtures": [
+    "ordinary.example",
+    "risk.example",
+    "sub.risk.example",
+    "risk.example.neighbour.test",
+    "news-recovery.example",
+    "xn--bcher-kva.example",
+    "_service._tcp.risk.example",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.example"
+  ],
+  "modelLoadOnceNs": 153083245,
+  "stages": {
+    "dnsParse": {
+      "samples": 5000,
+      "p50Ns": 540,
+      "p95Ns": 11418,
+      "p99Ns": 16775,
+      "checksumHex": "1173c6"
+    },
+    "ruleLookup": {
+      "samples": 5000,
+      "p50Ns": 13100,
+      "p95Ns": 30036,
+      "p99Ns": 42104,
+      "checksumHex": "249f"
+    },
+    "modelPredictUncached": {
+      "samples": 5000,
+      "p50Ns": 11587,
+      "p95Ns": 96195,
+      "p99Ns": 114032,
+      "checksumHex": "c883bc03d2b178e2"
+    }
+  },
+  "limits": [
+    "Host HotSpot JVM only; not Android ART, live DNS latency, network, battery, notification or detection accuracy evidence",
+    "Fixed synthetic corpus and cyclic order; no websites, sockets, ADB, accounts or participant data",
+    "No Android RuleRepository/cache/VPN/vault/consent path measured; uncached model prediction in isolation",
+    "Single process/run, warmup20000 per stage, timer/dispatch/GC/JIT/host noise included; p99 is descriptive, not a release threshold or rigorous JMH/performance stability evidence",
+    "Model load is one observation including file read and parsing, not a repeated cold-load distribution"
+  ]
+}

@@ -129,3 +129,7 @@ Pada HP lab yang disetujui, aktifkan sharing lalu hentikan aplikasi melalui Task
 ## Uji inbox gagal — kandidat 0.3.9
 
 Pada backend lab sintetis, pertahankan dashboard sehat dan buat request inbox temuan gagal503/429/403. Kirim bantuan dan koreksi; pastikan dashboard tetap diminta sebelum gate retry inbox dan kartu permintaan dapat muncul. Catat waktu request/response, retry, OS request dan tampilan kartu. Setelah inbox pulih, pastikan retry direset dan dedup/cooldown60s tetap berlaku. HTTP401 harus mengakhiri sesi. Ulangi stop/revoke/perubahan akun saat request ditahan. Ini skenario QA perangkat belum dijalankan; request lambat masih dapat memperpanjang satu tick. Jangan mengubah layanan produksi atau data peserta.
+
+## Diagnostik host dan pengukuran perangkat
+
+[DNS_PERFORMANCE.md](DNS_PERFORMANCE.md) memberi baseline primitive pada JVM host. Gunakan hanya untuk memahami biaya komputasi terisolasi; jangan mengubah hasilnya menjadi latency DNS, klaim baterai atau akurasi. Pengukuran HP pada bagian antrean DNS tetap harus dicatat dengan resolver, koneksi, perangkat dan izin yang benar-benar dipakai.

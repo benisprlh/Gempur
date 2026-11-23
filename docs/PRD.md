@@ -362,6 +362,8 @@ Jumlah domain dalam daftar bukan ukuran keberhasilan pemulihan.
 
 ## 14. Kebutuhan nonfungsional
 
+Diagnostik host untuk biaya komputasi primitive tersedia di [DNS_PERFORMANCE.md](DNS_PERFORMANCE.md). Ini alat pengembang, bukan fitur pemantauan peserta atau bukti batas latency Android. Gate performa perangkat/jaringan tetap memerlukan pengukuran HP.
+
 Semua angka di bawah merupakan target awal untuk diuji.
 
 | ID | Area | Target dan cara menilai |
