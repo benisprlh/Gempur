@@ -1,5 +1,9 @@
 # Changelog
 
+## Tooling — 23 November 2026
+
+- Diagnostik waktu offline untuk parser DNS, lookup aturan dan inferensi model mentah pada JVM host. Fixture sintetis, batas workload, hash source/model dan laporan JSON. Bukan bukti latensi DNS Android, baterai atau akurasi. Versi aplikasi tetap0.3.9-alpha.1/code12.
+
 ## 0.3.9-alpha.1 — kandidat 22 November 2026
 
 - Retry inbox temuan dipisahkan dari dashboard bantuan/koreksi. Inbox gagal memakai backoff tersendiri; HTTP401 tetap mengakhiri sesi. Ini tidak menjamin interval/performa notifikasi pada HP.

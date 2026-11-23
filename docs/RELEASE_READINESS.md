@@ -1,5 +1,7 @@
 # Release Readiness
 
+23 November: diagnostik primitive DNS/model di host tersedia; app tetap0.3.9/code12. [Hasil dan batas](development/2026-11-23.md).
+
 Kandidat0.3.9/code12 memisahkan retry inbox temuan dari dashboard bantuan. [Status 22 November](development/2026-11-22.md).
 
 Kandidat 0.3.8/code 11 memperbaiki pemulihan consent lokal setelah proses mati. [Status 21 November](development/2026-11-21.md).
@@ -74,6 +76,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Polling notifikasi native pendamping | CODE | Izin/kanal, lock screen, offline/backoff, OEM kill, restart; bukan FCM/Web Push/24-7 |
 | Koreksi tepat domain/paket | CODE | Cooldown 10 menit, TTL 30 menit, permit satu kali, peserta apply lokal, expiry/replay/revoke |
 | Hapus inbox lokal dan penghentian tertunda | CODE | Hapus lokal menghentikan privat, mempertahankan check-in dan penanda server-off; service/notifikasi mati bukan bukti revokasi; re-enable menunggu sinkronisasi |
+| Diagnostik komputasi host | PASS eksekusi host, bukan gate HP | Parser/aturan/model mentah: fixed fixtures, hash, warmup dan p50/p95/p99. Bukan DNS/VPN/cache/baterai/accuracy. |
 | Uji dua HP, jaringan dan baterai | PENDING | Ikuti [panduan privat](PRIVATE_TEST_GUIDE.md); lab USB/ADB dan remote HTTPS belum diklaim lulus |
 | Operasi server dan distribusi | BLOCKED | Operator menyediakan HTTPS jika bukan USB lab; tidak ada hosting bawaan atau approval Play |
 

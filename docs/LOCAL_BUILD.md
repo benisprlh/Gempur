@@ -156,3 +156,7 @@ Lulus build tidak menggantikan pengujian baterai, lifecycle, browser/DoH/IPv6, a
 ## Bila environment tidak tersedia
 
 Laporkan komponen yang tepat: Node/JDK/SDK tidak tersedia, dependency tidak dapat diunduh, ruang disk, atau tes yang benar-benar gagal. Pertahankan hasil PARTIAL/FAIL dan kerjakan bagian independen yang masih dapat diuji. Tidak perlu memulihkan billing GitHub untuk melanjutkan jalur build ini.
+
+## Diagnostik komputasi DNS di host
+
+Jalankan [diagnostik offline](DNS_PERFORMANCE.md) dengan JDK17 bila ingin baseline primitive parser/aturan/model. Ia tidak memakai SDK, ADB, jaringan atau data peserta. Hasilnya bukan latensi DNS di Android dan tidak menggantikan full verifier atau QA HP.
