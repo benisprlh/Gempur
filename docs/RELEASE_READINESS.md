@@ -1,5 +1,7 @@
 # Release Readiness
 
+Kandidat0.3.10/code13 mempertahankan status HTTP error meski body diagnostik gagal. [Status24November](development/2026-11-24.md).
+
 23 November: diagnostik primitive DNS/model di host tersedia; app tetap0.3.9/code12. [Hasil dan batas](development/2026-11-23.md).
 
 Kandidat0.3.9/code12 memisahkan retry inbox temuan dari dashboard bantuan. [Status 22 November](development/2026-11-22.md).
@@ -63,6 +65,7 @@ Pemilik memilih uji APK privat. Baseline debug/release tetap manual; tabel MVP d
 | Isolasi privateDebug dan server default off | PASS otomatis | BuildConfig/manifest biasa dan privat diperiksa, source scanner terpisah, server default-off diuji; uji perangkat tetap terpisah |
 | Consent lokal dan sharing terpisah | CODE | Default/upgrade mati, scope/grant versi, perubahan pairing, revokasi saat request tertunda |
 | Revokasi berbagi saat backend dibuka kembali | PASS host | API dengan SQLite pada disk. Status nonaktif tersimpan, inbox kosong dan versi izin lama ditolak sebelum dan setelah izin baru diberikan. |
+| HTTP error body tidak menutupi status | Unit fault injection + review, HP PENDING |401 tidak membuka body; errorI/O/size/JSON tetap statuserror. Tidak menjadi bukti pencabutan server; sukses tetap ketat. |
 | Konfirmasi penghentian berbagi di Android | PASS unit, HP PENDING | Respons kosong/coercion, status aktif, scope tersisa, versi lama ditolak. Cocokkan status sinkronisasi dan inbox setelah HP offline kembali online. |
 | Retry inbox temuan terpisah | Unit policy + review source; QA HP PENDING | Inbox gagal tidak menetapkan backoff dashboard;401 tetap sesi berakhir. Uji I/O lambat, stop/revoke dan kartu dua HP. |
 | Bantuan/koreksi saat deteksi backend dimatikan | PASS host, HP PENDING | Dashboard mengembalikan kedua permintaan kepada pendamping yang sah. Verifikasi tombol Android, kartu layar terkunci, perubahan tanggal/jam dan backoff pada perangkat. |
