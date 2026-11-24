@@ -17,6 +17,8 @@ Tidak membuat perubahan sekadar untuk memenuhi kuota commit. Tidak me-reset cata
 
 ## Prioritas setelah fondasi
 
+- Uji body401HTML/rusak/ditahan pada proxy lab, penghentian sesi dan pending server-off. Bandingkan error404/409 dengan fallback proof lengkap, serta sukses200rusak/oversized yang tidak boleh ACK. [Laporan](development/2026-11-24.md).
+
 - Gunakan diagnostik [DNS_PERFORMANCE.md](DNS_PERFORMANCE.md) untuk baseline primitive host. Jangan menambahkan percentile tiap tahap sebagai estimasi DNS end-to-end. Lanjutkan pengukuran p50/p95 DNS nyata, timeout, lifecycle dan baterai pada HP ketika tersedia.
 
 - Uji retry inbox terpisah pada lab dua HP: dashboard sehat/inbox gagal,401,429,request lambat dan pencabutan saat request tertahan. [Status](development/2026-11-22.md).

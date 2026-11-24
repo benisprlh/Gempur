@@ -77,3 +77,5 @@ Kandidat 21 November 0.3.8/code 11 menutup jalur pemulihan consent proses baru. 
 Kandidat22 November0.3.9/code12 menambah isolasi retry inbox. Pilot14hari tetap dimulai setelah lab dua HP/signing asli dan QA consent/bantuan lulus; tanggal mulai belum ditetapkan karena perangkat belum tersedia. Bukan rilis Play.
 
 23 November: perubahan tooling tidak menaikkan versi aplikasi0.3.9/code12. Diagnostik host belum membuka gate jaringan/HP, sehingga pilot14hari dan target Play tetap menunggu perangkat, signing asli, lab consent serta keputusan distribusi. Tidak ada tanggal mulai kalender yang dapat dibuktikan.
+
+24November: kandidat0.3.10/code13 memperbaiki klasifikasi error HTTP. Pilot14hari tetap setelah QA dua HP, original signer dan skenario consent/revokasi/proxy error lulus. Tanggal mulai belum ditetapkan; gate Play/closedtesting/signing/URL operator masih belum dipenuhi.

@@ -42,4 +42,12 @@ public class CompanionClientTest {
         assertFalse(CompanionClient.confirmsAutomationOff(false, 0, 0, -2));
         assertFalse(CompanionClient.confirmsAutomationOff(null, null, 0, -1));
     }
+    @Test public void httpErrorStatusSurvivesAbsentOrInvalidDiagnosticJson() throws Exception {
+        for (int status : new int[]{400, 401, 403, 404, 409, 429, 500}) {
+            for (String body : new String[]{"", "<html>proxy error</html>", "not-json"}) {
+                try { CompanionClient.decodeResponse(status, body); fail("HTTP error must not return a success object"); }
+                catch (CompanionClient.ApiException rejected) { assertEquals(status, rejected.status); }
+            }
+        }
+    }
 }

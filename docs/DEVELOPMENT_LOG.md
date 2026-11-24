@@ -1,5 +1,9 @@
 # Development Log
 
+## 24 November 2026
+
+HTTP401/errorstatus dipertahankan walaupun body diagnostik gagal; reader bounded dan fault-injection unit tests. [Laporan](development/2026-11-24.md).
+
 ## 23 November 2026
 
 Diagnostik timing host untuk primitive DNS/model, tidak mengubah runtime APK. [Laporan](development/2026-11-23.md).

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.10-alpha.1 — kandidat 24 November 2026
+
+- HTTP401 mengakhiri request sebelum body error dibuka/diurai. HTTP error lain mempertahankan status ketika body diagnostik rusak, tidak terbaca atau terlalu besar; respons sukses tetap ketat terhadap error I/O dan batas262144byte. Tidak mengubah protokol consent atau data pengguna.
+
 ## Tooling — 23 November 2026
 
 - Diagnostik waktu offline untuk parser DNS, lookup aturan dan inferensi model mentah pada JVM host. Fixture sintetis, batas workload, hash source/model dan laporan JSON. Bukan bukti latensi DNS Android, baterai atau akurasi. Versi aplikasi tetap0.3.9-alpha.1/code12.

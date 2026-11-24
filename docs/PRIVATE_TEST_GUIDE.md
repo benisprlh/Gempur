@@ -133,3 +133,7 @@ Pada backend lab sintetis, pertahankan dashboard sehat dan buat request inbox te
 ## Diagnostik host dan pengukuran perangkat
 
 [DNS_PERFORMANCE.md](DNS_PERFORMANCE.md) memberi baseline primitive pada JVM host. Gunakan hanya untuk memahami biaya komputasi terisolasi; jangan mengubah hasilnya menjadi latency DNS, klaim baterai atau akurasi. Pengukuran HP pada bagian antrean DNS tetap harus dicatat dengan resolver, koneksi, perangkat dan izin yang benar-benar dipakai.
+
+## Uji body error HTTP — kandidat0.3.10
+
+Pada backend/proxy lab sintetis, kembalikan401 dengan HTML, JSON rusak, body besar atau body yang ditahan. Periksa sesi privat berhenti tanpa menunggu body401; riwayat dan pending server-off tetap ada. Bandingkan400/403/404/409/429/500 dengan body rusak: status tetap error dan tidak mengonfirmasi revokasi.200 dengan body terpotong/oversized/JSON rusak harus gagal, bukan ACK. Uji sinkronisasi ulang memakai identitas dan proof yang cocok. Ini QA perangkat/network belum dieksekusi; jangan mengubah proxy produksi atau reset HP.

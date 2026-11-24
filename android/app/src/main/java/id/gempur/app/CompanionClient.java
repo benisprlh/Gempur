@@ -4,8 +4,6 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public final class CompanionClient {
@@ -33,6 +31,17 @@ public final class CompanionClient {
         long returnedVersion = ((Number) version).longValue();
         return returnedVersion > stoppedVersion && returnedVersion <= Integer.MAX_VALUE;
     }
+    static JSONObject decodeResponse(int status, String body) throws Exception {
+        if (status >= 400) {
+            String message = "Server belum dapat memproses permintaan.";
+            try {
+                JSONObject error = body.isEmpty() ? null : new JSONObject(body).optJSONObject("error");
+                if (error != null) message = error.optString("message", "Permintaan gagal.");
+            } catch (Exception invalidErrorBody) { /* Known HTTP rejection outranks an optional error message. */ }
+            throw new ApiException(status, message);
+        }
+        return body.isEmpty() ? new JSONObject() : new JSONObject(body);
+    }
     public synchronized JSONObject request(String method,String path,JSONObject payload) throws Exception{
         return requestPinned(method,path,payload,null);
     }
@@ -55,12 +64,8 @@ public final class CompanionClient {
                 try(java.io.OutputStream out=connection.getOutputStream()){out.write(bytes);}}
             int status=connection.getResponseCode();
             if(status>=300&&status<400)throw new Exception("Redirect server ditolak. Periksa alamat HTTPS.");
-            InputStream input=status>=400?connection.getErrorStream():connection.getInputStream();
-            ByteArrayOutputStream body=new ByteArrayOutputStream();
-            if(input!=null)try(InputStream in=input){byte[]buf=new byte[4096];int count;while((count=in.read(buf))!=-1){if(body.size()+count>262144)throw new Exception("Respons server terlalu besar.");body.write(buf,0,count);}}
-            JSONObject result=body.size()==0?new JSONObject():new JSONObject(body.toString(StandardCharsets.UTF_8.name()));
-            if(status>=400){JSONObject error=result.optJSONObject("error");throw new ApiException(status,error==null?"Server belum dapat memproses permintaan.":error.optString("message","Permintaan gagal."));}
-            return result;
+            String body=HttpResponseBody.read(status, () -> status>=400?connection.getErrorStream():connection.getInputStream());
+            return decodeResponse(status, body);
         }finally{connection.disconnect();}
     }
 }
