@@ -1,5 +1,9 @@
 # Development Log
 
+## 25 November 2026 — validasi status dan encoding respons
+
+Kandidat **0.3.11-alpha.1/code 14** menolak status non-final/tidak valid (<200, termasuk -1) dan redirect sebelum membaca body. Respons sukses hanya 200–299. UTF-8 malformed/truncated/overlong/surrogate kini gagal decoding sebelum parser JSON; karakter multibyte valid dipertahankan. Error >=400 tetap mempertahankan status saat diagnostik gagal, dan401 tetap dilempar sebelum membuka body. Tidak ada pengetatan sintaks JSON Android, perubahan schema/proof/consent, atau klaim bypass revokasi ditemukan. [Laporan dan batas pengujian](development/2026-11-25.md).
+
 ## 24 November 2026
 
 HTTP401/errorstatus dipertahankan walaupun body diagnostik gagal; reader bounded dan fault-injection unit tests. [Laporan](development/2026-11-24.md).

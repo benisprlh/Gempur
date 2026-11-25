@@ -1,5 +1,9 @@
 # Pengembangan dan riset harian
 
+## 25 November 2026 — validasi status dan encoding respons
+
+Kandidat **0.3.11-alpha.1/code 14** menolak status non-final/tidak valid (<200, termasuk -1) dan redirect sebelum membaca body. Respons sukses hanya 200–299. UTF-8 malformed/truncated/overlong/surrogate kini gagal decoding sebelum parser JSON; karakter multibyte valid dipertahankan. Error >=400 tetap mempertahankan status saat diagnostik gagal, dan401 tetap dilempar sebelum membuka body. Tidak ada pengetatan sintaks JSON Android, perubahan schema/proof/consent, atau klaim bypass revokasi ditemukan. [Laporan dan batas pengujian](development/2026-11-25.md).
+
 Jadwal yang diminta pemilik: setiap hari sekitar pukul **09.00 WIB**, mulai 10 November 2026. Jadwal ini memicu satu run pekerjaan, bukan proses komputasi yang terus berjalan 24 jam.
 
 Sumber kebenaran adalah kode terbaru, PR, hasil verifier mandiri, dan bukti QA di repository. GitHub Actions tidak lagi menjadi jalur build aktif. Baca AGENTS.md serta RELEASE_READINESS.md sebelum mengubah kode.

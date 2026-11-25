@@ -1,5 +1,9 @@
 # Release Readiness
 
+## 25 November 2026 — validasi status dan encoding respons
+
+Kandidat **0.3.11-alpha.1/code 14** menolak status non-final/tidak valid (<200, termasuk -1) dan redirect sebelum membaca body. Respons sukses hanya 200–299. UTF-8 malformed/truncated/overlong/surrogate kini gagal decoding sebelum parser JSON; karakter multibyte valid dipertahankan. Error >=400 tetap mempertahankan status saat diagnostik gagal, dan401 tetap dilempar sebelum membuka body. Tidak ada pengetatan sintaks JSON Android, perubahan schema/proof/consent, atau klaim bypass revokasi ditemukan. [Laporan dan batas pengujian](development/2026-11-25.md).
+
 Kandidat0.3.10/code13 mempertahankan status HTTP error meski body diagnostik gagal. [Status24November](development/2026-11-24.md).
 
 23 November: diagnostik primitive DNS/model di host tersedia; app tetap0.3.9/code12. [Hasil dan batas](development/2026-11-23.md).
@@ -37,6 +41,12 @@ Kandidat10 November0.3.2: perbaikan advisory tanpa HOME; full gate121 tes/review
 Terakhir diperbarui: 9 November 2026. **Tabel ini bukan sertifikasi bahwa seluruh fitur sudah selesai.** Implementasi dan hasil aktual harus ditambahkan bersama commit/source fingerprint serta evidence run oleh pengembang setelah pengujian.
 
 Status: `PENDING` belum dibuktikan; `CODE` kode tersedia tetapi belum memenuhi seluruh bukti; `PASS` bukti penerimaan tersedia; `BLOCKED` dependency menghalangi; `DEFERRED` di luar alpha dengan batas jelas.
+
+| Acceptance kandidat0.3.11 | Bukti | Batas |
+| --- | --- | --- |
+| P-FR-20 status/UTF-8 | Unit reader JVM; hasil full di laporan25November | Belum live HTTP/ART |
+| Consent/proof/riwayat | Flow existing dipertahankan, review diff independen | QA revoke/offline dua HP pending |
+| Upgrade/pilot | Code14; pemeriksaan signer wajib | Instalasi lama dan data harus dipertahankan |
 
 ## Kandidat AI domain lokal 0.3 — prioritas saat ini
 

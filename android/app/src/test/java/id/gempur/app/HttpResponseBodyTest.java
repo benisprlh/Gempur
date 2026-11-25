@@ -54,4 +54,30 @@ public final class HttpResponseBodyTest {
             catch (IOException expected) { assertNotNull(expected.getMessage()); }
         }
     }
+    @Test public void nonFinalAndRedirectStatusesNeverOpenSuccessBodies() throws Exception {
+        for (int status : new int[]{-1, 0, 100, 101, 199, 300, 301, 307, 399}) {
+            try {
+                HttpResponseBody.read(status, () -> { fail("Unacceptable status must not open body"); return null; });
+                fail("Status must fail");
+            } catch (IOException expected) { assertNotNull(expected.getMessage()); }
+        }
+    }
+    @Test public void malformedUtf8SuccessFailsAndClosesRatherThanReplacingBytes() throws Exception {
+        byte[][] invalid = { {(byte)0xc3}, {(byte)0xc0,(byte)0xaf}, {(byte)0xed,(byte)0xa0,(byte)0x80}, {(byte)0xff} };
+        for (byte[] bytes : invalid) {
+            final boolean[] closed = {false};
+            try {
+                HttpResponseBody.read(200, () -> new ByteArrayInputStream(bytes) {
+                    @Override public void close() { closed[0] = true; }
+                });
+                fail("Invalid UTF8 must not be repaired into a success body");
+            } catch (java.nio.charset.CharacterCodingException expected) { assertTrue(closed[0]); }
+            assertEquals("", HttpResponseBody.read(429, () -> new ByteArrayInputStream(bytes)));
+        }
+    }
+    @Test public void validMultibyteUtf8AndSuccessStatusRangeArePreserved() throws Exception {
+        String value = "{\"message\":\"izin—日本語 🔒\"}";
+        for (int status : new int[]{200, 201, 204, 299})
+            assertEquals(value, HttpResponseBody.read(status, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8))));
+    }
 }

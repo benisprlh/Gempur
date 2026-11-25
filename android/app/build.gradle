@@ -11,8 +11,8 @@ android {
         applicationId 'id.gempur.app'
         minSdk 29
         targetSdk 36
-        versionCode 13
-        versionName '0.3.10-alpha.1'
+        versionCode 14
+        versionName '0.3.11-alpha.1'
         buildConfigField 'boolean', 'PRIVATE_BUILD', 'false'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

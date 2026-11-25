@@ -137,3 +137,7 @@ Pada backend lab sintetis, pertahankan dashboard sehat dan buat request inbox te
 ## Uji body error HTTP — kandidat0.3.10
 
 Pada backend/proxy lab sintetis, kembalikan401 dengan HTML, JSON rusak, body besar atau body yang ditahan. Periksa sesi privat berhenti tanpa menunggu body401; riwayat dan pending server-off tetap ada. Bandingkan400/403/404/409/429/500 dengan body rusak: status tetap error dan tidak mengonfirmasi revokasi.200 dengan body terpotong/oversized/JSON rusak harus gagal, bukan ACK. Uji sinkronisasi ulang memakai identitas dan proof yang cocok. Ini QA perangkat/network belum dieksekusi; jangan mengubah proxy produksi atau reset HP.
+
+## Tambahan QA kandidat0.3.11
+
+Pada proxy lab terisolasi, uji respons200 dengan byte UTF-8 truncated/overlong/surrogate dan status non-final/tidak valid. Pastikan tidak ada body sukses/ACK dipakai; pending server-off tetap sampai proof valid yang terikat diterima. Uji karakter multibyte valid,429 rusak,401 tanpa body dibaca dan respons200 normal. Fixture JVM hanya menguji reader/status; belum membuktikan transport Android. Jangan reset/uninstall HP peserta.

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.charset.CodingErrorAction;
 
 /** Bounded transport body reader. An error page cannot replace an already known HTTP status. */
 final class HttpResponseBody {
@@ -14,6 +16,8 @@ final class HttpResponseBody {
     static String read(int status, Source source) throws IOException, CompanionClient.ApiException {
         // Authentication failure must reach session-stop without waiting for/parsing an error page.
         if (status == 401) throw new CompanionClient.ApiException(status, "Sesi server berakhir. Masuk ulang sebelum melanjutkan.");
+        if (status < 200 || (status >= 300 && status < 400))
+            throw new IOException("Status respons server tidak dapat diterima.");
         try (InputStream in = source.open()) {
             if (in == null) return "";
             ByteArrayOutputStream body = new ByteArrayOutputStream();
@@ -23,7 +27,10 @@ final class HttpResponseBody {
                 if (body.size() + count > LIMIT) throw new IOException("Respons server terlalu besar.");
                 body.write(buffer, 0, count);
             }
-            return new String(body.toByteArray(), StandardCharsets.UTF_8);
+            return StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(body.toByteArray())).toString();
         } catch (IOException unreadable) {
             if (status >= 400) return ""; // Diagnostic error data is optional; preserve the HTTP rejection.
             throw unreadable; // Never turn a truncated/oversized success into a successful acknowledgement.
