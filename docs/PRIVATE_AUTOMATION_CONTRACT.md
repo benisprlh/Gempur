@@ -62,3 +62,5 @@ Saat menerima kueri, APK privat mengambil epoch izin berbagi, pilihan deteksi lo
 ## Acceptance
 
 Test default-off/manual upgrade, known/personal/suspected/unknown separation, benign controls, diagnostic suppression, dedup/idempotency, scopes and grant versions, cross-pair rejection, revoke-during-upload, stale/offline TTL, no URL/inventory payloads, atomic private storage, exact typed approval/replay/expiry, and critical-app exclusions. Compile and lint normal plus private build; verify default release manifest lacks private permissions/services. No emulator/HP claim until actually run. Device validation and HTTPS backend remain necessary before real two-phone use.
+
+Transport response boundary (25 November): reject status<200 and300–399 before opening a body. Success200–299 uses reporting UTF-8 decoding; malformed input fails before JSON. Other>=400 errors preserve their typed status if diagnostics fail;401 stays immediate. This does not tighten Android JSON syntax or replace bound server-off proof.

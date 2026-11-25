@@ -571,3 +571,5 @@ Diakses/ditinjau pada 9 November 2026. Referensi adalah dasar batas teknis dan d
 
 PRD ini adalah baseline kebutuhan. Status implementasi dan bukti pengujian terbaru tersedia pada [RELEASE_READINESS.md](RELEASE_READINESS.md). Keberadaan kode/CI tidak membuktikan validasi klinis, validasi HP nyata, atau persetujuan store.
 
+
+P-FR-20: Respons API hanya memakai body sukses dari status200–299 dan UTF-8 valid. Status<200/redirect gagal sebelum body; diagnostik error yang rusak tidak menjadi sukses atau proof pencabutan. Acceptance JVM transport; validasi Android/live HTTP tetap pending.
