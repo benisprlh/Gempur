@@ -58,3 +58,7 @@ Riset harian berikutnya memeriksa rilis sumber dan menyelesaikan blocker nyata, 
 ## Pemeriksaan 21 November 2026
 
 Halaman paper Amikom tidak menautkan rilis dataset hostname yang dapat diverifikasi pada pemeriksaan ini; bagian Downloads bukan bukti lisensi dataset. Rekaman COMNETS tetap Restricted, menjelaskan pengumpulan sesi lalu lintas dan belum menyediakan kontrol negatif hostname independen pada metadata publik. Tidak ada data diunduh, kontak penulis, tambahan aturan produksi atau training. [Amikom](https://hostjournals.com/bulletincsr/article/view/586) · [COMNETS](https://zenodo.org/records/15233150).
+
+## Pemeriksaan 26 November 2026
+
+Landing Amikom masih menyatakan download data belum tersedia; COMNETS masih restricted dan metadata sesi trafik belum menyediakan label hostname/kontrol negatif independen yang diperlukan. Tidak ada impor/kontak atau training. [Amikom](https://hostjournals.com/bulletincsr/article/view/586) · [COMNETS](https://zenodo.org/records/15233150). Tool [audit review](DOMAIN_REVIEW_AUDIT.md) kini menyiapkan pemeriksaan struktural catatan berikutnya, bukan solusi perolehan label. Lisensi artikel tidak otomatis melisensikan dataset; SPDX yang dicatat adalah assertion operator.480 kandidat tetap pending.

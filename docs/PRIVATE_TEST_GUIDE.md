@@ -141,3 +141,5 @@ Pada backend/proxy lab sintetis, kembalikan401 dengan HTML, JSON rusak, body bes
 ## Tambahan QA kandidat0.3.11
 
 Pada proxy lab terisolasi, uji respons200 dengan byte UTF-8 truncated/overlong/surrogate dan status non-final/tidak valid. Pastikan tidak ada body sukses/ACK dipakai; pending server-off tetap sampai proof valid yang terikat diterima. Uji karakter multibyte valid,429 rusak,401 tanpa body dibaca dan respons200 normal. Fixture JVM hanya menguji reader/status; belum membuktikan transport Android. Jangan reset/uninstall HP peserta.
+
+Audit catatan regional pada [DOMAIN_REVIEW_AUDIT.md](DOMAIN_REVIEW_AUDIT.md) adalah workflow host terpisah; jangan memakai histori peserta untuk mengisi fixture atau menganggap output audit membuktikan QA APK/dua HP.

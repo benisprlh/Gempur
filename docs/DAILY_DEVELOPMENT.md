@@ -1,5 +1,9 @@
 # Pengembangan dan riset harian
 
+## 26 November 2026 — audit catatan review domain offline
+
+Tooling audit review berbasis hash disiapkan untuk data regional berikutnya. Ia memeriksa schema, duplikasi, konflik review dan keluarga hash lintas partition; tidak membuat label manusia, membuktikan lisensi, atau mengaktifkan aturan/model. App tetap **0.3.11-alpha.1/code14**. [Laporan](development/2026-11-26.md) dan [panduan](DOMAIN_REVIEW_AUDIT.md).
+
 ## 25 November 2026 — validasi status dan encoding respons
 
 Kandidat **0.3.11-alpha.1/code 14** menolak status non-final/tidak valid (<200, termasuk -1) dan redirect sebelum membaca body. Respons sukses hanya 200–299. UTF-8 malformed/truncated/overlong/surrogate kini gagal decoding sebelum parser JSON; karakter multibyte valid dipertahankan. Error >=400 tetap mempertahankan status saat diagnostik gagal, dan401 tetap dilempar sebelum membuka body. Tidak ada pengetatan sintaks JSON Android, perubahan schema/proof/consent, atau klaim bypass revokasi ditemukan. [Laporan dan batas pengujian](development/2026-11-25.md).
