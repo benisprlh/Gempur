@@ -573,3 +573,5 @@ PRD ini adalah baseline kebutuhan. Status implementasi dan bukti pengujian terba
 
 
 P-FR-20: Respons API hanya memakai body sukses dari status200–299 dan UTF-8 valid. Status<200/redirect gagal sebelum body; diagnostik error yang rusak tidak menjadi sukses atau proof pencabutan. Acceptance JVM transport; validasi Android/live HTTP tetap pending.
+
+DATA-01: Catatan anotasi regional berikutnya harus dapat diaudit offline untuk duplikasi target/reviewer, konflik review dan keluarga lintas split. Output tool hanya audit metadata/assertion, bukan label independen yang telah diverifikasi atau keputusan produksi. [Panduan audit](DOMAIN_REVIEW_AUDIT.md).

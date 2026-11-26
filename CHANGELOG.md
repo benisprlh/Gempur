@@ -1,5 +1,9 @@
 # Changelog
 
+## Tooling — 26 November 2026
+
+- Audit offline catatan review domain berbasis hash; validasi metadata/duplikasi/split dan ringkasan kesepakatan yang masih berupa assertion. Tidak ada data regional baru, training atau perubahan APK runtime.
+
 ## 0.3.11-alpha.1 — 25 November 2026
 
 - Tolak status HTTP non-final/tidak valid dan UTF-8 rusak sebelum parsing body sukses; pertahankan status error,401, batas ukuran dan proof pencabutan. Tiga tes transport JVM baru per varian; bukan bukti live HTTP atau QA HP.
