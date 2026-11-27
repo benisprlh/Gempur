@@ -1,5 +1,9 @@
 # Pengembangan dan riset harian
 
+## 27 November 2026 — pemeriksaan konteks respons terlambat
+
+Kandidat **0.3.12-alpha.1/code15** memeriksa ulang snapshot akun sebelum memakai hasil/error HTTP, serta account/epoch/instance layanan sebelum menerapkan401. Ini completion recheck, bukan transaksi atomik: celah antara finalcheck dan stop serta pembaruan status/backoff dari exception umum belum dihapus. [Laporan dan batas](development/2026-11-27.md).
+
 ## 26 November 2026 — audit catatan review domain offline
 
 Tooling audit review berbasis hash disiapkan untuk data regional berikutnya. Ia memeriksa schema, duplikasi, konflik review dan keluarga hash lintas partition; tidak membuat label manusia, membuktikan lisensi, atau mengaktifkan aturan/model. App tetap **0.3.11-alpha.1/code14**. [Laporan](development/2026-11-26.md) dan [panduan](DOMAIN_REVIEW_AUDIT.md).

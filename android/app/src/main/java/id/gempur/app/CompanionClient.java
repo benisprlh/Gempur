@@ -31,6 +31,22 @@ public final class CompanionClient {
         long returnedVersion = ((Number) version).longValue();
         return returnedVersion > stoppedVersion && returnedVersion <= Integer.MAX_VALUE;
     }
+    // Compare immutable dispatch values; neither an old success nor a typed error may cross accounts.
+    static boolean sameRemoteValues(String[] dispatched, String[] current) {
+        if (dispatched == null || current == null || dispatched.length != 8 || current.length != 8) return false;
+        for (int i = 0; i < 8; i++) if (dispatched[i] == null || current[i] == null) return false;
+        return java.util.Arrays.equals(dispatched, current);
+    }
+    static String[] remoteValues(JSONObject account) {
+        String[] values = new String[8];
+        String[] keys = {"endpoint", "token", "pendingRevocation", "pairingId", "deviceId", "role", "consentVersion", "pendingAutomationOffPairing"};
+        for (int i = 0; i < keys.length; i++) values[i] = account.optString(keys[i]);
+        return values;
+    }
+    private void requireCurrent(String[] dispatched) throws Exception {
+        if (!sameRemoteValues(dispatched, remoteValues(store.remoteContext())))
+            throw new Exception("Konteks akun berubah; respons lama tidak digunakan.");
+    }
     static JSONObject decodeResponse(int status, String body) throws Exception {
         if (status >= 400) {
             String message = "Server belum dapat memproses permintaan.";
@@ -47,8 +63,9 @@ public final class CompanionClient {
     }
     public synchronized JSONObject requestPinned(String method,String path,JSONObject payload,JSONObject expectedRemoteContext) throws Exception{
         JSONObject account=store.remoteContext();
-        if(expectedRemoteContext!=null)for(String key:new String[]{"endpoint","token","pendingRevocation","pairingId","deviceId","role","consentVersion","pendingAutomationOffPairing"})
-            if(!account.optString(key).equals(expectedRemoteContext.optString(key)))throw new Exception("Konteks akun berubah; permintaan lama tidak dikirim.");
+        String[] dispatched = remoteValues(account);
+        if (expectedRemoteContext != null && !sameRemoteValues(dispatched, remoteValues(expectedRemoteContext)))
+            throw new Exception("Konteks akun berubah; permintaan lama tidak dikirim.");
         String pending=account.optString("pendingRevocation");
         if(!pending.isEmpty() && !("DELETE".equals(method)&&path.equals("/api/pairings/"+pending)))
             throw new Exception("Berbagi dihentikan di HP ini. Sinkronkan pencabutan akses terlebih dahulu.");
@@ -65,8 +82,15 @@ public final class CompanionClient {
             int status=connection.getResponseCode();
             if(status>=300&&status<400)throw new Exception("Redirect server ditolak. Periksa alamat HTTPS.");
             String body=HttpResponseBody.read(status, () -> status>=400?connection.getErrorStream():connection.getInputStream());
-            return decodeResponse(status, body);
-        }finally{connection.disconnect();}
+            JSONObject result = decodeResponse(status, body);
+            requireCurrent(dispatched);
+            return result;
+        } catch (Exception responseOrTransportFailure) {
+            // A 401 from an old token must not stop the newly selected account/session.
+            // If the vault cannot be read, fail without propagating an unbound authentication error.
+            requireCurrent(dispatched);
+            throw responseOrTransportFailure;
+        } finally { connection.disconnect(); }
     }
 }
 

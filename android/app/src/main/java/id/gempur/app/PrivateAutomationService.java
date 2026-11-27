@@ -22,6 +22,7 @@ public final class PrivateAutomationService extends Service {
     public static final String ACTION_STOP = "id.gempur.app.PRIVATE_AUTOMATION_STOP";
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     private ScheduledExecutorService worker;
+    private final AtomicBoolean instanceAlive = new AtomicBoolean(true);
     private final DetectionAlertCooldown detectionAlerts = new DetectionAlertCooldown();
     private final DetectionInboxRetry detectionInboxRetry = new DetectionInboxRetry();
     private long nextAttemptAt = 0;
@@ -60,7 +61,10 @@ public final class PrivateAutomationService extends Service {
         if (!RUNNING.get()) return;
         if (!PrivateMonitoring.notificationsVisible(this)) { permissionLost(); return; }
         if (SystemClock.elapsedRealtime() < nextAttemptAt) return;
+        JSONObject dispatchedAccount = null;
+        long dispatchedEpoch = -1;
         try {
+            dispatchedEpoch = PrivateMonitoring.sharingEpoch(this);
             JSONObject grant = PrivateMonitoring.sharing(this);
             boolean watching = PrivateMonitoring.companionWatching(this);
             boolean sharing = grant.optBoolean("enabled");
@@ -69,6 +73,7 @@ public final class PrivateAutomationService extends Service {
                 return;
             }
             JSONObject account = new LocalStore(this).remoteContext(); // One atomic, read-only account snapshot.
+            dispatchedAccount = account;
             if (account.optString("token").isEmpty() || account.optString("endpoint").isEmpty() || !account.optString("pendingRevocation").isEmpty()
                     || !account.optString("pendingAutomationOffPairing").isEmpty()) {
                 PrivateMonitoring.disableSharing(this);
@@ -84,6 +89,7 @@ public final class PrivateAutomationService extends Service {
             failures = 0; nextAttemptAt = 0;
         } catch (CompanionClient.ApiException rejected) {
             if (rejected.status == 401) {
+                if (!authenticationFailureStillCurrent(dispatchedAccount, dispatchedEpoch)) return;
                 PrivateMonitoring.stop(this);
                 PrivateMonitoring.state(this, "session_ended", "Sesi server berakhir. Masuk ulang sebelum mengaktifkan privat.");
             } else {
@@ -250,6 +256,14 @@ public final class PrivateAutomationService extends Service {
                 && account.optString("token").equals(previous.optString("token")) && account.optString("endpoint").equals(previous.optString("endpoint"))
                 && account.optString("deviceId").equals(previous.optString("deviceId")) && account.optString("pendingRevocation").isEmpty();
     }
+    private boolean authenticationFailureStillCurrent(JSONObject dispatched, long epoch) {
+        try {
+            return PrivateResponsePolicy.authenticationFailureIsCurrent(
+                    instanceAlive.get() && RUNNING.get(), epoch, PrivateMonitoring.sharingEpoch(this),
+                    dispatched != null && CompanionClient.sameRemoteValues(CompanionClient.remoteValues(dispatched),
+                            CompanionClient.remoteValues(new LocalStore(this).remoteContext())));
+        } catch (Exception unavailable) { return false; } // Never apply an unbound old 401 after a vault failure.
+    }
     private long backoff() { return Math.min(5 * 60_000L, 30_000L * (1L << Math.min(failures, 4))); }
     private void endGrant(JSONObject grant) throws Exception {
         if (new PrivateMonitorStore(this).disableIfCurrent(grant)) PrivateMonitoring.clearAllowances(this);
@@ -260,6 +274,7 @@ public final class PrivateAutomationService extends Service {
         stopSelf();
     }
     @Override public void onDestroy() {
+        instanceAlive.set(false);
         RUNNING.set(false); if (worker != null) worker.shutdownNow();
         PrivateMonitoring.serviceStopped(this);
         stopForeground(STOP_FOREGROUND_REMOVE); super.onDestroy();
