@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.12-alpha.1 — 27 November 2026
+
+- Recheck konteks akun untuk hasil/error client, serta epoch/account/instance sebelum401 menghentikan sesi privat. Tidak mengklaim atomic isolation; generic state/backoff dan QA heldrequest masih perlu ditinjau.
+
 ## Tooling — 26 November 2026
 
 - Audit offline catatan review domain berbasis hash; validasi metadata/duplikasi/split dan ringkasan kesepakatan yang masih berupa assertion. Tidak ada data regional baru, training atau perubahan APK runtime.

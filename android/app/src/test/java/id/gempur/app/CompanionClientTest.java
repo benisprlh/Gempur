@@ -50,4 +50,20 @@ public class CompanionClientTest {
             }
         }
     }
+    @Test public void responseContextRequiresEveryDispatchIdentityValue() {
+        String[] dispatched = {"https://example.org", "old-token", "", "pair-a", "device-a", "participant", "4", ""};
+        assertTrue(CompanionClient.sameRemoteValues(dispatched, dispatched.clone()));
+        for (int i = 0; i < dispatched.length; i++) {
+            String[] changed = dispatched.clone(); changed[i] += "changed";
+            assertFalse("Changed context field " + i, CompanionClient.sameRemoteValues(dispatched, changed));
+        }
+    }
+    @Test public void responseContextRejectsMissingOrMalformedSnapshots() {
+        String[] valid = {"endpoint", "token", "", "pair", "device", "role", "1", ""};
+        assertFalse(CompanionClient.sameRemoteValues(valid, null));
+        assertFalse(CompanionClient.sameRemoteValues(null, valid));
+        assertFalse(CompanionClient.sameRemoteValues(new String[0], new String[0]));
+        assertFalse(CompanionClient.sameRemoteValues(valid, new String[7]));
+        assertFalse(CompanionClient.sameRemoteValues(new String[8], new String[8]));
+    }
 }
