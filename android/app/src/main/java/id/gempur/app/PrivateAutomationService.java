@@ -23,13 +23,15 @@ public final class PrivateAutomationService extends Service {
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     private ScheduledExecutorService worker;
     private final AtomicBoolean instanceAlive = new AtomicBoolean(true);
+    private final Object authenticationStopOwner = new Object();
+    private boolean activated; // Never-started/rejected instances do not own global consent cleanup.
     private final DetectionAlertCooldown detectionAlerts = new DetectionAlertCooldown();
     private final DetectionInboxRetry detectionInboxRetry = new DetectionInboxRetry();
     private long nextAttemptAt = 0;
     private int failures = 0;
     public static boolean isRunning() { return RUNNING.get(); }
 
-    @Override public void onCreate() { super.onCreate(); RUNNING.set(false); }
+    @Override public void onCreate() { super.onCreate(); }
     @Override public IBinder onBind(Intent intent) { return null; }
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (!BuildConfig.PRIVATE_BUILD || intent == null || !ACTION_START.equals(intent.getAction())) {
@@ -38,13 +40,18 @@ public final class PrivateAutomationService extends Service {
         if (!PrivateMonitoring.notificationsVisible(this)) {
             permissionLost(); return START_NOT_STICKY;
         }
-        if (RUNNING.get()) return START_NOT_STICKY;
-        startForeground(PrivateMonitoring.STATUS_NOTIFICATION, statusNotification());
-        RUNNING.set(true);
-        PrivateMonitoring.state(this, "starting", "Layanan privat terlihat. Pengiriman dan notifikasi dapat tertunda.");
-        worker = Executors.newSingleThreadScheduledExecutor();
-        worker.scheduleWithFixedDelay(this::tick, 0, 30, TimeUnit.SECONDS);
-        return START_NOT_STICKY;
+        synchronized (PrivateSessionCoordinator.INSTANCE.lock) {
+            try { PrivateSessionCoordinator.INSTANCE.requireActivationAllowed(); }
+            catch (IllegalStateException stopping) { stopSelf(startId); return START_NOT_STICKY; }
+            if (RUNNING.get()) return START_NOT_STICKY;
+            startForeground(PrivateMonitoring.STATUS_NOTIFICATION, statusNotification());
+            activated = true;
+            RUNNING.set(true);
+            PrivateMonitoring.state(this, "starting", "Layanan privat terlihat. Pengiriman dan notifikasi dapat tertunda.");
+            worker = Executors.newSingleThreadScheduledExecutor();
+            worker.scheduleWithFixedDelay(this::tick, 0, 30, TimeUnit.SECONDS);
+            return START_NOT_STICKY;
+        }
     }
 
     private Notification statusNotification() {
@@ -63,7 +70,9 @@ public final class PrivateAutomationService extends Service {
         if (SystemClock.elapsedRealtime() < nextAttemptAt) return;
         JSONObject dispatchedAccount = null;
         long dispatchedEpoch = -1;
+        long dispatchedGeneration = -1;
         try {
+            dispatchedGeneration = PrivateMonitoring.authenticationGeneration();
             dispatchedEpoch = PrivateMonitoring.sharingEpoch(this);
             JSONObject grant = PrivateMonitoring.sharing(this);
             boolean watching = PrivateMonitoring.companionWatching(this);
@@ -89,9 +98,9 @@ public final class PrivateAutomationService extends Service {
             failures = 0; nextAttemptAt = 0;
         } catch (CompanionClient.ApiException rejected) {
             if (rejected.status == 401) {
-                if (!authenticationFailureStillCurrent(dispatchedAccount, dispatchedEpoch)) return;
-                PrivateMonitoring.stop(this);
-                PrivateMonitoring.state(this, "session_ended", "Sesi server berakhir. Masuk ulang sebelum mengaktifkan privat.");
+                PrivateMonitoring.stopForAuthenticationIfCurrent(this, dispatchedAccount, dispatchedEpoch,
+                        dispatchedGeneration, authenticationStopOwner, () -> instanceAlive.get() && RUNNING.get(),
+                        () -> { instanceAlive.set(false); RUNNING.set(false); });
             } else {
                 failures++;
                 nextAttemptAt = SystemClock.elapsedRealtime() + (rejected.status == 429 ? 5 * 60_000 : backoff());
@@ -256,14 +265,6 @@ public final class PrivateAutomationService extends Service {
                 && account.optString("token").equals(previous.optString("token")) && account.optString("endpoint").equals(previous.optString("endpoint"))
                 && account.optString("deviceId").equals(previous.optString("deviceId")) && account.optString("pendingRevocation").isEmpty();
     }
-    private boolean authenticationFailureStillCurrent(JSONObject dispatched, long epoch) {
-        try {
-            return PrivateResponsePolicy.authenticationFailureIsCurrent(
-                    instanceAlive.get() && RUNNING.get(), epoch, PrivateMonitoring.sharingEpoch(this),
-                    dispatched != null && CompanionClient.sameRemoteValues(CompanionClient.remoteValues(dispatched),
-                            CompanionClient.remoteValues(new LocalStore(this).remoteContext())));
-        } catch (Exception unavailable) { return false; } // Never apply an unbound old 401 after a vault failure.
-    }
     private long backoff() { return Math.min(5 * 60_000L, 30_000L * (1L << Math.min(failures, 4))); }
     private void endGrant(JSONObject grant) throws Exception {
         if (new PrivateMonitorStore(this).disableIfCurrent(grant)) PrivateMonitoring.clearAllowances(this);
@@ -274,9 +275,21 @@ public final class PrivateAutomationService extends Service {
         stopSelf();
     }
     @Override public void onDestroy() {
-        instanceAlive.set(false);
-        RUNNING.set(false); if (worker != null) worker.shutdownNow();
-        PrivateMonitoring.serviceStopped(this);
-        stopForeground(STOP_FOREGROUND_REMOVE); super.onDestroy();
+        final boolean ownsCleanup;
+        synchronized (PrivateSessionCoordinator.INSTANCE.lock) {
+            instanceAlive.set(false);
+            ownsCleanup = activated;
+            if (ownsCleanup) RUNNING.set(false);
+        }
+        try {
+            if (worker != null) worker.shutdownNow();
+            if (ownsCleanup) {
+                PrivateMonitoring.serviceStopped(this);
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            }
+        } finally {
+            PrivateSessionCoordinator.INSTANCE.teardownFinished(authenticationStopOwner);
+            super.onDestroy();
+        }
     }
 }

@@ -54,6 +54,15 @@ public final class LocalStore {
             return context;
         }
     }
+    interface BoundAction { boolean run() throws Exception; }
+    /** Account writers cannot cross the comparison and a bounded local-only mutation. */
+    boolean ifRemoteContextCurrent(JSONObject expected, BoundAction action) throws Exception {
+        synchronized (LOCK) {
+            if (expected == null || !CompanionClient.sameRemoteValues(CompanionClient.remoteValues(expected),
+                    CompanionClient.remoteValues(remoteContext()))) return false;
+            return action.run();
+        }
+    }
     public JSONObject checkIn(int urge,String outcome) throws Exception {
         synchronized(LOCK){JSONObject value=load();JSONObject note=new JSONObject().put("createdAt",Instant.now().toString()).put("urge",urge).put("outcome",outcome);
             JSONArray kept=retainedNotes(value);kept.put(note);value.put("notes",kept);save(value);return note;

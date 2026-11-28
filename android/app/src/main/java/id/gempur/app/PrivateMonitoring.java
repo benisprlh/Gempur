@@ -18,7 +18,7 @@ public final class PrivateMonitoring {
     static final int STATUS_NOTIFICATION = 301, LOCAL_NOTIFICATION = 302, COMPANION_NOTIFICATION = 303,
             COMPANION_REQUEST_NOTIFICATION = 304;
     static final Object NOTIFICATION_LOCK = new Object();
-    private static final Object LOCAL_CONSENT_LOCK = new Object();
+    private static final Object LOCAL_CONSENT_LOCK = PrivateSessionCoordinator.INSTANCE.lock;
     // A stopped service or failed local-off save cannot reuse an earlier in-memory opt-in.
     private static volatile Object localObservationConsent;
     private PrivateMonitoring() {}
@@ -86,7 +86,11 @@ public final class PrivateMonitoring {
     public static void start(Context context) {
         requirePrivate();
         if (!notificationsVisible(context)) throw new IllegalStateException("Aktifkan izin dan kedua kanal notifikasi Gempur privat terlebih dahulu.");
-        context.startForegroundService(new Intent(context, PrivateAutomationService.class).setAction(PrivateAutomationService.ACTION_START));
+        synchronized (LOCAL_CONSENT_LOCK) {
+            PrivateSessionCoordinator.INSTANCE.requireActivationAllowed();
+            context.startForegroundService(new Intent(context, PrivateAutomationService.class).setAction(PrivateAutomationService.ACTION_START));
+            PrivateSessionCoordinator.INSTANCE.activationCommitted();
+        }
     }
     /** Stops local private automation immediately. UI separately synchronizes remote grant revocation. */
     public static void stop(Context context) {
@@ -111,6 +115,7 @@ public final class PrivateMonitoring {
             return;
         }
         synchronized (LOCAL_CONSENT_LOCK) {
+            PrivateSessionCoordinator.INSTANCE.requireActivationAllowed();
             if (!notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi Gempur privat sebelum mengaktifkan deteksi.");
             boolean restoringConsent = localObservationConsent == null;
             localObservationConsent = null;
@@ -120,6 +125,7 @@ public final class PrivateMonitoring {
             }
             if (!prefs(context).edit().putBoolean("local_enabled", true).commit()) throw new IllegalStateException("Pilihan deteksi belum tersimpan.");
             localObservationConsent = new Object();
+            PrivateSessionCoordinator.INSTANCE.activationCommitted();
         }
     }
     // Process death may skip Service.onDestroy. A local-only opt-in must not revive its durable grant.
@@ -138,8 +144,12 @@ public final class PrivateMonitoring {
     public static boolean companionWatching(Context context) { return BuildConfig.PRIVATE_BUILD && prefs(context).getBoolean("companion_watching", false); }
     public static void setCompanionWatching(Context context, boolean enabled) {
         requirePrivate();
-        if (enabled && !notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi sebelum menyalakan pendamping.");
-        if (!prefs(context).edit().putBoolean("companion_watching", enabled).commit()) throw new IllegalStateException("Pilihan pendamping belum tersimpan.");
+        synchronized (LOCAL_CONSENT_LOCK) {
+            if (enabled) PrivateSessionCoordinator.INSTANCE.requireActivationAllowed();
+            if (enabled && !notificationsVisible(context)) throw new IllegalStateException("Izinkan notifikasi sebelum menyalakan pendamping.");
+            if (!prefs(context).edit().putBoolean("companion_watching", enabled).commit()) throw new IllegalStateException("Pilihan pendamping belum tersimpan.");
+            if (enabled) PrivateSessionCoordinator.INSTANCE.activationCommitted();
+        }
     }
     public static long sharingEpoch(Context context) {
         if (!BuildConfig.PRIVATE_BUILD) return -1;
@@ -156,17 +166,23 @@ public final class PrivateMonitoring {
     }
     public static boolean enableSharingIfCurrent(Context context, long epoch, String pairingId, int consentVersion, int automationVersion, JSONArray scopes) {
         requirePrivate();
-        if (!localEnabled(context)) throw new IllegalStateException("Aktifkan deteksi lokal dan notifikasi terlebih dahulu.");
-        try {
-            JSONObject account = new LocalStore(context).remoteContext();
-            if (account.optString("token").isEmpty() || account.optString("deviceId").isEmpty() || !pairingId.equals(account.optString("pairingId"))
-                    || !Integer.toString(consentVersion).equals(account.optString("consentVersion")) || !account.optString("pendingRevocation").isEmpty()
-                    || !account.optString("pendingAutomationOffPairing").isEmpty()) throw new IllegalStateException("Sinkronkan sesi dan persetujuan pasangan terlebih dahulu.");
-            String endpoint = CompanionClient.validateEndpoint(account.optString("endpoint"), BuildConfig.DEBUG);
-            return new PrivateMonitorStore(context).enable(epoch, pairingId, consentVersion, automationVersion, scopes, endpoint, account.optString("deviceId"));
+        synchronized (LOCAL_CONSENT_LOCK) {
+            PrivateSessionCoordinator.INSTANCE.requireActivationAllowed();
+            if (!localEnabled(context)) throw new IllegalStateException("Aktifkan deteksi lokal dan notifikasi terlebih dahulu.");
+            try {
+                JSONObject account = new LocalStore(context).remoteContext();
+                if (account.optString("token").isEmpty() || account.optString("deviceId").isEmpty() || !pairingId.equals(account.optString("pairingId"))
+                        || !Integer.toString(consentVersion).equals(account.optString("consentVersion")) || !account.optString("pendingRevocation").isEmpty()
+                        || !account.optString("pendingAutomationOffPairing").isEmpty()) throw new IllegalStateException("Sinkronkan sesi dan persetujuan pasangan terlebih dahulu.");
+                String endpoint = CompanionClient.validateEndpoint(account.optString("endpoint"), BuildConfig.DEBUG);
+                boolean enabled = new PrivateMonitorStore(context).enable(epoch, pairingId, consentVersion, automationVersion, scopes, endpoint, account.optString("deviceId"));
+                if (enabled) PrivateSessionCoordinator.INSTANCE.activationCommitted();
+                return enabled;
+            }
+            catch (Exception failure) { throw unavailable(failure); }
         }
-        catch (Exception failure) { throw unavailable(failure); }
     }
+
     public static void disableSharing(Context context) {
         if (!BuildConfig.PRIVATE_BUILD) return;
         try { new PrivateMonitorStore(context).disable(); }
@@ -176,6 +192,48 @@ public final class PrivateMonitoring {
             state(context, "storage_error", flagsSaved ? "Penyimpanan privat perlu diperiksa; pengiriman dihentikan." : "Penyimpanan dan pilihan privat gagal ditulis. Hentikan layanan dan periksa penyimpanan HP.");
         }
         clearAllowances(context);
+    }
+    static long authenticationGeneration() { return PrivateSessionCoordinator.INSTANCE.generation(); }
+    /** Atomically binds only the local conditional mutation; remote revocation still needs proof. */
+    static boolean stopForAuthenticationIfCurrent(Context context, JSONObject account, long epoch, long generation,
+            Object owner, java.util.function.BooleanSupplier serviceCurrent, Runnable markStopping) {
+        if (!BuildConfig.PRIVATE_BUILD || owner == null || serviceCurrent == null || markStopping == null) return false;
+        PrivateSessionCoordinator gate = PrivateSessionCoordinator.INSTANCE;
+        final boolean[] flagsSaved = {false};
+        boolean accepted;
+        try {
+            synchronized (LOCAL_CONSENT_LOCK) {
+                if (!gate.canStop(generation) || !serviceCurrent.getAsBoolean()) return false;
+                accepted = new LocalStore(context).ifRemoteContextCurrent(account, () -> {
+                    if (!serviceCurrent.getAsBoolean() || !new PrivateMonitorStore(context).disableAtEpoch(epoch)) return false;
+                    flagsSaved[0] = saveLocalOff(context, true);
+                    if (!gate.beginStop(owner, generation)) throw new IllegalStateException("Private stop generation changed");
+                    markStopping.run();
+                    return true;
+                });
+            }
+        } catch (Exception unavailable) {
+            // Unknown account/epoch or an uncommitted vault transition must not stop another session.
+            try { state(context, "storage_error", "Penghentian sesi belum dapat dikonfirmasi. Periksa penyimpanan dan pilihan privat."); }
+            catch (RuntimeException failed) { /* Do not cancel the polling worker while reporting a vault failure. */ }
+            return false;
+        }
+        if (!accepted) return false;
+        try {
+            // All account/private locks are released before notification or framework side effects.
+            boolean cleanupConfirmed = true;
+            try { cleanupConfirmed = clearAllowances(context); } catch (RuntimeException failed) { cleanupConfirmed = false; }
+            try { cancelAlerts(context); } catch (RuntimeException failed) { cleanupConfirmed = false; }
+            boolean stopRequested;
+            try { stopRequested = context.stopService(new Intent(context, PrivateAutomationService.class)); }
+            catch (RuntimeException failed) { stopRequested = false; }
+            try {
+                if (!flagsSaved[0]) state(context, "storage_error", "Sesi dihentikan, tetapi pilihan belum tersimpan. Periksa penyimpanan HP.");
+                else if (!cleanupConfirmed || !stopRequested) state(context, "session_stop_pending", "Pilihan privat dihentikan. Akhir layanan atau pembersihan belum dikonfirmasi; aktivasi baru menunggu proses berhenti.");
+                else state(context, "session_ended", "Sesi server berakhir. Masuk ulang sebelum mengaktifkan privat.");
+            } catch (RuntimeException failed) { /* Memory remains off and the owner fence remains until actual teardown. */ }
+        } finally { gate.effectsFinished(owner); }
+        return true;
     }
     public static JSONObject pendingServerOff(Context context) {
         if (!BuildConfig.PRIVATE_BUILD) return new JSONObject();
@@ -246,10 +304,14 @@ public final class PrivateMonitoring {
         cancelAlerts(context);
         if (!flagsSaved) state(context, "storage_error", "Layanan berhenti, tetapi pilihan belum tersimpan. Periksa penyimpanan HP.");
     }
-    static void clearAllowances(Context context) {
-        if (!BuildConfig.PRIVATE_BUILD) return;
-        try { RuleRepository.clearTemporaryAllowances(context); AppRiskRepository.clearTemporaryAllowances(context); }
-        catch (Exception failure) { state(context, "allowance_storage_error", "Pencabutan koreksi lokal belum tersimpan. Periksa penyimpanan dan masa berlaku izin."); }
+    static boolean clearAllowances(Context context) {
+        if (!BuildConfig.PRIVATE_BUILD) return true;
+        try { RuleRepository.clearTemporaryAllowances(context); AppRiskRepository.clearTemporaryAllowances(context); return true; }
+        catch (Exception failure) {
+            try { state(context, "allowance_storage_error", "Pencabutan koreksi lokal belum tersimpan. Periksa penyimpanan dan masa berlaku izin."); }
+            catch (RuntimeException failed) { /* Preserve the cleanup failure even when its status cannot be saved. */ }
+            return false;
+        }
     }
     private static SharedPreferences prefs(Context context) { return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE); }
     private static void requirePrivate() { if (!BuildConfig.PRIVATE_BUILD) throw new IllegalStateException("Fitur ini hanya tersedia di APK uji privat."); }
