@@ -171,4 +171,51 @@ public final class PrivateMonitorStoreTest {
         assertTrue(store.acknowledgeServerOff(second));
         assertTrue(store.pendingServerOff().optString("pairingId").isEmpty());
     }
+    @Test public void conditionalEpochDisablePreservesHistoryAndBoundRevocationProof() throws Exception {
+        enable(PAIR_A, 8);
+        record(store, "fixture-risk.org");
+        long current = store.epoch();
+        assertFalse(store.disableAtEpoch(current - 1));
+        assertTrue(store.sharing().optBoolean("enabled"));
+        assertTrue(store.disableAtEpoch(current));
+        assertFalse(store.sharing().optBoolean("enabled"));
+        assertEquals(1, store.events().length());
+        JSONObject pending = store.pendingServerOff();
+        assertEquals(PAIR_A, pending.getString("pairingId"));
+        assertEquals(DEVICE, pending.getString("deviceId"));
+        assertEquals("https://private-fixture.org", pending.getString("endpoint"));
+        assertEquals(8, pending.getInt("automationVersion"));
+        String revocation = pending.getString("revocationId");
+        assertFalse(revocation.isEmpty());
+        assertFalse(store.disableAtEpoch(current));
+        assertEquals(revocation, store.pendingServerOff().getString("revocationId"));
+    }
+    @Test public void boundAccountActionRejectsStaleIdentityAndSerializesAccountWriter() throws Exception {
+        LocalStore account = new LocalStore(context);
+        String oldEndpoint = account.get("endpoint"), oldToken = account.get("token");
+        try {
+            account.put("endpoint", "https://private-fixture.org"); account.put("token", "synthetic-before");
+            JSONObject dispatched = account.remoteContext();
+            JSONObject wrong = new JSONObject(dispatched.toString()).put("token", "synthetic-wrong");
+            assertFalse(account.ifRemoteContextCurrent(wrong, () -> { fail("Stale account action must not run"); return true; }));
+            CountDownLatch inside = new CountDownLatch(1), release = new CountDownLatch(1), attempted = new CountDownLatch(1);
+            AtomicReference<Throwable> failure = new AtomicReference<>(); AtomicReference<String> tokenInside = new AtomicReference<>();
+            Thread conditional = new Thread(() -> {
+                try { assertTrue(account.ifRemoteContextCurrent(dispatched, () -> {
+                    inside.countDown(); assertTrue(release.await(5, java.util.concurrent.TimeUnit.SECONDS));
+                    tokenInside.set(account.get("token")); return true;
+                })); } catch (Throwable error) { failure.compareAndSet(null, error); }
+            });
+            Thread writer = new Thread(() -> {
+                try { assertTrue(inside.await(5, java.util.concurrent.TimeUnit.SECONDS)); attempted.countDown(); account.put("token", "synthetic-after"); }
+                catch (Throwable error) { failure.compareAndSet(null, error); }
+            });
+            conditional.start(); writer.start();
+            try { assertTrue(attempted.await(5, java.util.concurrent.TimeUnit.SECONDS)); } finally { release.countDown(); }
+            conditional.join(5000); writer.join(5000);
+            assertFalse(conditional.isAlive()); assertFalse(writer.isAlive());
+            if (failure.get() != null) throw new AssertionError(failure.get());
+            assertEquals("synthetic-before", tokenInside.get()); assertEquals("synthetic-after", account.get("token"));
+        } finally { account.put("endpoint", oldEndpoint); account.put("token", oldToken); }
+    }
 }

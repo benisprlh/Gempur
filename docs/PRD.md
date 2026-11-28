@@ -577,3 +577,5 @@ P-FR-20: Respons API hanya memakai body sukses dari status200–299 dan UTF-8 va
 DATA-01: Catatan anotasi regional berikutnya harus dapat diaudit offline untuk duplikasi target/reviewer, konflik review dan keluarga lintas split. Output tool hanya audit metadata/assertion, bukan label independen yang telah diverifikasi atau keputusan produksi. [Panduan audit](DOMAIN_REVIEW_AUDIT.md).
 
 P-FR-21: Hasil/error HTTP diperiksa ulang terhadap8key snapshotakun. Penanganan401privat harus recheckepoch/account/instance layanan sebelumstop. Acceptanceunitpolicy terpisah dari QA heldrequest nyata; recheck bukan transaksi atomik dan stalegenericerror masih dapat mengubahstate/backoff.
+
+P-FR-22: Jalur401 privat harus melakukan conditional local mutation yang terserial terhadap penulis akun dan aktivasi consent produksi. Selama teardown/effects pemilik belum selesai, aktivasi baru ditolak dengan pesan coba lagi setelah berhenti; tidak diterima lalu dimatikan cleanup lama. Batasnya dalam proses, bukan crash-atomic lintas vault atau seluruh jalur stop.

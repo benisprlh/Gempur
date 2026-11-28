@@ -85,3 +85,5 @@ Kandidat22 November0.3.9/code12 menambah isolasi retry inbox. Pilot14hari tetap 
 26 November: tooling audit data tidak mengubah versi app0.3.11/code14. Perolehan dataset berlisensi, verifikasi reviewer/provenance, holdout source/time/family baru dan QA dua HP tetap gate; pilot14hari belum dimulai dan tanggal Play belum dapat ditetapkan.
 
 27 November: kandidat0.3.12/code15 menambahkan completionrecheck akun/epoch/instance. Pilot14hari masih menunggu signer asli+QA2HP termasuk held401, processdeath dan interleavingfinalcheck-stop. Atomic check-to-stop isolation belum dibuktikan; tanggal pilot/Play tetap bersyarat dan belum dimulai.
+
+28 November: kandidat0.3.13/code16 memperkuat conditional401 dan menahan reaktivasi selama teardown. Pilot14hari tetap belum dimulai; signer asli dan QA2HP harus mencakup lifecycle, storage failure, blocked activation/retry dan manual stop. Tidak ada tanggal publik/Play baru yang dijanjikan.

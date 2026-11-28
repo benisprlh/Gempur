@@ -1,5 +1,9 @@
 # Development Log
 
+## 28 November 2026 — penghentian autentikasi bersyarat
+
+Kandidat **0.3.13-alpha.1/code16** mengikat pemeriksaan dan mutasi lokal401 dengan coordinator consent, lock akun dan conditional epoch vault. Aktivasi ditolak selama fence milik layanan menunggu cleanup teardown serta efek stop selesai. Ini batas atomik antar-thread dalam proses untuk jalur401, **bukan** transaksi crash-atomic lintas file, jaminan lifecycle OS, atau penyelesaian semua race manual stop. [Laporan](development/2026-11-28.md).
+
 ## 27 November 2026 — pemeriksaan konteks respons terlambat
 
 Kandidat **0.3.12-alpha.1/code15** memeriksa ulang snapshot akun sebelum memakai hasil/error HTTP, serta account/epoch/instance layanan sebelum menerapkan401. Ini completion recheck, bukan transaksi atomik: celah antara finalcheck dan stop serta pembaruan status/backoff dari exception umum belum dihapus. [Laporan dan batas](development/2026-11-27.md).

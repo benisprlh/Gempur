@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.13-alpha.1 — 28 November 2026
+
+- Conditional401 stop mengikat akun, epoch dan generasi consent; fence pemilik menahan aktivasi sampai cleanup dan efek stop selesai. Rejected instance tidak memiliki cleanup consent. Tidak mengklaim crash atomicity atau QA lifecycle HP.
+
 ## 0.3.12-alpha.1 — 27 November 2026
 
 - Recheck konteks akun untuk hasil/error client, serta epoch/account/instance sebelum401 menghentikan sesi privat. Tidak mengklaim atomic isolation; generic state/backoff dan QA heldrequest masih perlu ditinjau.

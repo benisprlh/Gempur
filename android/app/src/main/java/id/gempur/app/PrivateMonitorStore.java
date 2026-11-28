@@ -95,6 +95,12 @@ final class PrivateMonitorStore {
     }
 
     void disable() throws Exception { transaction(true, value -> { disable(value); return null; }); }
+    boolean disableAtEpoch(long expectedEpoch) throws Exception {
+        return transaction(true, value -> {
+            if (expectedEpoch < 0 || value.optLong("epoch", 0) != expectedEpoch) return false;
+            disable(value); return true;
+        });
+    }
     boolean disableIfCurrent(JSONObject grant) throws Exception {
         return transaction(true, value -> { if (sameGrant(value.optJSONObject("sharing"), grant)) { disable(value); return true; } return false; });
     }
